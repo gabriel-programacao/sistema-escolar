@@ -85,25 +85,65 @@
                 </div>
             </div>
 
+            <div id="sec-biometria" class="secao">
+                <h4 class="fw-bold mb-4">Gestão de Biometria Facial</h4>
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="card-custom">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6>Selecione um Estudante</h6>
+                                <input type="text" id="buscaBio" class="form-control w-50" placeholder="Filtrar nesta lista..." onkeyup="window.filtrarListaBio()">
+                            </div>
+                            <div id="listaBiometriaAgrupada" style="max-height: 600px; overflow-y: auto; padding-right: 5px;">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 d-none" id="painelCameraBio">
+                        <div class="card-custom sticky-top" style="top: 100px; z-index: 100;">
+                            <h6 id="nomeAlunoBioAtivo" class="text-primary fw-bold mb-3">Estudante Selecionado</h6>
+                            <video id="webcamBio" autoplay muted playsinline></video>
+                            <div class="mt-3 d-grid gap-2">
+                                <button class="btn btn-primary" id="btnCamBio"><i class="fas fa-video"></i> Ativar Câmera</button>
+                                <button class="btn btn-success" id="btnSalvarBioIndividual"><i class="fas fa-save"></i> Capturar e Salvar</button>
+                                <button class="btn btn-light btn-sm mt-2" onclick="window.fecharPainelBio()">Cancelar</button>
+                            </div>
+                            <input type="hidden" id="idAlunoBioAtivo">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="sec-declaracao" class="secao">
                 <h4 class="fw-bold mb-4 text-dark">Emissão de Declaração Escolar</h4>
                 <div class="card-custom">
                     <div class="row g-3">
                         <div class="col-md-6"><label class="small fw-bold">ESTUDANTE *</label><input type="text" id="decNome" class="form-control" placeholder="NOME COMPLETO"></div>
-                        <div class="col-md-6"><label class="small fw-bold">CPF *</label><input type="text" id="decCpf" class="form-control" placeholder="00000000000"></div>
-                        <div class="col-md-4"><label class="small fw-bold">NASCIMENTO *</label><input type="text" id="decNasc" class="form-control" placeholder="29112006"></div>
-                        <div class="col-md-4"><label class="small fw-bold">NOME DA MÃE *</label><input type="text" id="decMae" class="form-control"></div>
-                        <div class="col-md-4"><label class="small fw-bold">NOME DO PAI *</label><input type="text" id="decPai" class="form-control"></div>
+                        <div class="col-md-6"><label class="small fw-bold">CPF *</label><input type="text" id="decCpf" class="form-control" placeholder="000.000.000-00"></div>
+                        <div class="col-md-4"><label class="small fw-bold">NASCIMENTO *</label><input type="text" id="decNasc" class="form-control" placeholder="Ex: 29/11/2006"></div>
+                        <div class="col-md-4"><label class="small fw-bold">MÃE *</label><input type="text" id="decMae" class="form-control"></div>
+                        <div class="col-md-4"><label class="small fw-bold">PAI *</label><input type="text" id="decPai" class="form-control"></div>
                         <div class="col-md-12">
                             <label class="small fw-bold">CURSO E TURMA *</label>
                             <select id="decTurma" class="form-select">
-                                <option value="">Selecione uma opção...</option>
-                                <option value="1º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">1º ano - Logística</option>
-                                <option value="1º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Redes de Computadores">1º ano - Redes</option>
-                                <option value="2º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">2º ano - Logística</option>
-                                <option value="2º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Redes de Computadores">2º ano - Redes</option>
-                                <option value="3º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">3º ano - Logística</option>
-                                <option value="3º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Redes de Computadores">3º ano - Redes</option>
+                                <option value="">Selecione uma turma...</option>
+                                <optgroup label="1º Ano">
+                                    <option value="1º ano A - Logística">1º ano A - Logística</option>
+                                    <option value="1º ano B - Logística">1º ano B - Logística</option>
+                                    <option value="1º ano A - Redes de Computadores">1º ano A - Redes de Computadores</option>
+                                    <option value="1º ano B - Redes de Computadores">1º ano B - Redes de Computadores</option>
+                                </optgroup>
+                                <optgroup label="2º Ano">
+                                    <option value="2º ano A - Logística">2º ano A - Logística</option>
+                                    <option value="2º ano B - Logística">2º ano B - Logística</option>
+                                    <option value="2º ano A - Redes de Computadores">2º ano A - Redes de Computadores</option>
+                                    <option value="2º ano B - Redes de Computadores">2º ano B - Redes de Computadores</option>
+                                </optgroup>
+                                <optgroup label="3º Ano">
+                                    <option value="3º ano A - Logística">3º ano A - Logística</option>
+                                    <option value="3º ano B - Logística">3º ano B - Logística</option>
+                                    <option value="3º ano A - Redes de Computadores">3º ano A - Redes de Computadores</option>
+                                    <option value="3º ano B - Redes de Computadores">3º ano B - Redes de Computadores</option>
+                                </optgroup>
                             </select>
                         </div>
                         <div class="col-md-12 mt-4"><button class="btn btn-primary w-100 py-3 fw-bold shadow" onclick="window.gerarPDFDeclaracao()">BAIXAR DECLARAÇÃO PDF</button></div>
@@ -116,8 +156,20 @@
                 <div class="card-custom mb-4">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3"><label class="small fw-bold">DATA</label><input type="date" id="filtroData" class="form-control"></div>
-                        <div class="col-md-4"><label class="small fw-bold">TURMA</label><select id="filtroTurmaRelatorio" class="form-select"><option value="TODAS">Todas as Turmas</option><option>Logística</option><option>Redes</option></select></div>
-                        <div class="col-md-5 d-flex gap-2"><button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button></div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">TURMA</label>
+                            <select id="filtroTurmaRelatorio" class="form-select">
+                                <option value="TODAS">Todas as Turmas</option>
+                                <optgroup label="1º Ano"><option>1º ano A - Redes</option><option>1º ano B - Redes</option><option>1º ano A - Logística</option><option>1º ano B - Logística</option></optgroup>
+                                <optgroup label="2º Ano"><option>2º ano A - Redes</option><option>2º ano B - Redes</option><option>2º ano A - Logística</option><option>2º ano B - Logística</option></optgroup>
+                                <optgroup label="3º Ano"><option>3º ano A - Redes</option><option>3º ano B - Redes</option><option>3º ano A - Logística</option><option>3º ano B - Logística</option></optgroup>
+                            </select>
+                        </div>
+                        <div class="col-md-5 d-flex gap-2">
+                            <button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button>
+                            <button class="btn btn-outline-danger" onclick="window.exportarPDFRelatorio()"><i class="fas fa-file-pdf"></i></button>
+                            <button class="btn btn-outline-success" onclick="window.exportarExcelRelatorio()"><i class="fas fa-file-excel"></i></button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle text-center"><thead class="table-light"><tr><th>Estudante</th><th>Turma</th><th>Hora</th></tr></thead><tbody id="tabelaRelatorio"></tbody></table></div>
@@ -129,11 +181,20 @@
                     <div class="row g-4">
                         <div class="col-lg-5">
                             <label class="small fw-bold">NOME</label><input type="text" id="nAluno" class="form-control mb-2">
-                            <label class="small fw-bold">TURMA</label><select id="sAluno" class="form-select mb-2"><option>Logística</option><option>Redes</option></select>
-                            <label class="small fw-bold">TELEFONE</label><input type="text" id="tAluno" class="form-control mb-2">
-                            <label class="small fw-bold">E-MAIL</label><input type="email" id="eAluno" class="form-control mb-4" placeholder="E-mail">
+                            <label class="small fw-bold">TURMA</label>
+                            <select id="sAluno" class="form-select mb-2">
+                                <option value="">Selecione...</option>
+                                <optgroup label="1º Ano"><option>1º ano A - Redes</option><option>1º ano B - Redes</option><option>1º ano A - Logística</option><option>1º ano B - Logística</option></optgroup>
+                                <optgroup label="2º Ano"><option>2º ano A - Redes</option><option>2º ano B - Redes</option><option>2º ano A - Logística</option><option>2º ano B - Logística</option></optgroup>
+                                <optgroup label="3º Ano"><option>3º ano A - Redes</option><option>3º ano B - Redes</option><option>3º ano A - Logística</option><option>3º ano B - Logística</option></optgroup>
+                            </select>
+                            <label class="small fw-bold">E-MAIL DO ESTUDANTE</label><input type="email" id="eAluno" class="form-control mb-2">
+                            <label class="small fw-bold">E-MAIL DO RESPONSÁVEL</label><input type="email" id="eResp" class="form-control mb-2">
+                            <label class="small fw-bold">TELEFONE DO RESPONSÁVEL</label><input type="text" id="tAluno" class="form-control mb-4">
+                            
                             <button class="btn btn-primary w-100 mb-2" id="btnCam">Ativar Câmera</button>
-                            <button class="btn btn-success w-100" id="btnSalvar">Salvar Aluno</button>
+                            <button class="btn btn-success w-100 mb-2" id="btnSalvar">Salvar com Biometria</button>
+                            <button class="btn btn-warning w-100" onclick="window.salvarSemBiometria()">Salvar sem Biometria</button>
                         </div>
                         <div class="col-lg-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
                     </div>
@@ -154,8 +215,9 @@
                         <div class="col-md-3"><label class="small fw-bold">TEL</label><input type="text" id="lt" class="form-control"></div>
                         <div class="col-md-3"><label class="small fw-bold">E-MAIL</label><input type="email" id="le" class="form-control"></div>
                     </div>
-                    <div class="mb-3 d-flex gap-3 bg-light p-2 rounded shadow-sm">
+                    <div class="mb-3 d-flex flex-wrap gap-3 bg-light p-2 rounded shadow-sm">
                         <label><input type="checkbox" class="pc" value="aba-stats" checked> Painel</label>
+                        <label><input type="checkbox" class="pc" value="aba-biometria"> Biometria</label>
                         <label><input type="checkbox" class="pc" value="aba-declaracao"> Declaração</label>
                         <label><input type="checkbox" class="pc" value="aba-consultas"> Relatórios</label>
                         <label><input type="checkbox" class="pc" value="aba-facial"> Matrícula</label>
@@ -169,13 +231,25 @@
         </main>
     </div>
 
-    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="editAlunoId"><label class="small fw-bold">NOME</label><input type="text" id="editAlunoNome" class="form-control mb-2"><label class="small fw-bold">TURMA</label><input type="text" id="editAlunoSala" class="form-control mb-2"><label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editAlunoTel" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="editAlunoEmail" class="form-control mb-2"></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoAluno()">Confirmar</button></div></div></div></div>
-
-    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white"><h5>Editar Operador</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="eid"><label class="small fw-bold">USUÁRIO</label><input type="text" id="eu" class="form-control mb-2"><label class="small fw-bold">SENHA</label><input type="password" id="es" class="form-control mb-2"><label class="small fw-bold">TEL</label><input type="text" id="et" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="ee" class="form-control mb-3"><h6>Permissões</h6><div id="ep" class="d-flex flex-wrap gap-2 p-2 bg-light rounded"><label><input type="checkbox" class="pce" value="aba-stats"> Painel</label><label><input type="checkbox" class="pce" value="aba-declaracao"> Declaração</label><label><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label><label><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label><label><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label><label><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEL()">Salvar Alterações</button></div></div></div></div>
+    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body p-4">
+        <input type="hidden" id="editAlunoId">
+        <label class="small fw-bold">NOME</label><input type="text" id="editAlunoNome" class="form-control mb-2">
+        <label class="small fw-bold">TURMA</label>
+        <select id="editAlunoSala" class="form-select mb-2">
+            <optgroup label="1º Ano"><option>1º ano A - Redes</option><option>1º ano B - Redes</option><option>1º ano A - Logística</option><option>1º ano B - Logística</option></optgroup>
+            <optgroup label="2º Ano"><option>2º ano A - Redes</option><option>2º ano B - Redes</option><option>2º ano A - Logística</option><option>2º ano B - Logística</option></optgroup>
+            <optgroup label="3º Ano"><option>3º ano A - Redes</option><option>3º ano B - Redes</option><option>3º ano A - Logística</option><option>3º ano B - Logística</option></optgroup>
+        </select>
+        <label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editAlunoTel" class="form-control mb-2">
+        <label class="small fw-bold">E-MAIL ESTUDANTE</label><input type="email" id="editAlunoEmail" class="form-control mb-2">
+        <label class="small fw-bold">E-MAIL RESPONSÁVEL</label><input type="email" id="editAlunoEmailResp" class="form-control mb-3">
+    </div>
+    <div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoAluno()">Salvar Alterações</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", authDomain: "escolapro-15e5e.firebaseapp.com", projectId: "escolapro-15e5e", storageBucket: "escolapro-15e5e.firebasestorage.app", messagingSenderId: "339019791514", appId: "1:339019791514:web:44e0d58b6835f0fe6df323" };
         const app = initializeApp(firebaseConfig);
@@ -192,7 +266,7 @@
         window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
 
         function montarMenu() {
-            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-line'},{id:'sec-declaracao', label:'Declaração', icon:'fa-file-signature'},{id:'sec-consultas', label:'Relatórios', icon:'fa-print'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}];
+            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-line'},{id:'sec-biometria', label:'Biometria', icon:'fa-fingerprint'},{id:'sec-declaracao', label:'Declaração', icon:'fa-file-signature'},{id:'sec-consultas', label:'Relatórios', icon:'fa-print'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}];
             let h = ""; let primeiraAbaPermitida = null;
             itens.forEach(i => {
                 const abaId = i.id.replace('sec-', 'aba-');
@@ -204,10 +278,7 @@
             });
             h += `<hr class="text-white-50"><a href="terminal.html" class="nav-link-pe" style="color:var(--pe-yellow)"><i class="fas fa-camera"></i> Abrir Terminal</a>`;
             document.getElementById('menu-links').innerHTML = h; document.getElementById('menu-links-mobile').innerHTML = h;
-            if(primeiraAbaPermitida) setTimeout(() => {
-                const btn = document.querySelector(`.menu-btn-ref[data-target="${primeiraAbaPermitida}"]`);
-                window.trocarAba(primeiraAbaPermitida, btn);
-            }, 100);
+            if(primeiraAbaPermitida) setTimeout(() => window.trocarAba(primeiraAbaPermitida, document.querySelector(`.menu-btn-ref[data-target="${primeiraAbaPermitida}"]`)), 100);
         }
 
         window.trocarAba = (id, btn) => {
@@ -217,12 +288,79 @@
             if(btn) btn.classList.add('active'); if(id === 'sec-stats') updateCharts();
         };
 
-        // --- FORMATAÇÕES ---
         const limpar = (t) => t.replace(/\s+/g, ' ').trim();
         const formatCPF = (c) => { c = c.replace(/\D/g, ""); return c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); };
         const formatData = (d) => { d = d.replace(/\D/g, ""); return d.length === 8 ? d.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3") : d; };
 
-        // --- GERAÇÃO PDF COM VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS ---
+        // --- RELATÓRIOS ---
+        window.gerarRelatorio = async () => {
+            const dt = document.getElementById('filtroData').value, tr = document.getElementById('filtroTurmaRelatorio').value; if(!dt) return alert("Selecione data!");
+            const q = query(collection(db, "frequencia"), where("data", "==", dt.split('-').reverse().join('/')));
+            const snap = await getDocs(q); const t = document.getElementById('tabelaRelatorio'); t.innerHTML = "";
+            snap.forEach(d => { if(tr === "TODAS" || d.data().sala === tr) t.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().sala}</td><td>${d.data().hora}</td></tr>`; });
+        };
+
+        window.exportarExcelRelatorio = () => {
+            let csv = "Estudante;Turma;Hora\n";
+            document.querySelectorAll('#tabelaRelatorio tr').forEach(tr => { const tds = tr.querySelectorAll('td'); if(tds.length) csv += `${tds[0].innerText};${tds[1].innerText};${tds[2].innerText}\n`; });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = "Relatorio.csv"; link.click();
+        };
+
+        window.exportarPDFRelatorio = () => {
+            const { jsPDF } = window.jspdf; const doc = jsPDF(); doc.text("Relatório de Frequência", 10, 10);
+            let y = 20; document.querySelectorAll('#tabelaRelatorio tr').forEach(tr => { const tds = tr.querySelectorAll('td'); if(tds.length) { doc.text(`${tds[0].innerText} | ${tds[1].innerText} | ${tds[2].innerText}`, 10, y); y += 10; } });
+            doc.save("Relatorio.pdf");
+        };
+
+        // --- BIOMETRIA (NOVA LÓGICA) ---
+        document.getElementById('btnCamBio').onclick = async () => { document.getElementById('webcamBio').srcObject = await navigator.mediaDevices.getUserMedia({ video: true }); };
+        
+        window.abrirPainelBio = (id, nome) => {
+            document.getElementById('painelCameraBio').classList.remove('d-none');
+            document.getElementById('nomeAlunoBioAtivo').innerText = nome;
+            document.getElementById('idAlunoBioAtivo').value = id;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.fecharPainelBio = () => {
+            document.getElementById('painelCameraBio').classList.add('d-none');
+            const v = document.getElementById('webcamBio');
+            if(v.srcObject) v.srcObject.getTracks().forEach(track => track.stop());
+            v.srcObject = null;
+        };
+
+        document.getElementById('btnSalvarBioIndividual').onclick = async () => {
+            const id = document.getElementById('idAlunoBioAtivo').value;
+            const v = document.getElementById('webcamBio');
+            if(!v.srcObject) return alert("Ative a câmera primeiro!");
+            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            if(!det) return alert("Rosto não detectado!");
+            await updateDoc(doc(db, "alunos", id), { descritor: Array.from(det.descriptor) });
+            alert("Biometria salva com sucesso!");
+            window.fecharPainelBio();
+        };
+
+        window.filtrarListaBio = () => { const val = document.getElementById('buscaBio').value.toLowerCase(); document.querySelectorAll('#listaBiometriaAgrupada tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(val) ? "" : "none"); };
+
+        // --- MATRÍCULA ---
+        document.getElementById('btnCam').onclick = async () => { document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: true }); };
+        
+        window.salvarSemBiometria = async () => {
+            const n = limpar(document.getElementById('nAluno').value), s = document.getElementById('sAluno').value;
+            if(!n || !s) return alert("Nome e Turma!");
+            await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, emailResp: document.getElementById('eResp').value, descritor: null });
+            location.reload();
+        };
+
+        document.getElementById('btnSalvar').onclick = async () => {
+            const n = limpar(document.getElementById('nAluno').value), s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
+            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            if(!det) return alert("IA não detectou rosto!");
+            await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, emailResp: document.getElementById('eResp').value, descritor: Array.from(det.descriptor) });
+            location.reload();
+        };
+
+        // --- PDF DECLARAÇÃO ---
         window.gerarPDFDeclaracao = () => {
             const rawNome = document.getElementById('decNome').value;
             const rawCpf = document.getElementById('decCpf').value;
@@ -231,160 +369,136 @@
             const rawPai = document.getElementById('decPai').value;
             const rawTurma = document.getElementById('decTurma').value;
 
-            // VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
-            if(!rawNome) return alert("O campo NOME DO ESTUDANTE é obrigatório.");
-            if(!rawCpf || rawCpf.replace(/\D/g, "").length < 11) return alert("O campo CPF é obrigatório e deve conter 11 dígitos.");
-            if(!rawNasc) return alert("O campo DATA DE NASCIMENTO é obrigatório.");
-            if(!rawMae) return alert("O campo NOME DA MÃE é obrigatório.");
-            if(!rawPai) return alert("O campo NOME DO PAI é obrigatório.");
-            if(!rawTurma) return alert("O campo CURSO E TURMA é obrigatório.");
+            if(!rawNome || !rawCpf || !rawNasc || !rawMae || !rawPai || !rawTurma) return alert("Preencha todos os campos.");
 
             const nome = limpar(rawNome).toUpperCase();
             const cpf = formatCPF(rawCpf);
             const nasc = formatData(rawNasc);
             const mae = limpar(rawMae).toUpperCase();
             const pai = limpar(rawPai).toUpperCase();
-            const turma = rawTurma;
             const dataH = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
             const { jsPDF } = window.jspdf;
             const doc = jsPDF({ orientation: "p", unit: "mm", format: "a4" });
-            const pageWidth = 210; const margin = 25; const widthUtil = pageWidth - (margin * 2);
+            const pageWidth = 210, margin = 25, widthUtil = pageWidth - (margin * 2);
 
-            const imgTopo = new Image(); imgTopo.src = 'LOGO CIMA.png';
+            const imgTopo = new Image(); imgTopo.src = 'CIMA (2).png';
             imgTopo.onload = () => {
-                doc.addImage(imgTopo, 'PNG', 0, 5, pageWidth, 45);
-                const imgMeio = new Image(); imgMeio.src = 'LOGO MEIO.png';
-                imgMeio.onload = () => {
-                    doc.setGState(new doc.GState({opacity: 0.1})); 
-                    doc.addImage(imgMeio, 'PNG', (pageWidth - 120) / 2, 100, 120, 45);
-                    doc.setGState(new doc.GState({opacity: 1.0}));
-                    doc.setFont("times", "bold"); doc.setFontSize(16);
-                    doc.text("DECLARAÇÃO", pageWidth / 2, 75, { align: "center" });
+                const proporcaoTopo = imgTopo.height / imgTopo.width;
+                const alturaTopo = 210 * proporcaoTopo;
+                doc.addImage(imgTopo, 'PNG', 0, 0, 210, alturaTopo);
 
-                    doc.setFont("times", "normal"); doc.setFontSize(12);
-                    const parts = [
-                        { text: "Declaramos para os devidos fins de direito que ", bold: false },
-                        { text: nome, bold: true },
-                        { text: ", CPF nº ", bold: false },
-                        { text: cpf, bold: true },
-                        { text: ", nascido(a) em ", bold: false },
-                        { text: nasc, bold: true },
-                        { text: ", filho(a) de ", bold: false },
-                        { text: mae, bold: true },
-                        { text: " e ", bold: false },
-                        { text: pai, bold: true },
-                        { text: ", está regularmente matriculado(a) nesta Unidade de Ensino no ", bold: false },
-                        { text: turma, bold: true },
-                        { text: ", de segunda-feira à sexta-feira no horário das ", bold: false },
-                        { text: "07:30 às 17:00", bold: true },
-                        { text: ".", bold: false }
-                    ];
+                doc.setFont("times", "normal"); doc.setFontSize(11);
+                let headY = alturaTopo + 2;
+                doc.text("Governo do Estado de Pernambuco", pageWidth / 2, headY, { align: "center" });
+                doc.text("Secretaria de Educação", pageWidth / 2, headY + 4, { align: "center" });
+                doc.text("Secretaria Executiva de Ensino Médio e Profissional", pageWidth / 2, headY + 8, { align: "center" });
+                doc.text("Gerência Regional de Educação Metropolitana Sul", pageWidth / 2, headY + 12, { align: "center" });
+                doc.setFont("times", "bold");
+                doc.text("Escola Técnica Estadual Maximiano Accioly Campos", pageWidth / 2, headY + 16, { align: "center" });
+                doc.setFont("times", "italic"); doc.setFontSize(9);
+                doc.text("(Autorização de Funcionamento: Decreto Nº 34.241 de 23/11/2009)", pageWidth / 2, headY + 20, { align: "center" });
+                doc.text("Av. General Manoel Rabelo s/n, CEP 54160.000, Bairro Engenho Velho, Jaboatão dos Guararapes-PE", pageWidth / 2, headY + 24, { align: "center" });
+                doc.text("Fones: 3181-4792/4791", pageWidth / 2, headY + 28, { align: "center" });
+                doc.text("Cadastro Estadual: E-106.064       Cadastro INEP: 26525828", pageWidth / 2, headY + 32, { align: "center" });
 
-                    let curY = 95;
-                    const words = [];
-                    parts.forEach(p => {
-                        const style = p.bold ? "bold" : "normal";
-                        p.text.split(" ").forEach(w => { if(w !== "") words.push({ text: w + " ", style: style }); });
-                    });
+                doc.setFont("times", "bold"); doc.setFontSize(16);
+                doc.text("DECLARAÇÃO", pageWidth / 2, headY + 55, { align: "center" });
 
-                    let line = []; let lineWidth = 0;
-                    words.forEach((w, i) => {
-                        doc.setFont("times", w.style); const wWidth = doc.getTextWidth(w.text);
-                        if (lineWidth + wWidth > widthUtil) {
-                            const spaceCount = line.length - 1; const extraSpace = (widthUtil - lineWidth) / spaceCount;
-                            let curX = margin;
-                            line.forEach((lw, li) => { doc.setFont("times", lw.style); doc.text(lw.text, curX, curY); curX += doc.getTextWidth(lw.text) + (li < spaceCount ? extraSpace : 0); });
-                            line = [w]; lineWidth = wWidth; curY += 7;
-                        } else { line.push(w); lineWidth += wWidth; }
-                        if (i === words.length - 1) {
-                            let curX = margin; line.forEach(lw => { doc.setFont("times", lw.style); doc.text(lw.text, curX, curY); curX += doc.getTextWidth(lw.text); });
-                        }
-                    });
+                doc.setFont("times", "normal"); doc.setFontSize(12);
+                const parts = [
+                    { text: "Declaramos para os devidos fins de direito que ", bold: false },
+                    { text: nome, bold: true },
+                    { text: ", CPF nº ", bold: false },
+                    { text: cpf, bold: true },
+                    { text: ", nascido(a) em ", bold: false },
+                    { text: nasc, bold: true },
+                    { text: ", filho(a) de ", bold: false },
+                    { text: mae, bold: true },
+                    { text: " e ", bold: false },
+                    { text: pai, bold: true },
+                    { text: ", está regularmente matriculado(a) nesta Unidade de Ensino no ", bold: false },
+                    { text: rawTurma, bold: true },
+                    { text: ", de segunda-feira à sexta-feira no horário das ", bold: false },
+                    { text: "07:30 às 17:00", bold: true },
+                    { text: ".", bold: false }
+                ];
 
-                    doc.setFont("times", "bold");
-                    doc.text(`Jaboatão dos Guararapes, ${dataH}.`, pageWidth / 2, curY + 20, { align: "center" });
-                    doc.text("Atenciosamente,", pageWidth / 2, curY + 35, { align: "center" });
-                    doc.text("___________________________________", pageWidth / 2, curY + 60, { align: "center" });
-                    
-                    const imgBase = new Image(); imgBase.src = 'LOGO BAIXO.png';
-                    imgBase.onload = () => { doc.addImage(imgBase, 'PNG', 10, 265, 190, 25); doc.save(`Declaracao_${nome}.pdf`); };
+                let curY = headY + 70;
+                const words = [];
+                parts.forEach(p => { p.text.split(" ").forEach(w => { if(w !== "") words.push({ text: w + " ", style: p.bold ? "bold" : "normal" }); }); });
+                let line = []; let lineWidth = 0;
+                words.forEach((w, i) => {
+                    doc.setFont("times", w.style); const wWidth = doc.getTextWidth(w.text);
+                    if (lineWidth + wWidth > widthUtil) {
+                        const spaceCount = line.length - 1; const extraSpace = (widthUtil - lineWidth) / spaceCount;
+                        let curX = margin;
+                        line.forEach((lw, li) => { doc.setFont("times", lw.style); doc.text(lw.text, curX, curY); curX += doc.getTextWidth(lw.text) + (li < spaceCount ? extraSpace : 0); });
+                        line = [w]; lineWidth = wWidth; curY += 7;
+                    } else { line.push(w); lineWidth += wWidth; }
+                    if (i === words.length - 1) {
+                        let curX = margin; line.forEach(lw => { doc.setFont("times", lw.style); doc.text(lw.text, curX, curY); curX += doc.getTextWidth(lw.text); });
+                    }
+                });
+
+                doc.setFont("times", "bold");
+                doc.text(`Jaboatão dos Guararapes, ${dataH}.`, pageWidth / 2, curY + 20, { align: "center" });
+                doc.text("Atenciosamente,", pageWidth / 2, curY + 35, { align: "center" });
+                doc.text("___________________________________", pageWidth / 2, curY + 60, { align: "center" });
+                
+                const imgBase = new Image(); imgBase.src = 'BAIXO (1).png';
+                imgBase.onload = () => {
+                    doc.addImage(imgBase, 'PNG', 0, 257, 210, 40);
+                    doc.save(`Declaracao_${nome}.pdf`);
                 };
             };
         };
 
-        // --- FIREBASE OPERAÇÕES ---
-        async function initIA() { 
-            const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-            await faceapi.nets.tinyFaceDetector.loadFromUri(URL); await faceapi.nets.faceLandmark68Net.loadFromUri(URL); await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
-        }
-
-        document.getElementById('btnCam').onclick = async () => { document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: true }); };
-
-        document.getElementById('btnSalvar').onclick = async () => {
-            const n = limpar(document.getElementById('nAluno').value), s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
-            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-            if(!det) return alert("Erro Facial!");
-            await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, descritor: Array.from(det.descriptor) });
-            location.reload();
-        };
-
+        // --- CORE DADOS ---
         function escutarDados() {
             onSnapshot(collection(db, "alunos"), snap => {
-                const listaContainer = document.getElementById('listaAgrupadaAlunos');
-                listaContainer.innerHTML = "";
-                const alunosPorTurma = {};
+                const listAlunos = document.getElementById('listaAgrupadaAlunos'); listAlunos.innerHTML = "";
+                const listBio = document.getElementById('listaBiometriaAgrupada'); listBio.innerHTML = "";
+                const turmas = {}; 
+                
                 snap.forEach(d => {
-                    const a = d.data();
-                    if (!alunosPorTurma[a.sala]) alunosPorTurma[a.sala] = [];
-                    alunosPorTurma[a.sala].push({ id: d.id, ...a });
+                    const a = d.data(); if (!turmas[a.sala]) turmas[a.sala] = []; turmas[a.sala].push({ id: d.id, ...a });
                 });
-                Object.keys(alunosPorTurma).sort().forEach(turma => {
-                    listaContainer.innerHTML += `<div class="turma-header shadow-sm rounded mb-2">${turma.toUpperCase()}</div>`;
-                    let tabela = `<div class="card-custom p-0 overflow-hidden mb-4"><table class="table mb-0 align-middle"><tbody>`;
-                    alunosPorTurma[turma].sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(aluno => {
-                        tabela += `<tr><td class="fw-bold">${aluno.nome}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary me-2" onclick="window.abrirEdicaoAluno('${aluno.id}','${aluno.nome}','${aluno.sala}','${aluno.tel || ''}','${aluno.email || ''}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('alunos','${aluno.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+
+                Object.keys(turmas).sort().forEach(t => {
+                    // Lista Alunos
+                    listAlunos.innerHTML += `<div class="turma-header shadow-sm mb-2">${t.toUpperCase()}</div>`;
+                    let tbAlu = `<div class="card-custom p-0 overflow-hidden mb-4"><table class="table mb-0"><tbody>`;
+                    
+                    // Lista Biometria
+                    listBio.innerHTML += `<div class="turma-header shadow-sm mb-2" style="font-size: 0.9rem; padding: 5px 15px;">${t.toUpperCase()}</div>`;
+                    let tbBio = `<div class="card-custom p-0 overflow-hidden mb-4"><table class="table table-sm mb-0"><tbody>`;
+
+                    turmas[t].sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(al => {
+                        const hasBio = !!al.descritor;
+                        tbAlu += `<tr><td>${al.nome}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary me-2" onclick="window.abrirEdicaoAluno('${al.id}','${al.nome}','${al.sala}','${al.tel||''}','${al.email||''}','${al.emailResp||''}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('alunos','${al.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                        tbBio += `<tr><td><b>${al.nome}</b></td><td><span class="badge ${hasBio ? 'bg-success' : 'bg-secondary'}">${hasBio ? 'CADASTRADA' : 'PENDENTE'}</span></td><td class="text-end"><button class="btn btn-sm btn-dark" onclick="window.abrirPainelBio('${al.id}', '${al.nome}')">${hasBio ? 'Atualizar?' : 'Cadastrar?'}</button></td></tr>`;
                     });
-                    listaContainer.innerHTML += tabela + `</tbody></table></div>`;
+
+                    listAlunos.innerHTML += tbAlu + `</tbody></table></div>`;
+                    listBio.innerHTML += tbBio + `</tbody></table></div>`;
                 });
                 document.getElementById('st-total').innerText = snap.size;
             });
-            onSnapshot(collection(db, "logins"), snap => {
-                const t = document.getElementById('tabelaLogins'); t.innerHTML = "";
-                snap.forEach(d => { 
-                    const l = d.data();
-                    t.innerHTML += `<tr><td>${l.usuario}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary me-2" onclick='window.editL("${d.id}","${l.usuario}","${l.senha}","${l.tel || ''}","${l.email || ''}",${JSON.stringify(l.permissoes || [])})'><i class="fas fa-cog"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; 
-                });
-            });
-            const hoje = new Date().toLocaleDateString('pt-BR');
-            onSnapshot(collection(db, "frequencia"), snap => { let p = 0; snap.forEach(d => { if(d.data().data === hoje) p++; }); document.getElementById('st-presentes').innerText = p; document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - p); updateCharts(); });
+            onSnapshot(collection(db, "logins"), snap => { const t = document.getElementById('tabelaLogins'); t.innerHTML = ""; snap.forEach(d => { const l = d.data(); t.innerHTML += `<tr><td>${l.usuario}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary me-2" onclick='window.editL("${d.id}","${l.usuario}","${l.senha}","${l.tel||''}","${l.email||''}",${JSON.stringify(l.permissoes||[])})'><i class="fas fa-cog"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }); });
+            const hj = new Date().toLocaleDateString('pt-BR');
+            onSnapshot(collection(db, "frequencia"), snap => { let p = 0; snap.forEach(d => { if(d.data().data === hj) p++; }); document.getElementById('st-presentes').innerText = p; document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - p); updateCharts(); });
         }
 
-        window.abrirEdicaoAluno = (id, n, s, t, e) => { document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n; document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t; document.getElementById('editAlunoEmail').value = e; new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); };
-        window.salvarEdicaoAluno = async () => { await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), { nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value, tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value }); location.reload(); };
-
-        document.getElementById('btnL').onclick = async () => { 
-            const user = document.getElementById('lu').value, pass = document.getElementById('ls').value;
-            if(!user || !pass) return alert("Preencha Usuário e Senha!");
-            const q = query(collection(db, "logins"), where("usuario", "==", user));
-            const snap = await getDocs(q);
-            if(!snap.empty) return alert("Usuário já existe!");
-            await addDoc(collection(db, "logins"), { usuario: user, senha: pass, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value) }); 
-            location.reload(); 
-        };
-
+        async function initIA() { const U = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; await faceapi.nets.tinyFaceDetector.loadFromUri(U); await faceapi.nets.faceLandmark68Net.loadFromUri(U); await faceapi.nets.faceRecognitionNet.loadFromUri(U); }
         window.editL = (id, u, s, t, e, p) => { document.getElementById('eid').value = id; document.getElementById('eu').value = u; document.getElementById('es').value = s; document.getElementById('et').value = t; document.getElementById('ee').value = e; document.querySelectorAll('.pce').forEach(c => c.checked = p.includes(c.value)); new bootstrap.Modal(document.getElementById('modalL')).show(); };
         window.salvarEL = async () => { await updateDoc(doc(db, "logins", document.getElementById('eid').value), { usuario: document.getElementById('eu').value, senha: document.getElementById('es').value, tel: document.getElementById('et').value, email: document.getElementById('ee').value, permissoes: Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value) }); location.reload(); };
-
-        window.gerarRelatorio = async () => {
-            const dt = document.getElementById('filtroData').value, tr = document.getElementById('filtroTurmaRelatorio').value; if(!dt) return alert("Data!"); const dataBR = dt.split('-').reverse().join('/');
-            const q = query(collection(db, "frequencia"), where("data", "==", dataBR));
-            const snap = await getDocs(q); const t = document.getElementById('tabelaRelatorio'); t.innerHTML = "";
-            snap.forEach(d => { if(tr === "TODAS" || d.data().sala === tr) t.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().sala}</td><td>${d.data().hora}</td></tr>`; });
-        };
+        document.getElementById('btnL').onclick = async () => { const u = document.getElementById('lu').value, s = document.getElementById('ls').value; if(!u || !s) return alert("Login!"); await addDoc(collection(db, "logins"), { usuario: u, senha: s, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value) }); location.reload(); };
         window.del = async (c, i) => { if(confirm("Confirmar?")) await deleteDoc(doc(db, c, i)); };
+        window.abrirEdicaoAluno = (id, n, s, t, e, er) => { document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n; document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t; document.getElementById('editAlunoEmail').value = e; document.getElementById('editAlunoEmailResp').value = er || ""; new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); };
+        window.salvarEdicaoAluno = async () => { await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), { nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value, tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value, emailResp: document.getElementById('editAlunoEmailResp').value }); location.reload(); };
         window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#listaAgrupadaAlunos tr').forEach(tr => { if(tr.querySelector('td')) tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"; }); };
-        function updateCharts() { const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0; if(chartP) chartP.destroy(); chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['P', 'F'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#ef4444'], borderWidth:0 }] }, options:{cutout:'70%'} }); if(chartB) chartB.destroy(); chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'], borderRadius:10 }] } }); }
+        function updateCharts() { const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0; if(chartP) chartP.destroy(); chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['P', 'F'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#ef4444'], borderWidth:0 }] }, options:{cutout:'70%'} }); if(chartB) chartB.destroy(); chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['T', 'P'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'], borderRadius:10 }] } }); }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
