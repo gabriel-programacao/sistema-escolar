@@ -2,8 +2,9 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pro | Gestão Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Escola Pro | Mobile & Desktop</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
@@ -13,373 +14,330 @@
     
     <style>
         :root { --sidebar-bg: #1e293b; --accent: #3b82f6; --body-bg: #f1f5f9; }
-        body { display: flex; height: 100vh; background: var(--body-bg); font-family: 'Inter', sans-serif; margin: 0; }
-        .sidebar { width: 280px; background: var(--sidebar-bg); color: white; padding: 25px; flex-shrink: 0; box-shadow: 4px 0 10px rgba(0,0,0,0.1); position: relative; display: flex; flex-direction: column; }
-        .sidebar h4 { font-weight: 800; color: #fff; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
-        .nav-content { flex-grow: 1; }
-        .nav-btn { width: 100%; text-align: left; background: none; border: none; color: #94a3b8; padding: 14px 18px; cursor: pointer; margin-bottom: 8px; border-radius: 12px; transition: 0.3s; display: flex; align-items: center; gap: 12px; font-weight: 500; }
-        .nav-btn:hover, .nav-btn.active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-        .nav-btn.active { background: var(--accent); color: white; }
-        .content { flex-grow: 1; padding: 40px; overflow-y: auto; }
-        .secao { display: none; animation: fadeIn 0.4s ease-out; }
+        body { background: var(--body-bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+        /* HEADER MOBILE */
+        .mobile-header {
+            display: none;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* SIDEBAR DESKTOP */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 25px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transition: 0.3s;
+            z-index: 1050;
+        }
+
+        .nav-btn {
+            width: 100%; text-align: left; background: none; border: none; color: #94a3b8;
+            padding: 12px 18px; margin-bottom: 5px; border-radius: 12px;
+            display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.2s;
+        }
+        .nav-btn:hover, .nav-btn.active { background: var(--accent); color: white; }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            transition: 0.3s;
+        }
+
+        /* RESPONSIVIDADE (Telas menores que 992px) */
+        @media (max-width: 992px) {
+            .sidebar { left: -280px; } /* Esconde a sidebar no PC */
+            .main-content { margin-left: 0; padding: 20px; }
+            .mobile-header { display: flex; justify-content: space-between; align-items: center; }
+            
+            /* Ajuste de Vídeo no Celular */
+            video { width: 100% !important; height: auto !important; }
+            .stat-card { margin-bottom: 10px; }
+        }
+
+        .secao { display: none; animation: fadeIn 0.4s ease; }
         .ativa { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); background: white; margin-bottom: 20px; }
-        .stat-card { padding: 25px; border-radius: 16px; color: white; display: flex; align-items: center; justify-content: space-between; }
-        video { border-radius: 16px; border: 4px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 480px; transform: scaleX(-1); background: #000; }
-        .table thead { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
-        .search-box { position: relative; }
-        .search-box i { position: absolute; left: 15px; top: 12px; color: #94a3b8; }
-        .search-box input { padding-left: 40px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .stat-card { padding: 20px; border-radius: 16px; color: white; }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h4><i class="fas fa-graduation-cap"></i> ESCOLA PRO</h4>
-    <nav class="nav-content">
-        <button class="nav-btn active" onclick="trocarAba('sec-stats', this)"><i class="fas fa-chart-line"></i> Dashboard</button>
-        <button id="btn-frequencia" class="nav-btn" onclick="trocarAba('sec-frequencia', this)"><i class="fas fa-calendar-check"></i> Chamada de Hoje</button>
-        <button id="btn-consultas" class="nav-btn" onclick="trocarAba('sec-consultas', this)"><i class="fas fa-print"></i> Consultas e PDF</button>
-        <button id="btn-facial" class="nav-btn" onclick="trocarAba('sec-facial', this)"><i class="fas fa-id-card"></i> Novo Aluno</button>
-        <button id="btn-faltas" class="nav-btn" onclick="trocarAba('sec-faltas', this)"><i class="fas fa-users-viewfinder"></i> Alunos Cadastrados</button>
-        <hr style="opacity: 0.1;">
-        <button id="btn-usuarios" class="nav-btn" onclick="trocarAba('sec-usuarios', this)"><i class="fas fa-user-shield"></i> Gestão de Logins</button>
-    </nav>
-    <div style="padding-top: 20px;">
-        <button onclick="logout()" class="btn btn-outline-danger w-100 rounded-pill"><i class="fas fa-sign-out-alt"></i> Sair</button>
-    </div>
-</div>
+    <header class="mobile-header">
+        <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i> Escola Pro</h5>
+        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
 
-<div class="content">
+    <aside class="sidebar d-none d-lg-block">
+        <h4 class="mb-4 fw-bold text-white"><i class="fas fa-graduation-cap me-2"></i> ESCOLA PRO</h4>
+        <nav id="menu-desktop"></nav> </aside>
 
-    <div id="sec-stats" class="secao ativa">
-        <h3 class="mb-4 fw-bold">Painel de Indicadores</h3>
-        <div class="row g-4 mb-4">
-            <div class="col-md-4"><div class="stat-card" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"><div><p class="mb-1 opacity-75">Total Alunos</p><h2 id="st-total" class="fw-bold mb-0">0</h2></div><i class="fas fa-users fa-3x opacity-25"></i></div></div>
-            <div class="col-md-4"><div class="stat-card" style="background: linear-gradient(135deg, #10b981, #047857);"><div><p class="mb-1 opacity-75">Presentes Hoje</p><h2 id="st-presentes" class="fw-bold mb-0">0</h2></div><i class="fas fa-user-check fa-3x opacity-25"></i></div></div>
-            <div class="col-md-4"><div class="stat-card" style="background: linear-gradient(135deg, #ef4444, #b91c1c);"><div><p class="mb-1 opacity-75">Faltas Hoje</p><h2 id="st-faltas" class="fw-bold mb-0">0</h2></div><i class="fas fa-user-times fa-3x opacity-25"></i></div></div>
+    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="offcanvasSidebar" style="width: 280px;">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title fw-bold"><i class="fas fa-graduation-cap me-2 text-primary"></i> MENU</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
-        <div class="row">
-            <div class="col-md-8"><div class="card p-4"><h5>Frequência por Turma</h5><canvas id="chartBarras" height="120"></canvas></div></div>
-            <div class="col-md-4"><div class="card p-4"><h5>Taxa de Assiduidade</h5><canvas id="chartPizza"></canvas></div></div>
-        </div>
+        <div class="offcanvas-body" id="menu-mobile"></div>
     </div>
 
-    <div id="sec-faltas" class="secao">
-        <h3 class="mb-4 fw-bold">Alunos Matriculados</h3>
-        <div class="card p-4 mb-3">
+    <main class="main-content">
+        <div id="sec-stats" class="secao ativa">
+            <h3 class="mb-4 fw-bold">Painel Geral</h3>
             <div class="row g-3">
-                <div class="col-md-6 search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="inputBuscaAluno" class="form-control" placeholder="Pesquisar por nome ou contato..." onkeyup="atualizarTabela()">
+                <div class="col-12 col-md-4">
+                    <div class="stat-card bg-primary">
+                        <small>Matrículas</small> <h2 id="st-total" class="mb-0">0</h2>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <select id="filtroTurmaMatricula" class="form-select" onchange="atualizarTabela()">
-                        <option value="TODAS">Todas as Turmas</option>
-                        <option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>1º Ano A Redes</option><option>1º Ano B Redes</option>
-                        <option>2º Ano A Logística</option><option>2º Ano B Logística</option><option>2º Ano A Redes</option><option>2º Ano B Redes</option>
-                        <option>3º Ano A Logística</option><option>3º Ano B Logística</option><option>3º Ano A Redes</option><option>3º Ano B Redes</option>
-                    </select>
+                <div class="col-6 col-md-4">
+                    <div class="stat-card bg-success">
+                        <small>Presentes</small> <h2 id="st-presentes" class="mb-0">0</h2>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <button class="btn btn-outline-success w-100" onclick="exportarExcelAlunos()"><i class="fas fa-file-excel me-2"></i> Exportar Lista</button>
+                <div class="col-6 col-md-4">
+                    <div class="stat-card bg-danger">
+                        <small>Faltas</small> <h2 id="st-faltas" class="mb-0">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 col-lg-8"><div class="card p-3"><h5>Turmas</h5><canvas id="chartBarras"></canvas></div></div>
+                <div class="col-12 col-lg-4"><div class="card p-3"><h5>Taxa</h5><canvas id="chartPizza"></canvas></div></div>
+            </div>
+        </div>
+
+        <div id="sec-facial" class="secao">
+            <h3 class="mb-4 fw-bold">Novo Aluno</h3>
+            <div class="card p-3">
+                <div class="row g-3">
+                    <div class="col-12 col-lg-5">
+                        <input type="text" id="nomeAluno" class="form-control mb-2" placeholder="Nome">
+                        <select id="salaAluno" class="form-select mb-2">
+                             <option value="">Selecione a Sala</option>
+                             <optgroup label="1º ANO">
+                                <option>1º Ano A Logística</option><option>1º Ano B Logística</option>
+                                <option>1º Ano A Redes</option><option>1º Ano B Redes</option>
+                             </optgroup>
+                             <optgroup label="2º ANO">
+                                <option>2º Ano A Logística</option><option>2º Ano B Logística</option>
+                                <option>2º Ano A Redes</option><option>2º Ano B Redes</option>
+                             </optgroup>
+                        </select>
+                        <input type="text" id="telResponsavel" class="form-control mb-3" placeholder="Telefone">
+                        <button class="btn btn-dark w-100 mb-2" onclick="ligarWebcam()">Ligar Câmera</button>
+                        <button class="btn btn-primary w-100" onclick="salvarAluno()">Salvar Cadastro</button>
+                    </div>
+                    <div class="col-12 col-lg-7 text-center">
+                        <video id="webcam" autoplay muted playsinline></video>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="card p-0 overflow-hidden">
-            <table class="table mb-0 align-middle">
-                <thead><tr><th>Nome</th><th>Turma</th><th>Contatos</th><th class="text-center">Ações</th></tr></thead>
-                <tbody id="tabelaAlunos"></tbody>
-            </table>
-        </div>
-        <div class="mt-2 text-muted small" id="contadorAlunos">Mostrando 0 alunos</div>
-    </div>
 
-    <div id="sec-frequencia" class="secao">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold mb-0">Presenças de Hoje <span class="badge bg-primary ms-2" id="dataBadge"></span></h3>
-            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="zerarChamadaHoje()"><i class="fas fa-trash me-2"></i> Limpar Lista de Hoje</button>
-        </div>
-        <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Aluno</th><th>Turma</th><th>Entrada</th></tr></thead><tbody id="tabelaFrequencia"></tbody></table></div>
-    </div>
-
-    <div id="sec-consultas" class="secao">
-        <h3 class="mb-4 fw-bold">Relatórios PDF</h3>
-        <div class="card p-4">
-            <div class="row g-2">
-                <div class="col-md-3"><label class="fw-bold small">DATA</label><input type="date" id="filtroData" class="form-control"></div>
-                <div class="col-md-3"><label class="fw-bold small">TURMA</label><select id="filtroTurma" class="form-select"><option value="TODAS">Todas</option><option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>1º Ano A Redes</option><option>1º Ano B Redes</option><option>2º Ano A Logística</option><option>2º Ano B Logística</option><option>2º Ano A Redes</option><option>2º Ano B Redes</option><option>3º Ano A Logística</option><option>3º Ano B Logística</option><option>3º Ano A Redes</option><option>3º Ano B Redes</option></select></div>
-                <div class="col-md-3"><label class="fw-bold small">FILTRO</label><select id="filtroTipo" class="form-select"><option value="presentes">Presentes</option><option value="faltas">Faltosos</option><option value="todos">Todos</option></select></div>
-                <div class="col-md-3 d-flex align-items-end"><button class="btn btn-primary w-100 rounded-3" onclick="gerarConsulta()">Consultar</button></div>
+        <div id="sec-faltas" class="secao">
+            <h3 class="mb-4 fw-bold">Alunos</h3>
+            <div class="card p-3 mb-3">
+                <input type="text" id="inputBuscaAluno" class="form-control" placeholder="🔍 Pesquisar aluno..." onkeyup="atualizarTabela()">
             </div>
-            <button class="btn btn-danger mt-3 px-4 rounded-3" onclick="gerarPDF()"><i class="fas fa-file-pdf me-2"></i> Baixar Relatório</button>
-        </div>
-        <div class="card p-0 mt-4 overflow-hidden"><table class="table mb-0"><thead><tr><th>Nome</th><th>Turma</th><th>Status</th></tr></thead><tbody id="tabelaConsulta"></tbody></table></div>
-    </div>
-
-    <div id="sec-facial" class="secao">
-        <h3 class="mb-4 fw-bold">Matrícula Biométrica</h3>
-        <div class="card p-4">
-            <div class="row">
-                <div class="col-md-5">
-                    <label class="fw-bold small">NOME DO ALUNO</label>
-                    <input type="text" id="nomeAluno" class="form-control mb-3" placeholder="Nome completo">
-                    <label class="fw-bold small">TURMA</label>
-                    <select id="salaAluno" class="form-select mb-3">
-                        <option value="">Selecione a Sala</option>
-                        <optgroup label="1º ANO"><option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>1º Ano A Redes</option><option>1º Ano B Redes</option></optgroup>
-                        <optgroup label="2º ANO"><option>2º Ano A Logística</option><option>2º Ano B Logística</option><option>2º Ano A Redes</option><option>2º Ano B Redes</option></optgroup>
-                        <optgroup label="3º ANO"><option>3º Ano A Logística</option><option>3º Ano B Logística</option><option>3º Ano A Redes</option><option>3º Ano B Redes</option></optgroup>
-                    </select>
-                    <label class="fw-bold small">CONTATO RESPONSÁVEL</label>
-                    <input type="text" id="telResponsavel" class="form-control mb-2" placeholder="Telefone">
-                    <input type="email" id="emailResponsavel" class="form-control mb-4" placeholder="E-mail">
-                    <button class="btn btn-dark w-100 mb-2 py-2 rounded-3" onclick="ligarWebcam()"><i class="fas fa-video me-2"></i> Ligar Câmera</button>
-                    <button class="btn btn-primary w-100 py-2 rounded-3" onclick="salvarAluno()"><i class="fas fa-save me-2"></i> Salvar Biometria</button>
+            <div class="card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead class="table-light"><tr><th>Nome</th><th>Sala</th><th>Ações</th></tr></thead>
+                        <tbody id="tabelaAlunos"></tbody>
+                    </table>
                 </div>
-                <div class="col-md-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
             </div>
         </div>
-    </div>
 
-    <div id="sec-usuarios" class="secao">
-        <h3 class="mb-4 fw-bold">Gestão de Funcionários</h3>
-        <div class="card p-4 mb-4">
-            <h5 class="mb-3">Novo Acesso</h5>
-            <div class="row g-2">
-                <div class="col-md-3"><input type="text" id="novoUser" class="form-control" placeholder="Usuário"></div>
-                <div class="col-md-3"><input type="password" id="novaSenha" class="form-control" placeholder="Senha"></div>
-                <div class="col-md-3"><input type="text" id="telUser" class="form-control" placeholder="Telefone"></div>
-                <div class="col-md-3"><input type="email" id="emailUser" class="form-control" placeholder="E-mail"></div>
+        <div id="sec-frequencia" class="secao">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Frequência Hoje</h4>
+                <button class="btn btn-sm btn-danger" onclick="zerarChamadaHoje()">Zerar</button>
             </div>
-            <div class="mt-3">
-                <label class="fw-bold small mb-2 d-block">PERMISSÕES:</label>
-                <div class="form-check form-check-inline"><input class="form-check-input check-perm" type="checkbox" value="aba-usuarios"> <label class="form-check-label">Logins</label></div>
-                <div class="form-check form-check-inline"><input class="form-check-input check-perm" type="checkbox" value="aba-facial"> <label class="form-check-label">Facial</label></div>
-                <div class="form-check form-check-inline"><input class="form-check-input check-perm" type="checkbox" value="aba-frequencia"> <label class="form-check-label">Chamada</label></div>
-                <div class="form-check form-check-inline"><input class="form-check-input check-perm" type="checkbox" value="aba-consultas"> <label class="form-check-label">Relatórios</label></div>
-                <div class="form-check form-check-inline"><input class="form-check-input check-perm" type="checkbox" value="aba-faltas"> <label class="form-check-label">Matriculados</label></div>
+            <div class="card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>Aluno</th><th>Hora</th></tr></thead>
+                        <tbody id="tabelaFrequencia"></tbody>
+                    </table>
+                </div>
             </div>
-            <button class="btn btn-primary mt-3 px-4 rounded-pill" onclick="salvarNovoUsuario()">Criar Login</button>
         </div>
-        <div class="card p-0 overflow-hidden">
-            <table class="table mb-0"><thead><tr><th>Usuário</th><th>Contato</th><th class="text-center">Ações</th></tr></thead><tbody id="tabelaUsuarios"></tbody></table>
+
+        <div id="sec-consultas" class="secao">
+            <h3 class="mb-4 fw-bold">Relatórios</h3>
+            <div class="card p-3">
+                <input type="date" id="filtroData" class="form-control mb-2">
+                <select id="filtroTipo" class="form-select mb-2">
+                    <option value="presentes">Presentes</option>
+                    <option value="faltas">Faltosos</option>
+                </select>
+                <button class="btn btn-primary w-100 mb-2" onclick="gerarConsulta()">Consultar</button>
+                <button class="btn btn-danger w-100" onclick="gerarPDF()">Baixar PDF</button>
+            </div>
+            <div class="card mt-3 overflow-hidden"><div class="table-responsive"><table class="table mb-0"><tbody id="tabelaConsulta"></tbody></table></div></div>
         </div>
-    </div>
 
-</div>
+        <div id="sec-usuarios" class="secao">
+            <h3 class="mb-4 fw-bold">Configurações de Acesso</h3>
+            <div class="card p-3 mb-3">
+                <input type="text" id="novoUser" class="form-control mb-2" placeholder="Novo Usuário">
+                <input type="password" id="novaSenha" class="form-control mb-3" placeholder="Senha">
+                <button class="btn btn-primary w-100" onclick="salvarNovoUsuario()">Criar Login</button>
+            </div>
+            <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Usuário</th><th>Ações</th></tr></thead><tbody id="tabelaUsuarios"></tbody></table></div>
+        </div>
+    </main>
 
-<div class="modal fade" id="modalEditar" tabindex="-1"><div class="modal-dialog"><div class="modal-content shadow">
-    <div class="modal-header border-0"><h5>Editar Dados do Aluno</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <input type="hidden" id="editIndex"><label class="small fw-bold">NOME</label><input type="text" id="editNome" class="form-control mb-3">
-        <label class="small fw-bold">TURMA</label><select id="editSala" class="form-select mb-3"><option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>1º Ano A Redes</option><option>1º Ano B Redes</option><option>2º Ano A Logística</option><option>2º Ano B Logística</option><option>2º Ano A Redes</option><option>2º Ano B Redes</option><option>3º Ano A Logística</option><option>3º Ano B Logística</option><option>3º Ano A Redes</option><option>3º Ano B Redes</option></select>
-        <label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editTel" class="form-control mb-3"><label class="small fw-bold">E-MAIL</label><input type="email" id="editEmail" class="form-control">
-    </div>
-    <div class="modal-footer border-0"><button class="btn btn-primary w-100 rounded-pill" onclick="confirmarEdicao()">Salvar Alterações</button></div>
-</div></div></div>
+    <div class="modal fade" id="modalEditar" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>Editar Aluno</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <input type="hidden" id="editIndex"><input type="text" id="editNome" class="form-control mb-2">
+            <select id="editSala" class="form-select mb-2"><option>1º Ano A Logística</option><option>2º Ano A Redes</option></select>
+            <input type="text" id="editTel" class="form-control">
+        </div>
+        <div class="modal-footer"><button class="btn btn-primary w-100" onclick="confirmarEdicao()">Salvar</button></div>
+    </div></div></div>
 
-<div class="modal fade" id="modalEditarLogin" tabindex="-1"><div class="modal-dialog"><div class="modal-content shadow">
-    <div class="modal-header border-0"><h5>Editar Login</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <input type="hidden" id="editLoginIndex"><label class="small fw-bold">USUÁRIO</label><input type="text" id="editUser" class="form-control mb-3">
-        <label class="small fw-bold">SENHA</label><input type="text" id="editSenha" class="form-control mb-3">
-        <label class="small fw-bold">TELEFONE</label><input type="text" id="editTelUser" class="form-control mb-3"><label class="small fw-bold">E-MAIL</label><input type="email" id="editEmailUser" class="form-control">
-    </div>
-    <div class="modal-footer border-0"><button class="btn btn-primary w-100 rounded-pill" onclick="confirmarEdicaoLogin()">Salvar Alterações</button></div>
-</div></div></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        let chartB = null, chartP = null;
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
-    let modelosIA = false, chartB = null, chartP = null;
+        // CRIAÇÃO DO MENU DINÂMICO (Para não repetir código)
+        function montarMenu() {
+            const itens = [
+                { id: 'sec-stats', icon: 'fa-chart-line', label: 'Dashboard', perm: 'aba-stats' },
+                { id: 'sec-frequencia', icon: 'fa-calendar-check', label: 'Chamada Hoje', perm: 'aba-frequencia' },
+                { id: 'sec-consultas', icon: 'fa-print', label: 'Relatórios', perm: 'aba-consultas' },
+                { id: 'sec-facial', icon: 'fa-id-card', label: 'Novo Aluno', perm: 'aba-facial' },
+                { id: 'sec-faltas', icon: 'fa-users', label: 'Matriculados', perm: 'aba-faltas' },
+                { id: 'sec-usuarios', icon: 'fa-user-shield', label: 'Logins', perm: 'aba-usuarios' }
+            ];
 
-    async function carregarIA() {
-        const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-        await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
-        await faceapi.nets.faceLandmark68Net.loadFromUri(URL);
-        await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
-        modelosIA = true;
-    }
-
-    window.onload = function() {
-        if (!logado) window.location.href = 'index.html';
-        carregarIA();
-        document.getElementById('filtroData').valueAsDate = new Date();
-        document.getElementById('dataBadge').innerText = new Date().toLocaleDateString('pt-BR');
-        
-        if (logado.nome !== 'Márcio') {
-            const perms = logado.permissoes;
-            ['btn-usuarios', 'btn-facial', 'btn-frequencia', 'btn-faltas', 'btn-consultas'].forEach(id => {
-                if (!perms.includes(id.replace('btn-', 'aba-'))) {
-                    const el = document.getElementById(id);
-                    if(el) el.style.display = 'none';
+            let html = "";
+            itens.forEach(i => {
+                if (logado.nome === 'Márcio' || logado.permissoes.includes(i.perm)) {
+                    html += `<button class="nav-btn" onclick="trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas">
+                                <i class="fas ${i.icon}"></i> ${i.label}
+                             </button>`;
                 }
             });
+            document.getElementById('menu-desktop').innerHTML = html;
+            document.getElementById('menu-mobile').innerHTML = html;
+            
+            // Ativa o primeiro botão
+            setTimeout(() => document.querySelector('.nav-btn').classList.add('active'), 100);
         }
-        
-        const inicial = logado.permissoes[0].replace('aba', 'sec');
-        trocarAba(inicial, document.querySelector(`[onclick*="${inicial}"]`));
-        atualizarTudo();
-    };
 
-    function atualizarTudo() { atualizarTabela(); atualizarTabelaUsuarios(); atualizarTabelaFrequencia(); carregarEstatisticas(); }
+        window.onload = function() {
+            if (!logado) window.location.href = 'index.html';
+            montarMenu();
+            carregarIA();
+            document.getElementById('filtroData').valueAsDate = new Date();
+            atualizarTudo();
+        };
 
-    function trocarAba(id, btn) {
-        document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        const target = document.getElementById(id);
-        if(target) target.classList.add('ativa');
-        if(btn) btn.classList.add('active');
-        if(id === 'sec-stats') carregarEstatisticas();
-        if(id === 'sec-frequencia') atualizarTabelaFrequencia();
-        if(id === 'sec-faltas') atualizarTabela();
-    }
+        function trocarAba(id, btn) {
+            document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('ativa');
+            if(btn) btn.classList.add('active');
+            if(id === 'sec-stats') carregarEstatisticas();
+        }
 
-    // --- PESQUISA E TABELA DE ALUNOS ---
-    function atualizarTabela() {
-        const l = JSON.parse(localStorage.getItem('alunos')) || [];
-        const termoBusca = document.getElementById('inputBuscaAluno').value.toLowerCase();
-        const turmaFiltro = document.getElementById('filtroTurmaMatricula').value;
+        // LÓGICA DE IA E CÂMERA (Mobile Friendly)
+        async function carregarIA() {
+            const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+            await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(URL);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
+        }
 
-        const filtrados = l.filter(a => {
-            const bateNome = a.nome.toLowerCase().includes(termoBusca) || (a.tel && a.tel.includes(termoBusca));
-            const bateTurma = (turmaFiltro === "TODAS" || a.sala === turmaFiltro);
-            return bateNome && bateTurma;
-        });
+        async function ligarWebcam() {
+            const v = document.getElementById('webcam');
+            // 'user' força a frontal no celular
+            const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            v.srcObject = s;
+        }
 
-        document.getElementById('contadorAlunos').innerText = `Mostrando ${filtrados.length} alunos`;
+        async function salvarAluno() {
+            const n = document.getElementById('nomeAluno').value, s = document.getElementById('salaAluno').value, v = document.getElementById('webcam');
+            if (!n || !s) return alert("Preencha Nome e Sala.");
+            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            if (!det) return alert("Rosto não detectado!");
+            const lista = JSON.parse(localStorage.getItem('alunos')) || [];
+            lista.push({ nome: n, sala: s, tel: document.getElementById('telResponsavel').value, descritor: Array.from(det.descriptor) });
+            localStorage.setItem('alunos', JSON.stringify(lista));
+            alert("Sucesso!"); location.reload();
+        }
 
-        document.getElementById('tabelaAlunos').innerHTML = filtrados.map((a, i) => `
-            <tr>
-                <td class="fw-bold">${a.nome}</td>
-                <td><span class="badge bg-light text-dark border">${a.sala}</span></td>
-                <td><small>${a.tel||'--'}<br>${a.email||''}</small></td>
-                <td class="text-center">
-                    <button class="btn btn-light btn-sm me-1" onclick="abrirEdicaoPorNome('${a.nome}')"><i class="fas fa-edit text-primary"></i></button>
-                    <button class="btn btn-light btn-sm" onclick="removerAlunoPorNome('${a.nome}')"><i class="fas fa-trash text-danger"></i></button>
-                </td>
-            </tr>`).join('');
-    }
+        function carregarEstatisticas() {
+            const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
+            const freq = JSON.parse(localStorage.getItem('frequencia')) || [];
+            const hoje = new Date().toISOString().split('T')[0];
+            const presH = freq.filter(f => new Date(f.dataFull).toISOString().split('T')[0] === hoje);
 
-    // Adaptado para funcionar com busca (usa nome como ID único)
-    function abrirEdicaoPorNome(nome) {
-        const l = JSON.parse(localStorage.getItem('alunos'));
-        const index = l.findIndex(a => a.nome === nome);
-        abrirEdicao(index);
-    }
+            document.getElementById('st-total').innerText = alunos.length;
+            document.getElementById('st-presentes').innerText = presH.length;
+            document.getElementById('st-faltas').innerText = Math.max(0, alunos.length - presH.length);
 
-    function removerAlunoPorNome(nome) {
-        const l = JSON.parse(localStorage.getItem('alunos'));
-        const index = l.findIndex(a => a.nome === nome);
-        removerAluno(index);
-    }
+            const turmas = [...new Set(alunos.map(a => a.sala))];
+            const dadosT = turmas.map(t => presH.filter(p => p.sala === t).length);
 
-    function exportarExcelAlunos() {
-        const l = JSON.parse(localStorage.getItem('alunos')) || [];
-        let csv = "Nome;Turma;Telefone;Email\n";
-        l.forEach(a => {
-            csv += `${a.nome};${a.sala};${a.tel||''};${a.email||''}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "lista_alunos.csv";
-        link.click();
-    }
+            if(chartB) chartB.destroy();
+            chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: turmas, datasets: [{ label: 'Presentes', data: dadosT, backgroundColor: '#3b82f6' }] } });
+            
+            if(chartP) chartP.destroy();
+            chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [presH.length, alunos.length - presH.length], backgroundColor: ['#10b981', '#ef4444'] }] } });
+        }
 
-    // --- DEMAIS FUNCIONALIDADES (MANTIDAS) ---
-    async function ligarWebcam() {
-        const v = document.getElementById('webcam');
-        const s = await navigator.mediaDevices.getUserMedia({ video: true });
-        v.srcObject = s;
-    }
+        function atualizarTabela() {
+            const l = JSON.parse(localStorage.getItem('alunos')) || [];
+            const busca = document.getElementById('inputBuscaAluno').value.toLowerCase();
+            const filtrados = l.filter(a => a.nome.toLowerCase().includes(busca));
+            document.getElementById('tabelaAlunos').innerHTML = filtrados.map((a, i) => `<tr><td class="small fw-bold">${a.nome}</td><td class="small">${a.sala}</td><td class="text-end"><button class="btn btn-sm btn-light" onclick="abrirEdicao(${i})"><i class="fas fa-edit text-primary"></i></button></td></tr>`).join('');
+        }
 
-    async function salvarAluno() {
-        const n = document.getElementById('nomeAluno').value, s = document.getElementById('salaAluno').value, v = document.getElementById('webcam');
-        if (!n || !s || !modelosIA) return alert("IA carregando ou campos vazios.");
-        const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-        if (!det) return alert("Rosto não detetado!");
-        const lista = JSON.parse(localStorage.getItem('alunos')) || [];
-        lista.push({ nome: n, sala: s, tel: document.getElementById('telResponsavel').value, email: document.getElementById('emailResponsavel').value, descritor: Array.from(det.descriptor) });
-        localStorage.setItem('alunos', JSON.stringify(lista));
-        alert("Aluno Cadastrado!"); atualizarTudo();
-    }
+        function atualizarTabelaFrequencia() {
+            const f = JSON.parse(localStorage.getItem('frequencia')) || [], h = new Date().toISOString().split('T')[0];
+            const pres = f.filter(i => new Date(i.dataFull).toISOString().split('T')[0] === h);
+            document.getElementById('tabelaFrequencia').innerHTML = pres.reverse().map(i => `<tr><td class="small fw-bold">${i.nome}</td><td class="small text-primary">${i.hora}</td></tr>`).join('');
+        }
 
-    function carregarEstatisticas() {
-        const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-        const freq = JSON.parse(localStorage.getItem('frequencia')) || [];
-        const hoje = new Date().toISOString().split('T')[0];
-        const presH = freq.filter(f => new Date(f.dataFull).toISOString().split('T')[0] === hoje);
-        document.getElementById('st-total').innerText = alunos.length;
-        document.getElementById('st-presentes').innerText = presH.length;
-        document.getElementById('st-faltas').innerText = Math.max(0, alunos.length - presH.length);
-        const turmas = [...new Set(alunos.map(a => a.sala))];
-        const dadosT = turmas.map(t => presH.filter(p => p.sala === t).length);
-        if(chartB) chartB.destroy();
-        chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: turmas, datasets: [{ label: 'Presentes', data: dadosT, backgroundColor: '#3b82f6' }] }, options: { plugins: { legend: false } } });
-        if(chartP) chartP.destroy();
-        chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [presH.length, alunos.length - presH.length], backgroundColor: ['#10b981', '#ef4444'] }] } });
-    }
+        function abrirEdicao(i) {
+            const a = JSON.parse(localStorage.getItem('alunos'))[i];
+            document.getElementById('editIndex').value = i;
+            document.getElementById('editNome').value = a.nome;
+            new bootstrap.Modal(document.getElementById('modalEditar')).show();
+        }
 
-    const modA = new bootstrap.Modal(document.getElementById('modalEditar'));
-    function abrirEdicao(i) {
-        const a = JSON.parse(localStorage.getItem('alunos'))[i];
-        document.getElementById('editIndex').value = i; document.getElementById('editNome').value = a.nome; document.getElementById('editSala').value = a.sala; document.getElementById('editTel').value = a.tel||''; document.getElementById('editEmail').value = a.email||'';
-        modA.show();
-    }
-    function confirmarEdicao() {
-        let l = JSON.parse(localStorage.getItem('alunos')); let i = document.getElementById('editIndex').value;
-        l[i].nome = document.getElementById('editNome').value; l[i].sala = document.getElementById('editSala').value; l[i].tel = document.getElementById('editTel').value; l[i].email = document.getElementById('editEmail').value;
-        localStorage.setItem('alunos', JSON.stringify(l)); modA.hide(); atualizarTabela();
-    }
+        function confirmarEdicao() {
+            let l = JSON.parse(localStorage.getItem('alunos'));
+            let i = document.getElementById('editIndex').value;
+            l[i].nome = document.getElementById('editNome').value;
+            localStorage.setItem('alunos', JSON.stringify(l));
+            location.reload();
+        }
 
-    function salvarNovoUsuario() {
-        const u = document.getElementById('novoUser').value, s = document.getElementById('novaSenha').value;
-        const perms = Array.from(document.querySelectorAll('.check-perm:checked')).map(c => c.value);
-        if(!u || !s) return alert("Preencha usuário e senha.");
-        const lista = JSON.parse(localStorage.getItem('logins')) || [];
-        lista.push({ usuario: u, senha: s, tel: document.getElementById('telUser').value, email: document.getElementById('emailUser').value, permissoes: perms });
-        localStorage.setItem('logins', JSON.stringify(lista));
-        alert("Login Criado!"); atualizarTabelaUsuarios();
-    }
-
-    function atualizarTabelaUsuarios() {
-        const l = JSON.parse(localStorage.getItem('logins')) || [];
-        document.getElementById('tabelaUsuarios').innerHTML = l.map((u, i) => `<tr><td class="fw-bold">${u.usuario}</td><td>${u.tel||''}</td><td class="text-center"><button class="btn btn-light btn-sm me-1" onclick="abrirEdicaoLogin(${i})"><i class="fas fa-edit text-primary"></i></button><button class="btn btn-light btn-sm" onclick="removerUser(${i})"><i class="fas fa-trash text-danger"></i></button></td></tr>`).join('');
-    }
-
-    const modL = new bootstrap.Modal(document.getElementById('modalEditarLogin'));
-    function abrirEdicaoLogin(i) {
-        const u = JSON.parse(localStorage.getItem('logins'))[i];
-        document.getElementById('editLoginIndex').value = i; document.getElementById('editUser').value = u.usuario; document.getElementById('editSenha').value = u.senha; document.getElementById('editTelUser').value = u.tel||''; document.getElementById('editEmailUser').value = u.email||'';
-        modL.show();
-    }
-    function confirmarEdicaoLogin() {
-        let l = JSON.parse(localStorage.getItem('logins')); let i = document.getElementById('editLoginIndex').value;
-        l[i].usuario = document.getElementById('editUser').value; l[i].senha = document.getElementById('editSenha').value; l[i].tel = document.getElementById('editTelUser').value; l[i].email = document.getElementById('editEmailUser').value;
-        localStorage.setItem('logins', JSON.stringify(l)); modL.hide(); atualizarTabelaUsuarios();
-    }
-
-    function gerarConsulta() {
-        const dataB = document.getElementById('filtroData').value, turmaB = document.getElementById('filtroTurma').value, tipoB = document.getElementById('filtroTipo').value;
-        const alunos = JSON.parse(localStorage.getItem('alunos')) || [], freq = JSON.parse(localStorage.getItem('frequencia')) || [];
-        const presData = freq.filter(f => new Date(f.dataFull).toISOString().split('T')[0] === dataB);
-        let r = alunos.filter(a => turmaB === "TODAS" || a.sala === turmaB).map(a => {
-            const pres = presData.some(p => p.nome === a.nome);
-            return { ...a, status: pres ? "PRESENTE" : "FALTOU" };
-        }).filter(a => tipoB === "todos" || (tipoB === "presentes" && a.status === "PRESENTE") || (tipoB === "faltas" && a.status === "FALTOU"));
-        window.resGlobal = r;
-        document.getElementById('tabelaConsulta').innerHTML = r.map(i => `<tr><td>${i.nome}</td><td>${i.sala}</td><td class="${i.status === 'PRESENTE' ? 'text-success fw-bold' : 'text-danger fw-bold'}">${i.status}</td></tr>`).join('');
-    }
-
-    function gerarPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text("Relatorio Frequencia", 14, 20); doc.autoTable({ head: [['Nome', 'Turma', 'Status']], body: window.resGlobal.map(r => [r.nome, r.sala, r.status]), startY: 25 }); doc.save(`Relatorio_${document.getElementById('filtroData').value}.pdf`); }
-    function atualizarTabelaFrequencia() { const f = JSON.parse(localStorage.getItem('frequencia')) || [], h = new Date().toISOString().split('T')[0]; const pres = f.filter(i => new Date(i.dataFull).toISOString().split('T')[0] === h); document.getElementById('tabelaFrequencia').innerHTML = pres.reverse().map(i => `<tr><td><strong>${i.nome}</strong></td><td>${i.sala||''}</td><td>${i.hora}</td></tr>`).join(''); }
-    function zerarChamadaHoje() { if(confirm("Zerar lista de hoje?")){ let f = JSON.parse(localStorage.getItem('frequencia')) || [], h = new Date().toISOString().split('T')[0]; localStorage.setItem('frequencia', JSON.stringify(f.filter(i => new Date(i.dataFull).toISOString().split('T')[0] !== h))); atualizarTudo(); } }
-    function removerAluno(i) { if(confirm("Excluir?")){ let l = JSON.parse(localStorage.getItem('alunos')); l.splice(i, 1); localStorage.setItem('alunos', JSON.stringify(l)); atualizarTudo(); } }
-    function removerUser(i) { if(confirm("Excluir?")){ let l = JSON.parse(localStorage.getItem('logins')); l.splice(i, 1); localStorage.setItem('logins', JSON.stringify(l)); atualizarTudo(); } }
-    function logout() { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; }
-</script>
+        function atualizarTudo() { atualizarTabela(); atualizarTabelaFrequencia(); carregarEstatisticas(); }
+        function logout() { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; }
+        function zerarChamadaHoje() { if(confirm("Zerar hoje?")){ let f = JSON.parse(localStorage.getItem('frequencia')) || [], h = new Date().toISOString().split('T')[0]; localStorage.setItem('frequencia', JSON.stringify(f.filter(i => new Date(i.dataFull).toISOString().split('T')[0] !== h))); atualizarTudo(); } }
+    </script>
 </body>
 </html>
