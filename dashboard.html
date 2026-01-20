@@ -2,150 +2,184 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard Pro | Escola Inteligente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAF PE | Gestão de Frequência</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        :root { --sidebar-bg: #1e293b; --accent: #3b82f6; --body-bg: #f1f5f9; }
-        body { background: var(--body-bg); font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
-        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px; position: sticky; top: 0; z-index: 1000; }
-        .sidebar { width: 280px; background: var(--sidebar-bg); color: white; padding: 25px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 1050; display: flex; flex-direction: column; }
-        .nav-btn { width: 100%; text-align: left; background: none; border: none; color: #94a3b8; padding: 14px 18px; margin-bottom: 5px; border-radius: 12px; display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.2s; }
-        .nav-btn.active { background: var(--accent); color: white; }
-        .main-content { margin-left: 280px; padding: 40px; transition: 0.3s; }
-        @media (max-width: 992px) { .sidebar { left: -280px; } .main-content { margin-left: 0; padding: 20px; } .mobile-header { display: flex; justify-content: space-between; align-items: center; } }
-        .secao { display: none; animation: fadeIn 0.4s ease; }
-        .ativa { display: block; }
+        :root { --primary: #003399; --accent: #ffcc00; --red: #cc0000; --bg: #f0f2f5; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; margin: 0; }
+
+        /* TOP BAR */
+        .top-bar {
+            background: white; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; border-bottom: 4px solid var(--accent);
+        }
+        .user-info { display: flex; align-items: center; gap: 15px; font-weight: 600; color: var(--primary); }
+        .btn-logout { background: var(--red); color: white; border: none; padding: 6px 15px; border-radius: 8px; font-size: 0.85rem; transition: 0.3s; }
+        .btn-logout:hover { opacity: 0.8; transform: scale(0.95); }
+
+        /* LAYOUT MAIN */
+        .wrapper { display: flex; min-height: calc(100vh - 70px); }
+        .sidebar { 
+            width: 260px; background: var(--primary); padding: 20px; flex-shrink: 0; 
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .main-content { flex-grow: 1; padding: 30px; }
+
+        /* BUTTONS SIDEBAR */
+        .nav-link-pe {
+            color: rgba(255,255,255,0.7); text-decoration: none; padding: 12px 15px; border-radius: 10px;
+            display: flex; align-items: center; gap: 12px; transition: 0.3s; font-size: 0.95rem; border: none; background: none; width: 100%; text-align: left;
+        }
+        .nav-link-pe:hover, .nav-link-pe.active { background: rgba(255,255,255,0.1); color: var(--accent); }
+
+        /* CARDS */
+        .card-custom { background: white; border-radius: 20px; border: none; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .stat-box { border-radius: 15px; padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* VIDEO */
+        video { width: 100%; border-radius: 20px; background: #000; transform: scaleX(-1); border: 4px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        
+        .secao { display: none; }
+        .ativa { display: block; animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card { border: none; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .stat-card { padding: 20px; border-radius: 16px; color: white; display: flex; justify-content: space-between; align-items: center; }
-        video { border-radius: 16px; width: 100%; max-width: 450px; transform: scaleX(-1); background: #000; }
+
+        /* MOBILE */
+        @media (max-width: 992px) {
+            .sidebar { display: none; }
+            .top-bar { padding: 10px 15px; }
+            .user-info span { display: none; }
+        }
     </style>
 </head>
 <body>
 
-    <header class="mobile-header">
-        <h5 class="mb-0">Escola Pro</h5>
-        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offSidebar"><i class="fas fa-bars"></i></button>
+    <header class="top-bar">
+        <div class="d-flex align-items-center gap-2">
+            <img src="https://www.pe.gov.br/wp-content/themes/governo-pe/assets/images/brasao-pe.png" height="40" alt="PE">
+            <div class="fw-bold d-none d-md-block" style="line-height: 1; color: var(--primary);">GOVERNO DE<br><small>PERNAMBUCO</small></div>
+        </div>
+        <div class="user-info">
+            <i class="fas fa-user-circle fa-lg"></i>
+            <span>Logado como: <strong id="username-display">---</strong></span>
+            <button class="btn-logout" onclick="window.logout()"><i class="fas fa-power-off"></i> Sair</button>
+        </div>
     </header>
 
-    <aside class="sidebar d-none d-lg-flex">
-        <h4 class="mb-4 fw-bold"><i class="fas fa-graduation-cap me-2"></i> ESCOLA PRO</h4>
-        <nav class="nav-content" id="menu-desktop"></nav>
-        <button onclick="window.logout()" class="btn btn-outline-danger w-100 rounded-pill mt-3">Sair</button>
-    </aside>
+    <div class="wrapper">
+        <aside class="sidebar">
+            <div id="menu-links"></div>
+        </aside>
 
-    <div class="offcanvas offcanvas-start bg-dark text-white" id="offSidebar" style="width: 280px;">
-        <div class="offcanvas-header border-bottom border-secondary">
-            <h5 class="offcanvas-title text-white">MENU</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body" id="menu-mobile"></div>
+        <main class="main-content">
+            <div id="sec-stats" class="secao ativa">
+                <h4 class="fw-bold mb-4 text-dark">Monitoramento em Tempo Real</h4>
+                <div class="row g-4">
+                    <div class="col-md-4"><div class="stat-box" style="background: var(--primary)"><div><small>Matriculados</small><h2 id="st-total">0</h2></div><i class="fas fa-users fa-2x opacity-50"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box" style="background: #10b981"><div><small>Presenças Hoje</small><h2 id="st-presentes">0</h2></div><i class="fas fa-check-circle fa-2x opacity-50"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box" style="background: var(--red)"><div><small>Faltas</small><h2 id="st-faltas">0</h2></div><i class="fas fa-user-times fa-2x opacity-50"></i></div></div>
+                </div>
+                <div class="row mt-4 g-4">
+                    <div class="col-lg-8"><div class="card-custom"><h5>Fluxo de Entrada</h5><canvas id="chartBarras" height="150"></canvas></div></div>
+                    <div class="col-lg-4"><div class="card-custom"><h5>Assiduidade</h5><canvas id="chartPizza"></canvas></div></div>
+                </div>
+            </div>
+
+            <div id="sec-faltas" class="secao">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark">Base de Alunos</h4>
+                    <input type="text" id="buscaA" class="form-control w-50 rounded-pill shadow-sm" placeholder="🔍 Pesquisar por nome ou turma..." onkeyup="window.filtrarAlunos()">
+                </div>
+                <div class="card-custom p-0 overflow-hidden">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light"><tr><th>Estudante</th><th>Turma</th><th class="text-center">Ações</th></tr></thead>
+                        <tbody id="tabelaAlunos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="sec-facial" class="secao">
+                <h4 class="fw-bold mb-4">Matrícula de Estudante</h4>
+                <div class="card-custom">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            <label class="small fw-bold mb-1">NOME COMPLETO</label>
+                            <input type="text" id="nAluno" class="form-control mb-3" placeholder="Ex: João Silva">
+                            <label class="small fw-bold mb-1">TURMA / SÉRIE</label>
+                            <input type="text" id="sAluno" class="form-control mb-4" placeholder="Ex: 3º B - Redes">
+                            <button class="btn btn-primary w-100 py-3 mb-2 fw-bold" id="btnCam"><i class="fas fa-camera me-2"></i> Abrir Câmera</button>
+                            <button class="btn btn-success w-100 py-3 fw-bold" id="btnSalvar"><i class="fas fa-save me-2"></i> Finalizar Cadastro</button>
+                        </div>
+                        <div class="col-lg-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sec-consultas" class="secao">
+                <h4 class="fw-bold mb-4 text-dark">Relatórios Oficiais</h4>
+                <div class="card-custom mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-5"><label class="small fw-bold">SELECIONE O DIA</label><input type="date" id="filtroData" class="form-control"></div>
+                        <div class="col-md-7 d-flex align-items-end gap-2">
+                            <button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()"><i class="fas fa-search"></i> Consultar</button>
+                            <button class="btn btn-danger" onclick="window.baixarPDF()"><i class="fas fa-file-pdf"></i> Exportar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Nome</th><th>Hora de Registro</th></tr></thead><tbody id="tabelaRelatorio"></tbody></table></div>
+            </div>
+
+            <div id="sec-usuarios" class="secao">
+                <h4 class="fw-bold mb-4">Operadores do Sistema</h4>
+                <div class="card-custom mb-4">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4"><input type="text" id="lu" class="form-control" placeholder="Usuário"></div>
+                        <div class="col-md-4"><input type="password" id="ls" class="form-control" placeholder="Senha"></div>
+                        <div class="col-md-4"><input type="email" id="le" class="form-control" placeholder="E-mail de recuperação"></div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 mb-4 p-2 bg-light rounded">
+                        <label><input type="checkbox" class="pc" value="aba-stats"> Painel</label>
+                        <label><input type="checkbox" class="pc" value="aba-consultas"> Relatórios</label>
+                        <label><input type="checkbox" class="pc" value="aba-facial"> Matrícula</label>
+                        <label><input type="checkbox" class="pc" value="aba-faltas"> Alunos</label>
+                        <label><input type="checkbox" class="pc" value="aba-usuarios"> Sistemas</label>
+                    </div>
+                    <button class="btn btn-primary px-5" id="btnL">Criar Novo Login</button>
+                </div>
+                <div class="d-flex justify-content-between mb-2"><h5>Listagem de Acessos</h5><input type="text" id="buscaL" class="form-control w-25 rounded-pill shadow-sm" placeholder="Buscar login..." onkeyup="window.filtrarLogins()"></div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><thead><tr class="table-dark"><th>Usuário</th><th class="text-end">Gerir</th></tr></thead><tbody id="tabelaLogins"></tbody></table></div>
+            </div>
+        </main>
     </div>
 
-    <main class="main-content">
-        <div id="sec-stats" class="secao ativa">
-            <h3 class="mb-4 fw-bold">Painel Geral</h3>
-            <div class="row g-3">
-                <div class="col-md-4"><div class="stat-card bg-primary"><div><small>Matrículas</small><h2 id="st-total">0</h2></div><i class="fas fa-users fa-2x opacity-25"></i></div></div>
-                <div class="col-md-4"><div class="stat-card bg-success"><div><small>Presentes</small><h2 id="st-presentes">0</h2></div><i class="fas fa-check fa-2x opacity-25"></i></div></div>
-                <div class="col-md-4"><div class="stat-card bg-danger"><div><small>Faltas</small><h2 id="st-faltas">0</h2></div><i class="fas fa-times fa-2x opacity-25"></i></div></div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-lg-8"><div class="card p-4"><h5>Frequência</h5><canvas id="chartBarras"></canvas></div></div>
-                <div class="col-lg-4"><div class="card p-4"><h5>Taxa Geral</h5><canvas id="chartPizza"></canvas></div></div>
-            </div>
-        </div>
-
-        <div id="sec-frequencia" class="secao">
-            <div class="d-flex justify-content-between mb-4">
-                <h3 class="fw-bold">Chamada de Hoje</h3>
-                <button class="btn btn-danger btn-sm rounded-pill" onclick="window.zerarChamadaHoje()">Zerar</button>
-            </div>
-            <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Aluno</th><th>Hora</th></tr></thead><tbody id="tabelaFrequencia"></tbody></table></div>
-        </div>
-
-        <div id="sec-facial" class="secao">
-            <h3 class="mb-4 fw-bold">Novo Aluno</h3>
-            <div class="card p-4">
-                <div class="row">
-                    <div class="col-lg-5">
-                        <input type="text" id="nomeAluno" class="form-control mb-2" placeholder="Nome">
-                        <select id="salaAluno" class="form-select mb-2">
-                            <option value="">Selecione a Turma</option>
-                            <option>1º Ano A Logística</option><option>1º Ano B Logística</option>
-                        </select>
-                        <input type="text" id="telAluno" class="form-control mb-3" placeholder="Telefone">
-                        <button class="btn btn-dark w-100 mb-2" id="btnLigarCam">Câmera</button>
-                        <button class="btn btn-primary w-100" id="btnSalvarAluno">Salvar</button>
-                    </div>
-                    <div class="col-lg-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
-                </div>
+    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog"><div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-0 bg-primary text-white"><h5>Editar Acesso</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body p-4">
+            <input type="hidden" id="eid"><label class="small fw-bold">NOME DE USUÁRIO</label><input type="text" id="eu" class="form-control mb-3">
+            <label class="small fw-bold">NOVA SENHA (DEIXE VAZIO SE NÃO MUDAR)</label><input type="password" id="es" class="form-control mb-3">
+            <label class="small fw-bold">E-MAIL</label><input type="email" id="ee" class="form-control mb-4">
+            <h6>Permissões do Módulo</h6>
+            <div id="ep" class="d-flex flex-wrap gap-2 p-3 bg-light rounded">
+                <label><input type="checkbox" class="pce" value="aba-stats"> Painel</label>
+                <label><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label>
+                <label><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label>
+                <label><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label>
+                <label><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label>
             </div>
         </div>
-
-        <div id="sec-faltas" class="secao">
-            <h3 class="mb-4 fw-bold">Alunos</h3>
-            <div class="card p-3 mb-3">
-                <input type="text" id="inputBuscaAlunos" class="form-control" placeholder="🔍 Buscar aluno por nome ou sala..." onkeyup="window.filtrarAlunos()">
-            </div>
-            <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Nome</th><th>Sala</th><th>Ações</th></tr></thead><tbody id="tabelaAlunos"></tbody></table></div>
-        </div>
-
-        <div id="sec-usuarios" class="secao">
-            <h3 class="mb-4 fw-bold">Gestão de Logins</h3>
-            <div class="card p-4 mb-4">
-                <h5>Novo Usuário</h5>
-                <div class="row g-2 mb-3">
-                    <div class="col-md-6"><input type="text" id="novoUser" class="form-control" placeholder="Usuário"></div>
-                    <div class="col-md-6"><input type="password" id="novaSenha" class="form-control" placeholder="Senha"></div>
-                </div>
-                <h6>Permissões:</h6>
-                <div class="d-flex flex-wrap gap-3 mb-3">
-                    <label><input type="checkbox" class="perm-check" value="aba-stats"> Dashboard</label>
-                    <label><input type="checkbox" class="perm-check" value="aba-frequencia"> Chamada</label>
-                    <label><input type="checkbox" class="perm-check" value="aba-facial"> Novo Aluno</label>
-                    <label><input type="checkbox" class="perm-check" value="aba-faltas"> Lista Alunos</label>
-                    <label><input type="checkbox" class="perm-check" value="aba-usuarios"> Gerir Logins</label>
-                </div>
-                <button class="btn btn-primary w-100" id="btnCriarLogin">Criar Acesso</button>
-            </div>
-            
-            <div class="card p-3 mb-3">
-                <input type="text" id="inputBuscaLogins" class="form-control" placeholder="🔍 Buscar login..." onkeyup="window.filtrarLogins()">
-            </div>
-            <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Usuário</th><th>Ações</th></tr></thead><tbody id="tabelaUsuarios"></tbody></table></div>
-        </div>
-    </main>
-
-    <div class="modal fade" id="modalEditLogin" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5>Editar Login</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-            <input type="hidden" id="editLoginId">
-            <label>Usuário:</label><input type="text" id="editLoginUser" class="form-control mb-2">
-            <label>Nova Senha:</label><input type="password" id="editLoginPass" class="form-control mb-3">
-            <h6>Permissões:</h6>
-            <div id="editPermsContainer" class="d-flex flex-wrap gap-2">
-                <label><input type="checkbox" class="perm-edit" value="aba-stats"> Dashboard</label>
-                <label><input type="checkbox" class="perm-edit" value="aba-frequencia"> Chamada</label>
-                <label><input type="checkbox" class="perm-edit" value="aba-facial"> Novo Aluno</label>
-                <label><input type="checkbox" class="perm-edit" value="aba-faltas"> Lista Alunos</label>
-                <label><input type="checkbox" class="perm-edit" value="aba-usuarios"> Gerir Logins</label>
-            </div>
-        </div>
-        <div class="modal-footer"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoLogin()">Atualizar</button></div>
+        <div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEL()">Confirmar Alterações</button></div>
     </div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo",
@@ -158,98 +192,136 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const modEditLogin = new bootstrap.Modal(document.getElementById('modalEditLogin'));
+        const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        let chartB = null, chartP = null;
 
-        // --- GESTÃO DE LOGINS ---
-        document.getElementById('btnCriarLogin').onclick = async () => {
-            const u = document.getElementById('novoUser').value;
-            const s = document.getElementById('novaSenha').value;
-            const perms = Array.from(document.querySelectorAll('.perm-check:checked')).map(c => c.value);
-            if(!u || !s) return alert("Preencha usuário e senha");
-            await addDoc(collection(db, "logins"), { usuario: u, senha: s, permissoes: perms });
-            alert("Login criado!"); location.reload();
+        window.onload = () => {
+            if(!logado) window.location.href = 'index.html';
+            document.getElementById('username-display').innerText = logado.usuario;
+            montarMenu();
+            initIA();
+            escutarDados();
         };
 
-        window.abrirEdicaoLogin = (id, user, permsJson) => {
-            document.getElementById('editLoginId').value = id;
-            document.getElementById('editLoginUser').value = user;
-            const perms = JSON.parse(permsJson || '[]');
-            document.querySelectorAll('.perm-edit').forEach(cb => cb.checked = perms.includes(cb.value));
-            modEditLogin.show();
-        };
+        window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
 
-        window.salvarEdicaoLogin = async () => {
-            const id = document.getElementById('editLoginId').value;
-            const perms = Array.from(document.querySelectorAll('.perm-edit:checked')).map(c => c.value);
-            await updateDoc(doc(db, "logins", id), {
-                usuario: document.getElementById('editLoginUser').value,
-                senha: document.getElementById('editLoginPass').value || undefined, // Só muda se digitar
-                permissoes: perms
+        function montarMenu() {
+            const itens = [
+                { id: 'sec-stats', label: 'Dashboard', icon: 'fa-chart-line' },
+                { id: 'sec-consultas', label: 'Relatórios', icon: 'fa-print' },
+                { id: 'sec-facial', label: 'Matrícula', icon: 'fa-id-card' },
+                { id: 'sec-faltas', label: 'Alunos', icon: 'fa-users' },
+                { id: 'sec-usuarios', label: 'Sistemas', icon: 'fa-cogs' }
+            ];
+            let h = "";
+            itens.forEach(i => {
+                if(logado.usuario === 'Márcio' || (logado.permissoes && logado.permissoes.includes(i.id.replace('sec-', 'aba-')))) {
+                    h += `<button class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)"><i class="fas ${i.icon}"></i> ${i.label}</button>`;
+                }
             });
-            modEditLogin.hide();
-            alert("Login atualizado!");
-        };
-
-        // --- FILTROS DE BUSCA ---
-        window.filtrarAlunos = () => {
-            const termo = document.getElementById('inputBuscaAlunos').value.toLowerCase();
-            document.querySelectorAll('#tabelaAlunos tr').forEach(tr => {
-                tr.style.display = tr.innerText.toLowerCase().includes(termo) ? "" : "none";
-            });
-        };
-
-        window.filtrarLogins = () => {
-            const termo = document.getElementById('inputBuscaLogins').value.toLowerCase();
-            document.querySelectorAll('#tabelaUsuarios tr').forEach(tr => {
-                tr.style.display = tr.innerText.toLowerCase().includes(termo) ? "" : "none";
-            });
-        };
-
-        // --- REALTIME SYNC ---
-        function carregarDados() {
-            onSnapshot(collection(db, "alunos"), (snap) => {
-                const tab = document.getElementById('tabelaAlunos'); tab.innerHTML = "";
-                snap.forEach(d => {
-                    const a = d.data();
-                    tab.innerHTML += `<tr><td>${a.nome}</td><td>${a.sala}</td><td class="text-end">
-                        <button class="btn btn-sm btn-light" onclick="window.excluirDoc('alunos','${d.id}')"><i class="fas fa-trash text-danger"></i></button>
-                    </td></tr>`;
-                });
-                document.getElementById('st-total').innerText = snap.size;
-            });
-
-            onSnapshot(collection(db, "logins"), (snap) => {
-                const tab = document.getElementById('tabelaUsuarios'); tab.innerHTML = "";
-                snap.forEach(d => {
-                    const l = d.data();
-                    tab.innerHTML += `<tr><td>${l.usuario}</td><td class="text-end">
-                        <button class="btn btn-sm btn-light" onclick="window.abrirEdicaoLogin('${d.id}','${l.usuario}','${JSON.stringify(l.permissoes)}')"><i class="fas fa-edit text-primary"></i></button>
-                        <button class="btn btn-sm btn-light" onclick="window.excluirDoc('logins','${d.id}')"><i class="fas fa-trash text-danger"></i></button>
-                    </td></tr>`;
-                });
-            });
+            document.getElementById('menu-links').innerHTML = h;
+            document.querySelector('.nav-link-pe').classList.add('active');
         }
 
-        // --- OUTRAS FUNÇÕES ---
-        window.excluirDoc = async (col, id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, col, id)); };
-        window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
         window.trocarAba = (id, btn) => {
             document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
             document.getElementById(id).classList.add('ativa');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
         };
 
-        // Inicia
-        carregarDados();
-        const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        // (Lógica de montar menu aqui...)
-        let menuH = "";
-        const itens = [{id:'sec-stats', label:'Dashboard'}, {id:'sec-frequencia', label:'Chamada'}, {id:'sec-facial', label:'Novo Aluno'}, {id:'sec-faltas', label:'Alunos'}, {id:'sec-usuarios', label:'Logins'}];
-        itens.forEach(i => menuH += `<button class="nav-btn" onclick="window.trocarAba('${i.id}', this)">${i.label}</button>`);
-        document.getElementById('menu-desktop').innerHTML = menuH;
-        document.getElementById('menu-mobile').innerHTML = menuH;
+        async function initIA() {
+            const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+            await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(URL);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
+        }
 
+        document.getElementById('btnCam').onclick = async () => {
+            const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('webcam').srcObject = s;
+        };
+
+        document.getElementById('btnSalvar').onclick = async () => {
+            const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
+            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            if(!det) return alert("Rosto não detectado!");
+            await addDoc(collection(db, "alunos"), { nome: n, sala: s, descritor: Array.from(det.descriptor) });
+            alert("Sucesso!"); location.reload();
+        };
+
+        function escutarDados() {
+            onSnapshot(collection(db, "alunos"), snap => {
+                const t = document.getElementById('tabelaAlunos'); t.innerHTML = "";
+                snap.forEach(d => { t.innerHTML += `<tr><td class="fw-bold">${d.data().nome}</td><td>${d.data().sala}</td><td class="text-center"><button class="btn btn-sm btn-light text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+                document.getElementById('st-total').innerText = snap.size;
+                updateCharts();
+            });
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            onSnapshot(collection(db, "frequencia"), snap => {
+                let p = 0; snap.forEach(d => { if(d.data().data === hoje) p++; });
+                document.getElementById('st-presentes').innerText = p;
+                document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - p);
+                updateCharts();
+            });
+            onSnapshot(collection(db, "logins"), snap => {
+                const t = document.getElementById('tabelaLogins'); t.innerHTML = "";
+                snap.forEach(d => { t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary" onclick='window.editL("${d.id}","${d.data().usuario}","${d.data().email}",${JSON.stringify(JSON.stringify(d.data().permissoes))})'><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+            });
+        }
+
+        window.editL = (id, u, e, p) => {
+            document.getElementById('eid').value = id; document.getElementById('eu').value = u; document.getElementById('ee').value = e;
+            const perms = JSON.parse(p); document.querySelectorAll('.pce').forEach(c => c.checked = perms.includes(c.value));
+            new bootstrap.Modal(document.getElementById('modalL')).show();
+        };
+
+        window.salvarEL = async () => {
+            const data = { usuario: document.getElementById('eu').value, email: document.getElementById('ee').value, permissoes: Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value) };
+            if(document.getElementById('es').value) data.senha = document.getElementById('es').value;
+            await updateDoc(doc(db, "logins", document.getElementById('eid').value), data);
+            location.reload();
+        };
+
+        window.gerarRelatorio = async () => {
+            const df = document.getElementById('filtroData').value;
+            if(!df) return alert("Selecione a data");
+            const dataBR = df.split('-').reverse().join('/');
+            const q = query(collection(db, "frequencia"), where("data", "==", dataBR));
+            const snap = await getDocs(q);
+            const t = document.getElementById('tabelaRelatorio'); t.innerHTML = "";
+            window.dadosPDF = [];
+            snap.forEach(d => {
+                t.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().hora}</td></tr>`;
+                window.dadosPDF.push([d.data().nome, d.data().hora]);
+            });
+        };
+
+        window.baixarPDF = () => {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.autoTable({ head: [['Nome', 'Hora']], body: window.dadosPDF });
+            doc.save("frequencia.pdf");
+        };
+
+        window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#tabelaAlunos tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
+        window.filtrarLogins = () => { const v = document.getElementById('buscaL').value.toLowerCase(); document.querySelectorAll('#tabelaLogins tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
+        window.del = async (c, i) => { if(confirm("Excluir?")) await deleteDoc(doc(db, c, i)); };
+
+        function updateCharts() {
+            const t = parseInt(document.getElementById('st-total').innerText);
+            const p = parseInt(document.getElementById('st-presentes').innerText);
+            if(chartP) chartP.destroy();
+            chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#cc0000'] }] } });
+            if(chartB) chartB.destroy();
+            chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'] }] } });
+        }
+
+        document.getElementById('btnL').onclick = async () => {
+            const perms = Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value);
+            await addDoc(collection(db, "logins"), { usuario: document.getElementById('lu').value, senha: document.getElementById('ls').value, email: document.getElementById('le').value, permissoes: perms });
+            alert("Criado!");
+        };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
