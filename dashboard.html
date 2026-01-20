@@ -2,8 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAF PE | Gestão de Frequência</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIAF PE | ETE Pernambuco</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,49 +13,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
     <style>
-        :root { --primary: #003399; --accent: #ffcc00; --red: #cc0000; --bg: #f0f2f5; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; margin: 0; }
-
-        /* TOP BAR */
-        .top-bar {
-            background: white; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; border-bottom: 4px solid var(--accent);
+        :root { 
+            --ete-blue: #004a99; 
+            --ete-yellow: #ffcc00; 
+            --ete-red: #e63946; 
+            --glass: rgba(255, 255, 255, 0.9);
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-        .user-info { display: flex; align-items: center; gap: 15px; font-weight: 600; color: var(--primary); }
-        .btn-logout { background: var(--red); color: white; border: none; padding: 6px 15px; border-radius: 8px; font-size: 0.85rem; transition: 0.3s; }
-        .btn-logout:hover { opacity: 0.8; transform: scale(0.95); }
-
-        /* LAYOUT MAIN */
-        .wrapper { display: flex; min-height: calc(100vh - 70px); }
-        .sidebar { 
-            width: 260px; background: var(--primary); padding: 20px; flex-shrink: 0; 
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .main-content { flex-grow: 1; padding: 30px; }
-
-        /* BUTTONS SIDEBAR */
-        .nav-link-pe {
-            color: rgba(255,255,255,0.7); text-decoration: none; padding: 12px 15px; border-radius: 10px;
-            display: flex; align-items: center; gap: 12px; transition: 0.3s; font-size: 0.95rem; border: none; background: none; width: 100%; text-align: left;
-        }
-        .nav-link-pe:hover, .nav-link-pe.active { background: rgba(255,255,255,0.1); color: var(--accent); }
-
-        /* CARDS */
-        .card-custom { background: white; border-radius: 20px; border: none; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-        .stat-box { border-radius: 15px; padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; }
         
-        video { width: 100%; border-radius: 20px; background: #000; transform: scaleX(-1); border: 4px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        body { background: var(--bg-gradient); font-family: 'Poppins', sans-serif; min-height: 100vh; margin: 0; }
+
+        /* TOP BAR MODERNA */
+        .top-bar {
+            background: var(--glass); backdrop-filter: blur(10px);
+            padding: 12px 30px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000; border-bottom: 3px solid var(--ete-yellow);
+        }
+        
+        .user-badge {
+            background: var(--ete-blue); color: white; padding: 6px 15px; border-radius: 30px;
+            font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 8px;
+        }
+
+        .btn-logout { 
+            background: var(--ete-red); color: white; border: none; width: 35px; height: 35px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;
+        }
+        .btn-logout:hover { transform: rotate(90deg); background: #b91c1c; }
+
+        /* SIDEBAR ESTILIZADA */
+        .wrapper { display: flex; }
+        .sidebar { 
+            width: 260px; background: var(--ete-blue); padding: 30px 20px; flex-shrink: 0; 
+            min-height: calc(100vh - 75px); box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+        }
+        .main-content { flex-grow: 1; padding: 35px; }
+
+        .nav-link-pe {
+            color: rgba(255,255,255,0.7); text-decoration: none; padding: 15px; border-radius: 15px;
+            display: flex; align-items: center; gap: 15px; transition: 0.3s; font-size: 0.9rem; margin-bottom: 8px; border: none; background: none; width: 100%;
+        }
+        .nav-link-pe:hover, .nav-link-pe.active { background: var(--ete-yellow); color: var(--ete-blue); font-weight: 700; transform: translateX(5px); }
+
+        /* CARDS ESTILO VIDRO */
+        .card-custom { background: var(--glass); border-radius: 25px; border: 1px solid rgba(255,255,255,0.3); padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
+        .stat-box { border-radius: 20px; padding: 25px; color: white; transition: 0.4s; }
+        .stat-box:hover { transform: translateY(-10px); }
+        
+        /* VIDEO E CAMERA */
+        video { width: 100%; border-radius: 25px; background: #1a1a1a; transform: scaleX(-1); border: 6px solid white; box-shadow: 0 15px 50px rgba(0,0,0,0.15); }
         
         .secao { display: none; }
-        .ativa { display: block; animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .ativa { display: block; animation: zoomIn 0.4s ease-out; }
+        @keyframes zoomIn { from { opacity: 0; scale: 0.95; } to { opacity: 1; scale: 1; } }
 
-        /* MOBILE FIX */
         @media (max-width: 992px) {
             .sidebar { display: none; }
-            .main-content { padding: 15px; margin-left: 0; }
-            .top-bar { padding: 10px 15px; }
-            .user-info span { display: none; }
+            .main-content { padding: 20px; }
+            .top-bar { padding: 10px 20px; }
         }
     </style>
 </head>
@@ -65,15 +80,19 @@
         <button class="btn d-lg-none text-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuCelular">
             <i class="fas fa-bars fa-lg"></i>
         </button>
-
-        <div class="d-flex align-items-center gap-2">
-            <img src="https://www.pe.gov.br/wp-content/themes/governo-pe/assets/images/brasao-pe.png" height="35" alt="PE">
-            <div class="fw-bold d-none d-md-block" style="line-height: 1; color: var(--primary);">GOVERNO DE<br><small>PERNAMBUCO</small></div>
+        <div class="d-flex align-items-center gap-3">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Logo_da_Educa%C3%A7%C3%A3o_Pernambuco.png/1200px-Logo_da_Educa%C3%A7%C3%A3o_Pernambuco.png" height="45" alt="ETE PE">
+            <div class="d-none d-md-block">
+                <span class="fw-bold d-block text-primary" style="font-size: 1.1rem;">SIAF PE</span>
+                <span class="text-muted small">Escola Técnica Estadual</span>
+            </div>
         </div>
-        <div class="user-info">
-            <i class="fas fa-user-circle fa-lg"></i>
-            <span>Logado como: <strong id="username-display">---</strong></span>
-            <button class="btn-logout" onclick="window.logout()"><i class="fas fa-power-off"></i> Sair</button>
+        <div class="d-flex align-items-center gap-2">
+            <div class="user-badge">
+                <i class="fas fa-user-shield"></i>
+                <span id="username-display">---</span>
+            </div>
+            <button class="btn-logout" onclick="window.logout()" title="Sair"><i class="fas fa-power-off"></i></button>
         </div>
     </header>
 
@@ -82,81 +101,105 @@
             <div id="menu-links"></div>
         </aside>
 
-        <div class="offcanvas offcanvas-start bg-primary text-white" tabindex="-1" id="menuCelular" style="width: 260px;">
+        <div class="offcanvas offcanvas-start bg-primary text-white" tabindex="-1" id="menuCelular" style="width: 270px; border-right: 5px solid var(--ete-yellow);">
             <div class="offcanvas-header border-bottom border-warning">
-                <h5 class="offcanvas-title fw-bold">SIAF PE</h5>
+                <h5 class="offcanvas-title fw-bold">MENU ETE</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
             <div class="offcanvas-body">
                 <div id="menu-links-mobile"></div>
-                <hr>
-                <button class="btn btn-danger w-100" onclick="window.logout()">Sair do Sistema</button>
             </div>
         </div>
 
         <main class="main-content">
             <div id="sec-stats" class="secao ativa">
-                <h4 class="fw-bold mb-4 text-dark">Monitoramento em Tempo Real</h4>
+                <h4 class="fw-bold mb-4">Painel de Frequência</h4>
                 <div class="row g-4">
-                    <div class="col-md-4"><div class="stat-box shadow" style="background: var(--primary)"><div><small>Matriculados</small><h2 id="st-total">0</h2></div><i class="fas fa-users fa-2x opacity-50"></i></div></div>
-                    <div class="col-md-4"><div class="stat-box shadow" style="background: #10b981"><div><small>Presenças Hoje</small><h2 id="st-presentes">0</h2></div><i class="fas fa-check-circle fa-2x opacity-25"></i></div></div>
-                    <div class="col-md-4"><div class="stat-box shadow" style="background: var(--red)"><div><small>Faltas</small><h2 id="st-faltas">0</h2></div><i class="fas fa-user-times fa-2x opacity-50"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box" style="background: linear-gradient(45deg, #004a99, #0072ff)"><div><small>Total Alunos</small><h2 id="st-total">0</h2></div><i class="fas fa-user-graduate fa-2x opacity-25"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box" style="background: linear-gradient(45deg, #00b09b, #96c93d)"><div><small>Presentes Hoje</small><h2 id="st-presentes">0</h2></div><i class="fas fa-fingerprint fa-2x opacity-25"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box" style="background: linear-gradient(45deg, #ee0979, #ff6a00)"><div><small>Faltas</small><h2 id="st-faltas">0</h2></div><i class="fas fa-exclamation-triangle fa-2x opacity-25"></i></div></div>
                 </div>
                 <div class="row mt-4 g-4">
-                    <div class="col-lg-8"><div class="card-custom"><h5>Fluxo de Entrada</h5><canvas id="chartBarras" height="150"></canvas></div></div>
-                    <div class="col-lg-4"><div class="card-custom"><h5>Assiduidade</h5><canvas id="chartPizza"></canvas></div></div>
-                </div>
-            </div>
-
-            <div id="sec-faltas" class="secao">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold">Base de Alunos</h4>
-                    <input type="text" id="buscaA" class="form-control w-50 rounded-pill shadow-sm" placeholder="🔍 Pesquisar..." onkeyup="window.filtrarAlunos()">
-                </div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><tbody id="tabelaAlunos"></tbody></table></div>
-            </div>
-
-            <div id="sec-facial" class="secao">
-                <h4 class="fw-bold mb-4">Matrícula Biométrica</h4>
-                <div class="card-custom">
-                    <div class="row g-4">
-                        <div class="col-lg-5">
-                            <input type="text" id="nAluno" class="form-control mb-3" placeholder="Nome">
-                            <input type="text" id="sAluno" class="form-control mb-4" placeholder="Turma">
-                            <button class="btn btn-primary w-100 py-3 mb-2" id="btnCam">Câmera</button>
-                            <button class="btn btn-success w-100 py-3" id="btnSalvar">Finalizar</button>
-                        </div>
-                        <div class="col-lg-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
-                    </div>
+                    <div class="col-lg-7"><div class="card-custom"><h5>Relatório por Classe</h5><canvas id="chartBarras" height="180"></canvas></div></div>
+                    <div class="col-lg-5"><div class="card-custom"><h5>Participação Geral</h5><canvas id="chartPizza"></canvas></div></div>
                 </div>
             </div>
 
             <div id="sec-consultas" class="secao">
                 <h4 class="fw-bold mb-4">Relatórios Oficiais</h4>
-                <div class="card-custom mb-3">
-                    <input type="date" id="filtroData" class="form-control mb-2">
-                    <button class="btn btn-primary w-100" onclick="window.gerarRelatorio()">Consultar</button>
+                <div class="card-custom mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-3"><label class="small fw-bold">DATA</label><input type="date" id="filtroData" class="form-control rounded-pill"></div>
+                        <div class="col-md-4"><label class="small fw-bold">TURMA</label><select id="filtroTurmaRelatorio" class="form-select rounded-pill"><option value="TODAS">Todas</option><option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>2º Ano A Redes</option><option>3º Ano B Redes</option></select></div>
+                        <div class="col-md-5 d-flex align-items-end gap-2">
+                            <button class="btn btn-primary rounded-pill flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button>
+                            <button class="btn btn-danger rounded-circle" onclick="window.baixarPDF()"><i class="fas fa-file-pdf"></i></button>
+                            <button class="btn btn-success rounded-circle" onclick="window.baixarExcel()"><i class="fas fa-file-excel"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><tbody id="tabelaRelatorio"></tbody></table></div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table table-hover mb-0 align-middle"><tbody id="tabelaRelatorio"></tbody></table></div>
+            </div>
+
+            <div id="sec-facial" class="secao">
+                <h4 class="fw-bold mb-4">Novo Registro Estudantil</h4>
+                <div class="card-custom">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            <label class="small fw-bold">NOME DO ALUNO</label>
+                            <input type="text" id="nAluno" class="form-control mb-3 rounded-pill shadow-sm">
+                            <label class="small fw-bold">TURMA</label>
+                            <select id="sAluno" class="form-select mb-3 rounded-pill shadow-sm"><option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>1º Ano A Redes</option></select>
+                            <label class="small fw-bold">TEL. RESPONSÁVEL</label>
+                            <input type="text" id="tAluno" class="form-control mb-3 rounded-pill shadow-sm" placeholder="(81) 9....">
+                            <label class="small fw-bold">E-MAIL</label>
+                            <input type="email" id="eAluno" class="form-control mb-4 rounded-pill shadow-sm">
+                            <button class="btn btn-dark w-100 py-3 rounded-pill mb-2" id="btnCam">Ativar Câmera</button>
+                            <button class="btn btn-primary w-100 py-3 rounded-pill" id="btnSalvar">Salvar Cadastro</button>
+                        </div>
+                        <div class="col-lg-7"><video id="webcam" autoplay muted playsinline></video></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sec-faltas" class="secao">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold">Banco de Estudantes</h4>
+                    <input type="text" id="buscaA" class="form-control w-50 rounded-pill shadow-sm" placeholder="🔍 Buscar aluno..." onkeyup="window.filtrarAlunos()">
+                </div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table table-hover mb-0 align-middle"><tbody id="tabelaAlunos"></tbody></table></div>
             </div>
 
             <div id="sec-usuarios" class="secao">
-                <h4 class="fw-bold mb-4">Operadores do Sistema</h4>
+                <h4 class="fw-bold mb-4">Configuração de Acessos</h4>
                 <div class="card-custom mb-4">
-                    <input type="text" id="lu" class="form-control mb-2" placeholder="Usuário">
-                    <input type="password" id="ls" class="form-control mb-2" placeholder="Senha">
-                    <button class="btn btn-primary w-100" id="btnL">Criar Login</button>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3"><input type="text" id="lu" class="form-control rounded-pill" placeholder="Login"></div>
+                        <div class="col-md-3"><input type="password" id="ls" class="form-control rounded-pill" placeholder="Senha"></div>
+                        <div class="col-md-3"><input type="text" id="lt" class="form-control rounded-pill" placeholder="Telefone"></div>
+                        <div class="col-md-3"><input type="email" id="le" class="form-control rounded-pill" placeholder="E-mail"></div>
+                    </div>
+                    <div class="p-3 bg-light rounded-4 mb-4">
+                        <div class="d-flex flex-wrap gap-3">
+                            <label><input type="checkbox" class="pc" value="aba-stats" checked> Dash</label>
+                            <label><input type="checkbox" class="pc" value="aba-consultas"> Relatórios</label>
+                            <label><input type="checkbox" class="pc" value="aba-facial"> Matrícula</label>
+                            <label><input type="checkbox" class="pc" value="aba-faltas"> Alunos</label>
+                            <label><input type="checkbox" class="pc" value="aba-usuarios"> Sistemas</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary px-5 rounded-pill" id="btnL">Criar Operador</button>
                 </div>
                 <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><tbody id="tabelaLogins"></tbody></table></div>
             </div>
         </main>
     </div>
 
-    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border-radius: 30px; border: none;">
+        <div class="modal-header bg-primary text-white" style="border-radius: 30px 30px 0 0;"><h5>Editar Dados</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
         <div class="modal-body p-4">
-            <input type="hidden" id="eid"><input type="text" id="eu" class="form-control mb-3" placeholder="Usuário">
-            <input type="password" id="es" class="form-control mb-3" placeholder="Nova Senha">
-            <button class="btn btn-primary w-100" onclick="window.salvarEL()">Confirmar</button>
+            <input type="hidden" id="editAlunoId"><input type="text" id="editAlunoNome" class="form-control mb-3 rounded-pill"><input type="text" id="editAlunoSala" class="form-control mb-3 rounded-pill"><input type="text" id="editAlunoTel" class="form-control mb-3 rounded-pill"><input type="email" id="editAlunoEmail" class="form-control mb-3 rounded-pill">
+            <button class="btn btn-primary w-100 rounded-pill py-2" onclick="window.salvarEdicaoAluno()">Salvar</button>
         </div>
     </div></div></div>
 
@@ -189,22 +232,15 @@
         window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
 
         function montarMenu() {
-            const itens = [
-                { id: 'sec-stats', label: 'Dashboard', icon: 'fa-chart-line' },
-                { id: 'sec-consultas', label: 'Relatórios', icon: 'fa-print' },
-                { id: 'sec-facial', label: 'Matrícula', icon: 'fa-id-card' },
-                { id: 'sec-faltas', label: 'Alunos', icon: 'fa-users' },
-                { id: 'sec-usuarios', label: 'Sistemas', icon: 'fa-cogs' }
-            ];
+            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-pie'},{id:'sec-consultas', label:'Relatórios', icon:'fa-file-alt'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cog'}];
             let h = "";
             itens.forEach(i => {
-                if(logado.usuario === 'Márcio' || (logado.permissoes && logado.permissoes.includes(i.id.replace('sec-', 'aba-')))) {
+                if(logado.usuario === 'Adm master' || (logado.permissoes && logado.permissoes.includes(i.id.replace('sec-', 'aba-')))) {
                     h += `<button class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas"><i class="fas ${i.icon}"></i> ${i.label}</button>`;
                 }
             });
             document.getElementById('menu-links').innerHTML = h;
             document.getElementById('menu-links-mobile').innerHTML = h;
-            document.querySelector('.nav-link-pe').classList.add('active');
         }
 
         window.trocarAba = (id, btn) => {
@@ -215,7 +251,6 @@
             if(id === 'sec-stats') updateCharts();
         };
 
-        // Funções de banco de dados e IA mantidas como no anterior
         async function initIA() {
             const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
             await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
@@ -224,22 +259,27 @@
         }
 
         document.getElementById('btnCam').onclick = async () => {
-            const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            document.getElementById('webcam').srcObject = s;
+            document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         };
 
         document.getElementById('btnSalvar').onclick = async () => {
             const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
             const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
             if(!det) return alert("Rosto não detectado!");
-            await addDoc(collection(db, "alunos"), { nome: n, sala: s, descritor: Array.from(det.descriptor) });
-            alert("Sucesso!"); location.reload();
+            await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, descritor: Array.from(det.descriptor) });
+            alert("Matrícula Efetuada!"); location.reload();
         };
 
         function escutarDados() {
             onSnapshot(collection(db, "alunos"), snap => {
                 const t = document.getElementById('tabelaAlunos'); t.innerHTML = "";
-                snap.forEach(d => { t.innerHTML += `<tr><td class="fw-bold">${d.data().nome}</td><td>${d.data().sala}</td><td class="text-center"><button class="btn btn-sm btn-light text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+                snap.forEach(d => {
+                    const a = d.data();
+                    t.innerHTML += `<tr><td class="fw-bold">${a.nome}</td><td>${a.sala}</td><td class="text-end">
+                        <button class="btn btn-sm text-primary" onclick="window.abrirEdicaoAluno('${d.id}','${a.nome}','${a.sala}','${a.tel}','${a.email}')"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="btn btn-sm text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash-alt"></i></button>
+                    </td></tr>`;
+                });
                 document.getElementById('st-total').innerText = snap.size;
                 updateCharts();
             });
@@ -252,61 +292,69 @@
             });
             onSnapshot(collection(db, "logins"), snap => {
                 const t = document.getElementById('tabelaLogins'); t.innerHTML = "";
-                snap.forEach(d => { t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary" onclick='window.editL("${d.id}","${d.data().usuario}","${d.data().email}",${JSON.stringify(JSON.stringify(d.data().permissoes))})'><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+                snap.forEach(d => t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-times"></i></button></td></tr>`);
             });
         }
 
-        window.editL = (id, u, e, p) => {
-            document.getElementById('eid').value = id; document.getElementById('eu').value = u; 
-            new bootstrap.Modal(document.getElementById('modalL')).show();
+        window.abrirEdicaoAluno = (id, n, s, t, e) => {
+            document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n;
+            document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t || "";
+            document.getElementById('editAlunoEmail').value = e || "";
+            new bootstrap.Modal(document.getElementById('modalEditAluno')).show();
         };
 
-        window.salvarEL = async () => {
-            const data = { usuario: document.getElementById('eu').value };
-            if(document.getElementById('es').value) data.senha = document.getElementById('es').value;
-            await updateDoc(doc(db, "logins", document.getElementById('eid').value), data);
-            location.reload();
+        window.salvarEdicaoAluno = async () => {
+            await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), {
+                nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value,
+                tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value
+            });
+            alert("Atualizado!"); location.reload();
         };
 
         window.gerarRelatorio = async () => {
-            const df = document.getElementById('filtroData').value;
-            if(!df) return alert("Selecione a data");
-            const dataBR = df.split('-').reverse().join('/');
+            const dt = document.getElementById('filtroData').value, tr = document.getElementById('filtroTurmaRelatorio').value;
+            if(!dt) return alert("Escolha uma data");
+            const dataBR = dt.split('-').reverse().join('/');
             const q = query(collection(db, "frequencia"), where("data", "==", dataBR));
             const snap = await getDocs(q);
             const t = document.getElementById('tabelaRelatorio'); t.innerHTML = "";
-            window.dadosPDF = [];
+            window.dadosExp = [];
             snap.forEach(d => {
-                t.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().hora}</td></tr>`;
-                window.dadosPDF.push([d.data().nome, d.data().hora]);
+                const f = d.data();
+                t.innerHTML += `<tr><td>${f.nome}</td><td>${f.hora}</td></tr>`;
+                window.dadosExp.push([f.nome, f.hora]);
             });
         };
 
         window.baixarPDF = () => {
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            doc.autoTable({ head: [['Nome', 'Hora']], body: window.dadosPDF });
-            doc.save("frequencia.pdf");
+            doc.text("SIAF PE - Relatório", 14, 20);
+            doc.autoTable({ head: [['Aluno', 'Hora']], body: window.dadosExp, startY: 25 });
+            doc.save("Frequencia.pdf");
         };
 
-        window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#tabelaAlunos tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
-        window.filtrarLogins = () => { const v = document.getElementById('buscaL').value.toLowerCase(); document.querySelectorAll('#tabelaLogins tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
-        window.del = async (c, i) => { if(confirm("Excluir?")) await deleteDoc(doc(db, c, i)); };
+        window.baixarExcel = () => {
+            let csv = "Aluno;Hora\n"; window.dadosExp.forEach(r => csv += r.join(";") + "\n");
+            const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+            link.download = "Frequencia.csv"; link.click();
+        };
 
-        function updateCharts() {
-            const t = parseInt(document.getElementById('st-total').innerText) || 0;
-            const p = parseInt(document.getElementById('st-presentes').innerText) || 0;
-            const ctxP = document.getElementById('chartPizza');
-            const ctxB = document.getElementById('chartBarras');
-            if(chartP) chartP.destroy();
-            chartP = new Chart(ctxP, { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#cc0000'] }] } });
-            if(chartB) chartB.destroy();
-            chartB = new Chart(ctxB, { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'] }] } });
-        }
+        window.del = async (c, i) => { if(confirm("Excluir?")) await deleteDoc(doc(db, c, i)); };
+        window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#tabelaAlunos tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
 
         document.getElementById('btnL').onclick = async () => {
-            await addDoc(collection(db, "logins"), { usuario: document.getElementById('lu').value, senha: document.getElementById('ls').value, permissoes: ['aba-stats'] });
-            alert("Criado!");
+            const perms = Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value);
+            await addDoc(collection(db, "logins"), { usuario: document.getElementById('lu').value, senha: document.getElementById('ls').value, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: perms });
+            alert("Operador Criado!");
         };
+
+        function updateCharts() {
+            const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0;
+            if(chartP) chartP.destroy();
+            chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [p, t-p], backgroundColor: ['#00b09b', '#ee0979'], borderWidth: 0 }] }, options: { cutout: '70%' } });
+            if(chartB) chartB.destroy();
+            chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Matriculados', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#004a99', '#96c93d'], borderRadius: 10 }] }, options: { scales: { y: { beginAtZero: true } } } });
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
