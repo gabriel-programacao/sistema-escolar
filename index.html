@@ -7,52 +7,83 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --ete-blue: #004a99; --ete-yellow: #ffcc00; }
+        :root { --pe-blue: #003399; --pe-yellow: #ffcc00; }
         body { 
-            background: linear-gradient(135deg, #004a99 0%, #001a4d 100%); 
-            height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--pe-blue) 0%, #001a4d 100%); 
+            height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif;
+            margin: 0;
         }
         .login-card {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            padding: 40px; border-radius: 30px; width: 90%; max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); border-top: 6px solid var(--ete-yellow);
+            padding: 40px; border-radius: 30px; width: 90%; max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-top: 8px solid var(--pe-yellow);
         }
-        .btn-primary { background: var(--ete-blue); border: none; padding: 12px; border-radius: 30px; font-weight: 600; }
-        .btn-terminal { background: #f8fafc; color: var(--ete-blue); border: 2px solid var(--ete-blue); padding: 10px; border-radius: 30px; font-weight: 600; margin-top: 15px; display: block; text-decoration: none; width: 100%; transition: 0.3s; }
-        .btn-terminal:hover { background: var(--ete-blue); color: white; }
+        .logo-box { background: var(--pe-blue); padding: 25px; border-radius: 15px; margin-bottom: 25px; }
+        .btn-pe { background: var(--pe-blue); border: none; padding: 12px; border-radius: 30px; font-weight: 600; color: white; transition: 0.3s; width: 100%; }
+        .btn-pe:hover { background: #002673; transform: scale(1.02); }
+        .form-control { border-radius: 30px; padding: 12px 20px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
     <div class="login-card text-center">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Logo_da_Educa%C3%A7%C3%A3o_Pernambuco.png/1200px-Logo_da_Educa%C3%A7%C3%A3o_Pernambuco.png" height="60" class="mb-4">
+        <div class="logo-box">
+            <img src="logo-SEE-branca-1-2_novo.png" alt="Secretaria de Educação PE" class="img-fluid">
+        </div>
+
         <h4 class="fw-bold mb-1">SIAF PE</h4>
-        <p class="text-muted small mb-4">Acesso Administrativo</p>
+        <p class="text-muted small mb-4">Gestão de Frequência Escolar</p>
+        
         <div id="login-form">
-            <input type="text" id="u" class="form-control mb-3 rounded-pill" placeholder="Usuário">
-            <input type="password" id="p" class="form-control mb-3 rounded-pill" placeholder="Senha">
-            <button class="btn btn-primary w-100 shadow rounded-pill" id="btnLogin">ENTRAR NO PAINEL</button>
+            <input type="text" id="u" class="form-control mb-3" placeholder="Usuário">
+            <input type="password" id="p" class="form-control mb-4" placeholder="Senha">
+            <button class="btn btn-pe mb-3" id="btnLogin">ACESSAR PAINEL</button>
             <hr>
-            <a href="terminal.html" class="btn-terminal"><i class="fas fa-camera me-2"></i> IR PARA O TERMINAL</a>
+            <a href="terminal.html" class="btn btn-outline-primary w-100 rounded-pill fw-bold"><i class="fas fa-camera me-2"></i> IR PARA O TERMINAL</a>
             <a href="#" class="text-muted small mt-3 d-block" onclick="toggleR(true)">Esqueceu a senha?</a>
         </div>
+        
         <div id="recover-form" style="display:none">
-            <input type="email" id="eR" class="form-control mb-3 rounded-pill" placeholder="E-mail cadastrado">
-            <button class="btn btn-primary w-100 rounded-pill" id="btnR">RECUPERAR</button>
-            <a href="#" class="text-muted small mt-3 d-block" onclick="toggleR(false)">Voltar</a>
+            <input type="email" id="eR" class="form-control mb-3" placeholder="E-mail cadastrado">
+            <button class="btn btn-pe mb-3" id="btnR">RECUPERAR</button>
+            <a href="#" class="text-muted small d-block" onclick="toggleR(false)">Voltar</a>
         </div>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        const firebaseConfig = { apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", authDomain: "escolapro-15e5e.firebaseapp.com", projectId: "escolapro-15e5e", storageBucket: "escolapro-15e5e.firebasestorage.app", messagingSenderId: "339019791514", appId: "1:339019791514:web:44e0d58b6835f0fe6df323" };
-        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
-        window.toggleR = (s) => { document.getElementById('login-form').style.display = s ? 'none' : 'block'; document.getElementById('recover-form').style.display = s ? 'block' : 'none'; };
+        
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", 
+            authDomain: "escolapro-15e5e.firebaseapp.com", 
+            projectId: "escolapro-15e5e", 
+            storageBucket: "escolapro-15e5e.firebasestorage.app", 
+            messagingSenderId: "339019791514", 
+            appId: "1:339019791514:web:44e0d58b6835f0fe6df323" 
+        };
+        
+        const app = initializeApp(firebaseConfig); 
+        const db = getFirestore(app);
+        
+        window.toggleR = (s) => { 
+            document.getElementById('login-form').style.display = s ? 'none' : 'block'; 
+            document.getElementById('recover-form').style.display = s ? 'block' : 'none'; 
+        };
+        
         document.getElementById('btnLogin').onclick = async () => {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
-            if(user === "Adm master" && pass === "Gabriel@01") { localStorage.setItem('usuarioLogado', JSON.stringify({usuario: "Adm master", permissoes: ["aba-stats", "aba-consultas", "aba-facial", "aba-faltas", "aba-usuarios"]})); window.location.href = 'dashboard.html'; return; }
+            if(user === "Adm master" && pass === "Gabriel@01") { 
+                localStorage.setItem('usuarioLogado', JSON.stringify({usuario: "Adm master", permissoes: ["aba-stats", "aba-consultas", "aba-facial", "aba-faltas", "aba-usuarios"]})); 
+                window.location.href = 'dashboard.html'; return; 
+            }
             const q = query(collection(db, "logins"), where("usuario", "==", user), where("senha", "==", pass));
             const snap = await getDocs(q);
-            if(!snap.empty) { snap.forEach(d => { localStorage.setItem('usuarioLogado', JSON.stringify(d.data())); window.location.href = 'dashboard.html'; }); } else { alert("Acesso Negado"); }
+            if(!snap.empty) { 
+                snap.forEach(d => { 
+                    localStorage.setItem('usuarioLogado', JSON.stringify(d.data())); 
+                    window.location.href = 'dashboard.html'; 
+                }); 
+            } else { alert("Acesso Negado"); }
         };
     </script>
 </body>

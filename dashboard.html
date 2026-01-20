@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SIAF PE | ETE Pernambuco</title>
+    <title>SIAF PE | Dashboard Institucional</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,115 +13,78 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
     <style>
-        :root { 
-            --ete-blue: #004a99; 
-            --ete-yellow: #ffcc00; 
-            --ete-red: #e63946; 
-            --glass: rgba(255, 255, 255, 0.9);
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        
-        body { background: var(--bg-gradient); font-family: 'Poppins', sans-serif; min-height: 100vh; margin: 0; }
+        :root { --pe-blue: #003399; --pe-yellow: #ffcc00; --pe-red: #cc0000; --glass: rgba(255, 255, 255, 0.95); }
+        body { background: #f0f2f5; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
 
-        /* TOP BAR MODERNA */
         .top-bar {
-            background: var(--glass); backdrop-filter: blur(10px);
-            padding: 12px 30px; display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 1000; border-bottom: 3px solid var(--ete-yellow);
+            background: var(--pe-blue); padding: 10px 30px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000; border-bottom: 4px solid var(--pe-yellow);
         }
+        .user-badge { background: rgba(255,255,255,0.2); color: white; padding: 6px 15px; border-radius: 30px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+        .btn-logout { background: var(--pe-red); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+
+        .wrapper { display: flex; min-height: calc(100vh - 75px); }
+        .sidebar { width: 260px; background: var(--pe-blue); padding: 25px 15px; flex-shrink: 0; }
+        .main-content { flex-grow: 1; padding: 30px; }
+
+        .nav-link-pe { color: rgba(255,255,255,0.7); text-decoration: none; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; transition: 0.3s; border: none; background: none; width: 100%; text-align: left; }
+        .nav-link-pe:hover, .nav-link-pe.active { background: rgba(255,255,255,0.1); color: var(--pe-yellow); border-left: 4px solid var(--pe-yellow); }
+
+        .card-custom { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 25px; }
+        .stat-box { border-radius: 15px; padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
         
-        .user-badge {
-            background: var(--ete-blue); color: white; padding: 6px 15px; border-radius: 30px;
-            font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 8px;
-        }
-
-        .btn-logout { 
-            background: var(--ete-red); color: white; border: none; width: 35px; height: 35px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;
-        }
-        .btn-logout:hover { transform: rotate(90deg); background: #b91c1c; }
-
-        /* SIDEBAR ESTILIZADA */
-        .wrapper { display: flex; }
-        .sidebar { 
-            width: 260px; background: var(--ete-blue); padding: 30px 20px; flex-shrink: 0; 
-            min-height: calc(100vh - 75px); box-shadow: 10px 0 30px rgba(0,0,0,0.05);
-        }
-        .main-content { flex-grow: 1; padding: 35px; }
-
-        .nav-link-pe {
-            color: rgba(255,255,255,0.7); text-decoration: none; padding: 15px; border-radius: 15px;
-            display: flex; align-items: center; gap: 15px; transition: 0.3s; font-size: 0.9rem; margin-bottom: 8px; border: none; background: none; width: 100%;
-        }
-        .nav-link-pe:hover, .nav-link-pe.active { background: var(--ete-yellow); color: var(--ete-blue); font-weight: 700; transform: translateX(5px); }
-
-        /* CARDS ESTILO VIDRO */
-        .card-custom { background: var(--glass); border-radius: 25px; border: 1px solid rgba(255,255,255,0.3); padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
-        .stat-box { border-radius: 20px; padding: 25px; color: white; transition: 0.4s; }
-        .stat-box:hover { transform: translateY(-10px); }
-        
-        /* VIDEO E CAMERA */
-        video { width: 100%; border-radius: 25px; background: #1a1a1a; transform: scaleX(-1); border: 6px solid white; box-shadow: 0 15px 50px rgba(0,0,0,0.15); }
+        video { width: 100%; border-radius: 20px; background: #000; transform: scaleX(-1); border: 4px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
         .secao { display: none; }
-        .ativa { display: block; animation: zoomIn 0.4s ease-out; }
-        @keyframes zoomIn { from { opacity: 0; scale: 0.95; } to { opacity: 1; scale: 1; } }
+        .ativa { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 992px) {
-            .sidebar { display: none; }
-            .main-content { padding: 20px; }
-            .top-bar { padding: 10px 20px; }
-        }
+        @media (max-width: 992px) { .sidebar { display: none; } .main-content { padding: 20px; } .top-bar { padding: 10px 15px; } }
     </style>
 </head>
 <body>
 
     <header class="top-bar">
-        <button class="btn d-lg-none text-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuCelular">
+        <button class="btn d-lg-none text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuCelular">
             <i class="fas fa-bars fa-lg"></i>
         </button>
-        <div class="d-flex align-items-center gap-3">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Logo_da_Educa%C3%A7%C3%A3o_Pernambuco.png/1200px-Logo_da_Educa%C3%A7%C3%A3o_Pernambuco.png" height="45" alt="ETE PE">
-            <div class="d-none d-md-block">
-                <span class="fw-bold d-block text-primary" style="font-size: 1.1rem;">SIAF PE</span>
-                <span class="text-muted small">Escola Técnica Estadual</span>
-            </div>
+        <div class="d-flex align-items-center">
+            <img src="logo-SEE-branca-1-2_novo.png" height="45" alt="Secretaria de Educação PE">
         </div>
-        <div class="d-flex align-items-center gap-2">
+        
+        <div class="d-flex align-items-center gap-3">
             <div class="user-badge">
-                <i class="fas fa-user-shield"></i>
+                <i class="fas fa-user-circle"></i>
                 <span id="username-display">---</span>
             </div>
-            <button class="btn-logout" onclick="window.logout()" title="Sair"><i class="fas fa-power-off"></i></button>
+            <button class="btn-logout" onclick="window.logout()"><i class="fas fa-power-off"></i></button>
         </div>
     </header>
 
     <div class="wrapper">
-        <aside class="sidebar">
+        <aside class="sidebar d-none d-lg-block">
             <div id="menu-links"></div>
         </aside>
 
-        <div class="offcanvas offcanvas-start bg-primary text-white" tabindex="-1" id="menuCelular" style="width: 270px; border-right: 5px solid var(--ete-yellow);">
+        <div class="offcanvas offcanvas-start text-white" tabindex="-1" id="menuCelular" style="width: 270px; background: var(--pe-blue);">
             <div class="offcanvas-header border-bottom border-warning">
-                <h5 class="offcanvas-title fw-bold">MENU ETE</h5>
+                <h5 class="offcanvas-title fw-bold">SIAF PE</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
-            <div class="offcanvas-body">
-                <div id="menu-links-mobile"></div>
-            </div>
+            <div class="offcanvas-body" id="menu-links-mobile"></div>
         </div>
 
         <main class="main-content">
             <div id="sec-stats" class="secao ativa">
-                <h4 class="fw-bold mb-4">Painel de Frequência</h4>
+                <h4 class="fw-bold mb-4">Monitoramento de Frequência</h4>
                 <div class="row g-4">
-                    <div class="col-md-4"><div class="stat-box" style="background: linear-gradient(45deg, #004a99, #0072ff)"><div><small>Total Alunos</small><h2 id="st-total">0</h2></div><i class="fas fa-user-graduate fa-2x opacity-25"></i></div></div>
-                    <div class="col-md-4"><div class="stat-box" style="background: linear-gradient(45deg, #00b09b, #96c93d)"><div><small>Presentes Hoje</small><h2 id="st-presentes">0</h2></div><i class="fas fa-fingerprint fa-2x opacity-25"></i></div></div>
-                    <div class="col-md-4"><div class="stat-box" style="background: linear-gradient(45deg, #ee0979, #ff6a00)"><div><small>Faltas</small><h2 id="st-faltas">0</h2></div><i class="fas fa-exclamation-triangle fa-2x opacity-25"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box shadow" style="background: var(--pe-blue)"><div><small>Matriculados</small><h2 id="st-total">0</h2></div><i class="fas fa-users fa-2x opacity-50"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box shadow" style="background: #10b981"><div><small>Presentes Hoje</small><h2 id="st-presentes">0</h2></div><i class="fas fa-check-circle fa-2x opacity-50"></i></div></div>
+                    <div class="col-md-4"><div class="stat-box shadow" style="background: var(--pe-red)"><div><small>Faltas Hoje</small><h2 id="st-faltas">0</h2></div><i class="fas fa-user-times fa-2x opacity-50"></i></div></div>
                 </div>
-                <div class="row mt-4 g-4">
-                    <div class="col-lg-7"><div class="card-custom"><h5>Relatório por Classe</h5><canvas id="chartBarras" height="180"></canvas></div></div>
-                    <div class="col-lg-5"><div class="card-custom"><h5>Participação Geral</h5><canvas id="chartPizza"></canvas></div></div>
+                <div class="row mt-4">
+                    <div class="col-lg-8"><div class="card-custom"><h5>Fluxo de Entrada</h5><canvas id="chartBarras" height="150"></canvas></div></div>
+                    <div class="col-lg-4"><div class="card-custom"><h5>Taxa de Assiduidade</h5><canvas id="chartPizza"></canvas></div></div>
                 </div>
             </div>
 
@@ -129,79 +92,153 @@
                 <h4 class="fw-bold mb-4">Relatórios Oficiais</h4>
                 <div class="card-custom mb-4">
                     <div class="row g-3">
-                        <div class="col-md-3"><label class="small fw-bold">DATA</label><input type="date" id="filtroData" class="form-control rounded-pill"></div>
-                        <div class="col-md-4"><label class="small fw-bold">TURMA</label><select id="filtroTurmaRelatorio" class="form-select rounded-pill"><option value="TODAS">Todas</option><option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>2º Ano A Redes</option><option>3º Ano B Redes</option></select></div>
-                        <div class="col-md-5 d-flex align-items-end gap-2">
-                            <button class="btn btn-primary rounded-pill flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button>
-                            <button class="btn btn-danger rounded-circle" onclick="window.baixarPDF()"><i class="fas fa-file-pdf"></i></button>
-                            <button class="btn btn-success rounded-circle" onclick="window.baixarExcel()"><i class="fas fa-file-excel"></i></button>
+                        <div class="col-md-3"><label class="small fw-bold">DATA</label><input type="date" id="filtroData" class="form-control"></div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">TURMA</label>
+                            <select id="filtroTurmaRelatorio" class="form-select">
+                                <option value="TODAS">Todas as Turmas</option>
+                                <optgroup label="1º ANO">
+                                    <option>1º Ano A - Redes de Computadores</option>
+                                    <option>1º Ano B - Redes de Computadores</option>
+                                    <option>1º Ano A - Logística</option>
+                                    <option>1º Ano B - Logística</option>
+                                </optgroup>
+                                <optgroup label="2º ANO">
+                                    <option>2º Ano A - Redes de Computadores</option>
+                                    <option>2º Ano B - Redes de Computadores</option>
+                                    <option>2º Ano A - Logística</option>
+                                    <option>2º Ano B - Logística</option>
+                                </optgroup>
+                                <optgroup label="3º ANO">
+                                    <option>3º Ano A - Redes de Computadores</option>
+                                    <option>3º Ano B - Redes de Computadores</option>
+                                    <option>3º Ano A - Logística</option>
+                                    <option>3º Ano B - Logística</option>
+                                </optgroup>
+                            </select>
                         </div>
+                        <div class="col-md-5 d-flex align-items-end gap-2"><button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button><button class="btn btn-danger" onclick="window.baixarPDF()"><i class="fas fa-file-pdf"></i></button><button class="btn btn-success" onclick="window.baixarExcel()"><i class="fas fa-file-excel"></i></button></div>
                     </div>
                 </div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table table-hover mb-0 align-middle"><tbody id="tabelaRelatorio"></tbody></table></div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle text-center"><thead class="table-light"><tr><th>Estudante</th><th>Turma</th><th>Hora</th></tr></thead><tbody id="tabelaRelatorio"></tbody></table></div>
             </div>
 
             <div id="sec-facial" class="secao">
-                <h4 class="fw-bold mb-4">Novo Registro Estudantil</h4>
+                <h4 class="fw-bold mb-4">Novo Cadastro de Estudante</h4>
                 <div class="card-custom">
                     <div class="row g-4">
                         <div class="col-lg-5">
-                            <label class="small fw-bold">NOME DO ALUNO</label>
-                            <input type="text" id="nAluno" class="form-control mb-3 rounded-pill shadow-sm">
+                            <label class="small fw-bold">NOME</label><input type="text" id="nAluno" class="form-control mb-2">
+                            
                             <label class="small fw-bold">TURMA</label>
-                            <select id="sAluno" class="form-select mb-3 rounded-pill shadow-sm"><option>1º Ano A Logística</option><option>1º Ano B Logística</option><option>1º Ano A Redes</option></select>
-                            <label class="small fw-bold">TEL. RESPONSÁVEL</label>
-                            <input type="text" id="tAluno" class="form-control mb-3 rounded-pill shadow-sm" placeholder="(81) 9....">
-                            <label class="small fw-bold">E-MAIL</label>
-                            <input type="email" id="eAluno" class="form-control mb-4 rounded-pill shadow-sm">
-                            <button class="btn btn-dark w-100 py-3 rounded-pill mb-2" id="btnCam">Ativar Câmera</button>
-                            <button class="btn btn-primary w-100 py-3 rounded-pill" id="btnSalvar">Salvar Cadastro</button>
+                            <select id="sAluno" class="form-select mb-2">
+                                <option value="" disabled selected>Selecione a turma...</option>
+                                <optgroup label="1º ANO">
+                                    <option>1º Ano A - Redes de Computadores</option>
+                                    <option>1º Ano B - Redes de Computadores</option>
+                                    <option>1º Ano A - Logística</option>
+                                    <option>1º Ano B - Logística</option>
+                                </optgroup>
+                                <optgroup label="2º ANO">
+                                    <option>2º Ano A - Redes de Computadores</option>
+                                    <option>2º Ano B - Redes de Computadores</option>
+                                    <option>2º Ano A - Logística</option>
+                                    <option>2º Ano B - Logística</option>
+                                </optgroup>
+                                <optgroup label="3º ANO">
+                                    <option>3º Ano A - Redes de Computadores</option>
+                                    <option>3º Ano B - Redes de Computadores</option>
+                                    <option>3º Ano A - Logística</option>
+                                    <option>3º Ano B - Logística</option>
+                                </optgroup>
+                            </select>
+
+                            <label class="small fw-bold">TELEFONE</label><input type="text" id="tAluno" class="form-control mb-2">
+                            <label class="small fw-bold">E-MAIL</label><input type="email" id="eAluno" class="form-control mb-4">
+                            <button class="btn btn-primary w-100 py-3 mb-2" id="btnCam">Ativar Câmera</button>
+                            <button class="btn btn-success w-100 py-3" id="btnSalvar">Salvar Cadastro</button>
                         </div>
-                        <div class="col-lg-7"><video id="webcam" autoplay muted playsinline></video></div>
+                        <div class="col-lg-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
                     </div>
                 </div>
             </div>
 
             <div id="sec-faltas" class="secao">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold">Banco de Estudantes</h4>
-                    <input type="text" id="buscaA" class="form-control w-50 rounded-pill shadow-sm" placeholder="🔍 Buscar aluno..." onkeyup="window.filtrarAlunos()">
+                    <h4 class="fw-bold">Gestão de Alunos</h4>
+                    <input type="text" id="buscaA" class="form-control w-50 rounded-pill" placeholder="🔍 Buscar..." onkeyup="window.filtrarAlunos()">
                 </div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table table-hover mb-0 align-middle"><tbody id="tabelaAlunos"></tbody></table></div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle"><thead><tr class="table-light"><th>Nome</th><th>Turma</th><th class="text-end">Gerir</th></tr></thead><tbody id="tabelaAlunos"></tbody></table></div>
             </div>
 
             <div id="sec-usuarios" class="secao">
-                <h4 class="fw-bold mb-4">Configuração de Acessos</h4>
+                <h4 class="fw-bold mb-4">Controle de Operadores</h4>
                 <div class="card-custom mb-4">
                     <div class="row g-2 mb-3">
-                        <div class="col-md-3"><input type="text" id="lu" class="form-control rounded-pill" placeholder="Login"></div>
-                        <div class="col-md-3"><input type="password" id="ls" class="form-control rounded-pill" placeholder="Senha"></div>
-                        <div class="col-md-3"><input type="text" id="lt" class="form-control rounded-pill" placeholder="Telefone"></div>
-                        <div class="col-md-3"><input type="email" id="le" class="form-control rounded-pill" placeholder="E-mail"></div>
+                        <div class="col-md-3"><input type="text" id="lu" class="form-control" placeholder="Login"></div>
+                        <div class="col-md-3"><input type="password" id="ls" class="form-control" placeholder="Senha"></div>
+                        <div class="col-md-3"><input type="text" id="lt" class="form-control" placeholder="Tel"></div>
+                        <div class="col-md-3"><input type="email" id="le" class="form-control" placeholder="E-mail"></div>
                     </div>
-                    <div class="p-3 bg-light rounded-4 mb-4">
-                        <div class="d-flex flex-wrap gap-3">
-                            <label><input type="checkbox" class="pc" value="aba-stats" checked> Dash</label>
-                            <label><input type="checkbox" class="pc" value="aba-consultas"> Relatórios</label>
-                            <label><input type="checkbox" class="pc" value="aba-facial"> Matrícula</label>
-                            <label><input type="checkbox" class="pc" value="aba-faltas"> Alunos</label>
-                            <label><input type="checkbox" class="pc" value="aba-usuarios"> Sistemas</label>
-                        </div>
+                    <div class="mb-3 d-flex gap-3 bg-light p-2 rounded">
+                        <label><input type="checkbox" class="pc" value="aba-stats" checked> Painel</label>
+                        <label><input type="checkbox" class="pc" value="aba-consultas"> Relatórios</label>
+                        <label><input type="checkbox" class="pc" value="aba-facial"> Matrícula</label>
+                        <label><input type="checkbox" class="pc" value="aba-faltas"> Alunos</label>
+                        <label><input type="checkbox" class="pc" value="aba-usuarios"> Sistemas</label>
                     </div>
-                    <button class="btn btn-primary px-5 rounded-pill" id="btnL">Criar Operador</button>
+                    <button class="btn btn-primary px-5" id="btnL">Criar Acesso</button>
                 </div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><tbody id="tabelaLogins"></tbody></table></div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><thead><tr class="table-dark"><th>Operador</th><th class="text-end">Ações</th></tr></thead><tbody id="tabelaLogins"></tbody></table></div>
             </div>
         </main>
     </div>
 
-    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border-radius: 30px; border: none;">
-        <div class="modal-header bg-primary text-white" style="border-radius: 30px 30px 0 0;"><h5>Editar Dados</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog"><div class="modal-content shadow">
+        <div class="modal-header border-0 bg-primary text-white"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
         <div class="modal-body p-4">
-            <input type="hidden" id="editAlunoId"><input type="text" id="editAlunoNome" class="form-control mb-3 rounded-pill"><input type="text" id="editAlunoSala" class="form-control mb-3 rounded-pill"><input type="text" id="editAlunoTel" class="form-control mb-3 rounded-pill"><input type="email" id="editAlunoEmail" class="form-control mb-3 rounded-pill">
-            <button class="btn btn-primary w-100 rounded-pill py-2" onclick="window.salvarEdicaoAluno()">Salvar</button>
+            <input type="hidden" id="editAlunoId">
+            <label class="small fw-bold">NOME</label><input type="text" id="editAlunoNome" class="form-control mb-3">
+            
+            <label class="small fw-bold">TURMA</label>
+            <select id="editAlunoSala" class="form-select mb-3">
+                <optgroup label="1º ANO">
+                    <option>1º Ano A - Redes de Computadores</option>
+                    <option>1º Ano B - Redes de Computadores</option>
+                    <option>1º Ano A - Logística</option>
+                    <option>1º Ano B - Logística</option>
+                </optgroup>
+                <optgroup label="2º ANO">
+                    <option>2º Ano A - Redes de Computadores</option>
+                    <option>2º Ano B - Redes de Computadores</option>
+                    <option>2º Ano A - Logística</option>
+                    <option>2º Ano B - Logística</option>
+                </optgroup>
+                <optgroup label="3º ANO">
+                    <option>3º Ano A - Redes de Computadores</option>
+                    <option>3º Ano B - Redes de Computadores</option>
+                    <option>3º Ano A - Logística</option>
+                    <option>3º Ano B - Logística</option>
+                </optgroup>
+            </select>
+
+            <label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editAlunoTel" class="form-control mb-3">
+            <label class="small fw-bold">E-MAIL</label><input type="email" id="editAlunoEmail" class="form-control mb-3">
         </div>
+        <div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoAluno()">Salvar</button></div>
     </div></div></div>
+
+    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5>Editar Operador</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4">
+        <input type="hidden" id="eid"><input type="text" id="eu" class="form-control mb-2"><input type="password" id="es" class="form-control mb-2" placeholder="Senha">
+        <input type="text" id="et" class="form-control mb-2"><input type="email" id="ee" class="form-control mb-3">
+        <div id="ep" class="d-flex flex-wrap gap-2">
+            <label><input type="checkbox" class="pce" value="aba-stats"> Painel</label>
+            <label><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label>
+            <label><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label>
+            <label><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label>
+            <label><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label>
+        </div>
+    </div><div class="modal-footer"><button class="btn btn-primary w-100" onclick="window.salvarEL()">Confirmar</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -224,31 +261,28 @@
         window.onload = () => {
             if(!logado) window.location.href = 'index.html';
             document.getElementById('username-display').innerText = logado.usuario;
-            montarMenu();
-            initIA();
-            escutarDados();
+            montarMenu(); initIA(); escutarDados();
         };
 
         window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
 
         function montarMenu() {
-            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-pie'},{id:'sec-consultas', label:'Relatórios', icon:'fa-file-alt'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cog'}];
+            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-line'},{id:'sec-consultas', label:'Relatórios', icon:'fa-print'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}];
             let h = "";
             itens.forEach(i => {
                 if(logado.usuario === 'Adm master' || (logado.permissoes && logado.permissoes.includes(i.id.replace('sec-', 'aba-')))) {
                     h += `<button class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas"><i class="fas ${i.icon}"></i> ${i.label}</button>`;
                 }
             });
-            document.getElementById('menu-links').innerHTML = h;
-            document.getElementById('menu-links-mobile').innerHTML = h;
+            h += `<hr class="text-white-50"><a href="terminal.html" class="nav-link-pe" style="color:var(--pe-yellow)"><i class="fas fa-camera"></i> Abrir Terminal</a>`;
+            document.getElementById('menu-links').innerHTML = h; document.getElementById('menu-links-mobile').innerHTML = h;
         }
 
         window.trocarAba = (id, btn) => {
             document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
             document.getElementById(id).classList.add('ativa');
             document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            if(id === 'sec-stats') updateCharts();
+            if(btn) btn.classList.add('active'); if(id === 'sec-stats') updateCharts();
         };
 
         async function initIA() {
@@ -258,16 +292,43 @@
             await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
         }
 
-        document.getElementById('btnCam').onclick = async () => {
-            document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        };
+        document.getElementById('btnCam').onclick = async () => { document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }); };
 
         document.getElementById('btnSalvar').onclick = async () => {
             const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
+            if(!n || !s) return alert("Por favor, preencha o nome e selecione uma turma.");
             const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
             if(!det) return alert("Rosto não detectado!");
             await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, descritor: Array.from(det.descriptor) });
-            alert("Matrícula Efetuada!"); location.reload();
+            alert("Sucesso!"); location.reload();
+        };
+
+        window.gerarRelatorio = async () => {
+            const dInput = document.getElementById('filtroData').value, tFiltro = document.getElementById('filtroTurmaRelatorio').value;
+            if(!dInput) return alert("Escolha a data");
+            const dataBR = dInput.split('-').reverse().join('/');
+            const q = query(collection(db, "frequencia"), where("data", "==", dataBR));
+            const snapFreq = await getDocs(q);
+            const t = document.getElementById('tabelaRelatorio'); t.innerHTML = ""; window.dadosExport = [];
+            snapFreq.forEach(d => {
+                const f = d.data();
+                if(tFiltro === "TODAS" || f.sala === tFiltro) {
+                    t.innerHTML += `<tr><td>${f.nome}</td><td>${f.sala || '--'}</td><td>${f.hora}</td></tr>`;
+                    window.dadosExport.push([f.nome, f.sala || '--', f.hora]);
+                }
+            });
+        };
+
+        window.baixarPDF = () => {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.text("Relatorio de Frequencia", 14, 20); doc.autoTable({ head:[['Nome','Turma','Hora']], body: window.dadosExport, startY: 25 });
+            doc.save("frequencia.pdf");
+        };
+
+        window.baixarExcel = () => {
+            let csv = "Nome;Turma;Hora\n"; window.dadosExport.forEach(r => csv += r.join(";") + "\n");
+            const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+            link.download = "frequencia.csv"; link.click();
         };
 
         function escutarDados() {
@@ -275,13 +336,13 @@
                 const t = document.getElementById('tabelaAlunos'); t.innerHTML = "";
                 snap.forEach(d => {
                     const a = d.data();
-                    t.innerHTML += `<tr><td class="fw-bold">${a.nome}</td><td>${a.sala}</td><td class="text-end">
-                        <button class="btn btn-sm text-primary" onclick="window.abrirEdicaoAluno('${d.id}','${a.nome}','${a.sala}','${a.tel}','${a.email}')"><i class="fas fa-pencil-alt"></i></button>
-                        <button class="btn btn-sm text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash-alt"></i></button>
-                    </td></tr>`;
+                    t.innerHTML += `<tr><td class="fw-bold">${a.nome}</td><td>${a.sala}</td><td class="text-end"><button class="btn btn-sm text-primary" onclick="window.abrirEdicaoAluno('${d.id}','${a.nome}','${a.sala}','${a.tel}','${a.email}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
                 });
-                document.getElementById('st-total').innerText = snap.size;
-                updateCharts();
+                document.getElementById('st-total').innerText = snap.size; updateCharts();
+            });
+            onSnapshot(collection(db, "logins"), snap => {
+                const t = document.getElementById('tabelaLogins'); t.innerHTML = "";
+                snap.forEach(d => t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm text-primary" onclick='window.editL("${d.id}","${d.data().usuario}","${d.data().senha}","${d.data().tel}","${d.data().email}",${JSON.stringify(d.data().permissoes)})'><i class="fas fa-edit"></i></button><button class="btn btn-sm text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`);
             });
             const hoje = new Date().toLocaleDateString('pt-BR');
             onSnapshot(collection(db, "frequencia"), snap => {
@@ -289,10 +350,6 @@
                 document.getElementById('st-presentes').innerText = p;
                 document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - p);
                 updateCharts();
-            });
-            onSnapshot(collection(db, "logins"), snap => {
-                const t = document.getElementById('tabelaLogins'); t.innerHTML = "";
-                snap.forEach(d => t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-times"></i></button></td></tr>`);
             });
         }
 
@@ -304,43 +361,9 @@
         };
 
         window.salvarEdicaoAluno = async () => {
-            await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), {
-                nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value,
-                tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value
-            });
+            await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), { nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value, tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value });
             alert("Atualizado!"); location.reload();
         };
-
-        window.gerarRelatorio = async () => {
-            const dt = document.getElementById('filtroData').value, tr = document.getElementById('filtroTurmaRelatorio').value;
-            if(!dt) return alert("Escolha uma data");
-            const dataBR = dt.split('-').reverse().join('/');
-            const q = query(collection(db, "frequencia"), where("data", "==", dataBR));
-            const snap = await getDocs(q);
-            const t = document.getElementById('tabelaRelatorio'); t.innerHTML = "";
-            window.dadosExp = [];
-            snap.forEach(d => {
-                const f = d.data();
-                t.innerHTML += `<tr><td>${f.nome}</td><td>${f.hora}</td></tr>`;
-                window.dadosExp.push([f.nome, f.hora]);
-            });
-        };
-
-        window.baixarPDF = () => {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            doc.text("SIAF PE - Relatório", 14, 20);
-            doc.autoTable({ head: [['Aluno', 'Hora']], body: window.dadosExp, startY: 25 });
-            doc.save("Frequencia.pdf");
-        };
-
-        window.baixarExcel = () => {
-            let csv = "Aluno;Hora\n"; window.dadosExp.forEach(r => csv += r.join(";") + "\n");
-            const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
-            link.download = "Frequencia.csv"; link.click();
-        };
-
-        window.del = async (c, i) => { if(confirm("Excluir?")) await deleteDoc(doc(db, c, i)); };
-        window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#tabelaAlunos tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
 
         document.getElementById('btnL').onclick = async () => {
             const perms = Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value);
@@ -348,12 +371,28 @@
             alert("Operador Criado!");
         };
 
+        window.editL = (id, u, s, t, e, p) => {
+            document.getElementById('eid').value = id; document.getElementById('eu').value = u; document.getElementById('es').value = s;
+            document.getElementById('et').value = t; document.getElementById('ee').value = e;
+            document.querySelectorAll('.pce').forEach(c => c.checked = p.includes(c.value));
+            new bootstrap.Modal(document.getElementById('modalL')).show();
+        };
+
+        window.salvarEL = async () => {
+            const perms = Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value);
+            await updateDoc(doc(db, "logins", document.getElementById('eid').value), { usuario: document.getElementById('eu').value, senha: document.getElementById('es').value, tel: document.getElementById('et').value, email: document.getElementById('ee').value, permissoes: perms });
+            alert("Atualizado!"); location.reload();
+        };
+
+        window.del = async (c, i) => { if(confirm("Excluir?")) await deleteDoc(doc(db, c, i)); };
+        window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#tabelaAlunos tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
+
         function updateCharts() {
             const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0;
             if(chartP) chartP.destroy();
-            chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [p, t-p], backgroundColor: ['#00b09b', '#ee0979'], borderWidth: 0 }] }, options: { cutout: '70%' } });
+            chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#ef4444'] }] } });
             if(chartB) chartB.destroy();
-            chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Matriculados', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#004a99', '#96c93d'], borderRadius: 10 }] }, options: { scales: { y: { beginAtZero: true } } } });
+            chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'] }] } });
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
