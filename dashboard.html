@@ -10,7 +10,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
     <style>
         :root { --pe-blue: #003399; --pe-yellow: #ffcc00; --pe-red: #cc0000; --glass: rgba(255, 255, 255, 0.95); }
@@ -39,6 +38,8 @@
         .ativa { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        .turma-header { background: #e9ecef; font-weight: bold; color: var(--pe-blue); padding: 10px 20px; border-left: 5px solid var(--pe-yellow); margin-top: 15px; }
+
         @media (max-width: 992px) { .sidebar { display: none; } .main-content { padding: 20px; } .top-bar { padding: 10px 15px; } }
     </style>
 </head>
@@ -51,7 +52,6 @@
         <div class="d-flex align-items-center">
             <img src="logo-SEE-branca-1-2_novo.png" height="45" alt="Secretaria de Educação PE">
         </div>
-        
         <div class="d-flex align-items-center gap-3">
             <div class="user-badge"><i class="fas fa-user-circle"></i> <span id="username-display">---</span></div>
             <button class="btn-logout" onclick="window.logout()"><i class="fas fa-power-off"></i></button>
@@ -72,7 +72,7 @@
         </div>
 
         <main class="main-content">
-            <div id="sec-stats" class="secao ativa">
+            <div id="sec-stats" class="secao">
                 <h4 class="fw-bold mb-4">Monitoramento de Frequência</h4>
                 <div class="row g-4 text-center">
                     <div class="col-md-4"><div class="stat-box shadow" style="background: var(--pe-blue)"><div><small>Matriculados</small><h2 id="st-total">0</h2></div><i class="fas fa-users fa-2x opacity-50"></i></div></div>
@@ -86,17 +86,18 @@
             </div>
 
             <div id="sec-declaracao" class="secao">
-                <h4 class="fw-bold mb-4">Emissão de Declaração Escolar</h4>
+                <h4 class="fw-bold mb-4 text-dark">Emissão de Declaração Escolar</h4>
                 <div class="card-custom">
                     <div class="row g-3">
-                        <div class="col-md-6"><label class="small fw-bold">ESTUDANTE</label><input type="text" id="decNome" class="form-control" placeholder="NOME COMPLETO"></div>
-                        <div class="col-md-6"><label class="small fw-bold">CPF (APENAS NÚMEROS)</label><input type="text" id="decCpf" class="form-control" maxlength="11" placeholder="00000000000"></div>
-                        <div class="col-md-4"><label class="small fw-bold">NASCIMENTO</label><input type="text" id="decNasc" class="form-control" placeholder="00/00/0000"></div>
-                        <div class="col-md-4"><label class="small fw-bold">MÃE</label><input type="text" id="decMae" class="form-control"></div>
-                        <div class="col-md-4"><label class="small fw-bold">PAI</label><input type="text" id="decPai" class="form-control"></div>
+                        <div class="col-md-6"><label class="small fw-bold">ESTUDANTE *</label><input type="text" id="decNome" class="form-control" placeholder="NOME COMPLETO"></div>
+                        <div class="col-md-6"><label class="small fw-bold">CPF *</label><input type="text" id="decCpf" class="form-control" placeholder="00000000000"></div>
+                        <div class="col-md-4"><label class="small fw-bold">NASCIMENTO *</label><input type="text" id="decNasc" class="form-control" placeholder="29112006"></div>
+                        <div class="col-md-4"><label class="small fw-bold">NOME DA MÃE *</label><input type="text" id="decMae" class="form-control"></div>
+                        <div class="col-md-4"><label class="small fw-bold">NOME DO PAI *</label><input type="text" id="decPai" class="form-control"></div>
                         <div class="col-md-12">
-                            <label class="small fw-bold">CURSO E TURMA</label>
+                            <label class="small fw-bold">CURSO E TURMA *</label>
                             <select id="decTurma" class="form-select">
+                                <option value="">Selecione uma opção...</option>
                                 <option value="1º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">1º ano - Logística</option>
                                 <option value="1º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Redes de Computadores">1º ano - Redes</option>
                                 <option value="2º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">2º ano - Logística</option>
@@ -116,7 +117,7 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3"><label class="small fw-bold">DATA</label><input type="date" id="filtroData" class="form-control"></div>
                         <div class="col-md-4"><label class="small fw-bold">TURMA</label><select id="filtroTurmaRelatorio" class="form-select"><option value="TODAS">Todas as Turmas</option><option>Logística</option><option>Redes</option></select></div>
-                        <div class="col-md-5 d-flex gap-2"><button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button><button class="btn btn-danger" onclick="window.baixarPDF()"><i class="fas fa-file-pdf"></i></button><button class="btn btn-success" onclick="window.baixarExcel()"><i class="fas fa-file-excel"></i></button></div>
+                        <div class="col-md-5 d-flex gap-2"><button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button></div>
                     </div>
                 </div>
                 <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle text-center"><thead class="table-light"><tr><th>Estudante</th><th>Turma</th><th>Hora</th></tr></thead><tbody id="tabelaRelatorio"></tbody></table></div>
@@ -140,18 +141,18 @@
             </div>
 
             <div id="sec-faltas" class="secao">
-                <div class="d-flex justify-content-between align-items-center mb-4"><h4 class="fw-bold">Alunos</h4><input type="text" id="buscaA" class="form-control w-50" placeholder="Buscar..." onkeyup="window.filtrarAlunos()"></div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle"><thead class="table-light"><tr><th>Nome</th><th>Turma</th><th class="text-end">Gerir</th></tr></thead><tbody id="tabelaAlunos"></tbody></table></div>
+                <div class="d-flex justify-content-between align-items-center mb-4"><h4 class="fw-bold">Gestão de Alunos</h4><input type="text" id="buscaA" class="form-control w-50" placeholder="Buscar..." onkeyup="window.filtrarAlunos()"></div>
+                <div id="listaAgrupadaAlunos"></div>
             </div>
 
             <div id="sec-usuarios" class="secao">
                 <h4 class="fw-bold mb-4">Controle de Operadores</h4>
                 <div class="card-custom mb-4">
                     <div class="row g-2 mb-3">
-                        <div class="col-md-3"><input type="text" id="lu" class="form-control" placeholder="Login"></div>
-                        <div class="col-md-3"><input type="password" id="ls" class="form-control" placeholder="Senha"></div>
-                        <div class="col-md-3"><input type="text" id="lt" class="form-control" placeholder="Tel"></div>
-                        <div class="col-md-3"><input type="email" id="le" class="form-control" placeholder="E-mail"></div>
+                        <div class="col-md-3"><label class="small fw-bold">LOGIN</label><input type="text" id="lu" class="form-control"></div>
+                        <div class="col-md-3"><label class="small fw-bold">SENHA</label><input type="password" id="ls" class="form-control"></div>
+                        <div class="col-md-3"><label class="small fw-bold">TEL</label><input type="text" id="lt" class="form-control"></div>
+                        <div class="col-md-3"><label class="small fw-bold">E-MAIL</label><input type="email" id="le" class="form-control"></div>
                     </div>
                     <div class="mb-3 d-flex gap-3 bg-light p-2 rounded shadow-sm">
                         <label><input type="checkbox" class="pc" value="aba-stats" checked> Painel</label>
@@ -168,9 +169,9 @@
         </main>
     </div>
 
-    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white" style="border-radius:20px 20px 0 0"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="editAlunoId"><label class="small fw-bold">NOME</label><input type="text" id="editAlunoNome" class="form-control mb-2"><label class="small fw-bold">TURMA</label><input type="text" id="editAlunoSala" class="form-control mb-2"><label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editAlunoTel" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="editAlunoEmail" class="form-control mb-2"></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoAluno()">Confirmar</button></div></div></div></div>
+    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="editAlunoId"><label class="small fw-bold">NOME</label><input type="text" id="editAlunoNome" class="form-control mb-2"><label class="small fw-bold">TURMA</label><input type="text" id="editAlunoSala" class="form-control mb-2"><label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editAlunoTel" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="editAlunoEmail" class="form-control mb-2"></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoAluno()">Confirmar</button></div></div></div></div>
 
-    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white" style="border-radius:20px 20px 0 0"><h5>Editar Operador</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="eid"><label class="small fw-bold">USUÁRIO</label><input type="text" id="eu" class="form-control mb-2"><label class="small fw-bold">SENHA</label><input type="password" id="es" class="form-control mb-2" placeholder="Nova Senha"><label class="small fw-bold">TEL</label><input type="text" id="et" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="ee" class="form-control mb-3"><h6>Permissões</h6><div id="ep" class="d-flex flex-wrap gap-2 p-2 bg-light rounded"><label><input type="checkbox" class="pce" value="aba-stats"> Painel</label><label><input type="checkbox" class="pce" value="aba-declaracao"> Declaração</label><label><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label><label><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label><label><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label><label><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEL()">Salvar Alterações</button></div></div></div></div>
+    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white"><h5>Editar Operador</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="eid"><label class="small fw-bold">USUÁRIO</label><input type="text" id="eu" class="form-control mb-2"><label class="small fw-bold">SENHA</label><input type="password" id="es" class="form-control mb-2"><label class="small fw-bold">TEL</label><input type="text" id="et" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="ee" class="form-control mb-3"><h6>Permissões</h6><div id="ep" class="d-flex flex-wrap gap-2 p-2 bg-light rounded"><label><input type="checkbox" class="pce" value="aba-stats"> Painel</label><label><input type="checkbox" class="pce" value="aba-declaracao"> Declaração</label><label><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label><label><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label><label><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label><label><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEL()">Salvar Alterações</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -192,108 +193,197 @@
 
         function montarMenu() {
             const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-line'},{id:'sec-declaracao', label:'Declaração', icon:'fa-file-signature'},{id:'sec-consultas', label:'Relatórios', icon:'fa-print'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}];
-            let h = "";
-            itens.forEach(i => { if(logado.usuario === 'Adm master' || (logado.permissoes && logado.permissoes.includes(i.id.replace('sec-', 'aba-')))) h += `<button class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas"><i class="fas ${i.icon}"></i> ${i.label}</button>`; });
+            let h = ""; let primeiraAbaPermitida = null;
+            itens.forEach(i => {
+                const abaId = i.id.replace('sec-', 'aba-');
+                const temPermissao = logado.usuario === 'Adm master' || (logado.permissoes && logado.permissoes.includes(abaId));
+                if(temPermissao) {
+                    if(!primeiraAbaPermitida) primeiraAbaPermitida = i.id;
+                    h += `<button class="nav-link-pe menu-btn-ref" data-target="${i.id}" onclick="window.trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas"><i class="fas ${i.icon}"></i> ${i.label}</button>`;
+                }
+            });
             h += `<hr class="text-white-50"><a href="terminal.html" class="nav-link-pe" style="color:var(--pe-yellow)"><i class="fas fa-camera"></i> Abrir Terminal</a>`;
             document.getElementById('menu-links').innerHTML = h; document.getElementById('menu-links-mobile').innerHTML = h;
+            if(primeiraAbaPermitida) setTimeout(() => {
+                const btn = document.querySelector(`.menu-btn-ref[data-target="${primeiraAbaPermitida}"]`);
+                window.trocarAba(primeiraAbaPermitida, btn);
+            }, 100);
         }
 
-        window.trocarAba = (id, btn) => { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); if(id === 'sec-stats') updateCharts(); };
+        window.trocarAba = (id, btn) => {
+            document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+            document.getElementById(id).classList.add('ativa');
+            document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active'); if(id === 'sec-stats') updateCharts();
+        };
 
-        function formatarCPF(cpf) { cpf = cpf.replace(/\D/g, ""); return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
+        // --- FORMATAÇÕES ---
+        const limpar = (t) => t.replace(/\s+/g, ' ').trim();
+        const formatCPF = (c) => { c = c.replace(/\D/g, ""); return c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); };
+        const formatData = (d) => { d = d.replace(/\D/g, ""); return d.length === 8 ? d.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3") : d; };
 
+        // --- GERAÇÃO PDF COM VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS ---
         window.gerarPDFDeclaracao = () => {
-            const nome = document.getElementById('decNome').value.toUpperCase();
-            const cpfRaw = document.getElementById('decCpf').value;
-            const cpfFormatado = formatarCPF(cpfRaw);
-            const nasc = document.getElementById('decNasc').value;
-            const mae = document.getElementById('decMae').value.toUpperCase();
-            const pai = document.getElementById('decPai').value.toUpperCase();
-            const turma = document.getElementById('decTurma').value;
+            const rawNome = document.getElementById('decNome').value;
+            const rawCpf = document.getElementById('decCpf').value;
+            const rawNasc = document.getElementById('decNasc').value;
+            const rawMae = document.getElementById('decMae').value;
+            const rawPai = document.getElementById('decPai').value;
+            const rawTurma = document.getElementById('decTurma').value;
+
+            // VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+            if(!rawNome) return alert("O campo NOME DO ESTUDANTE é obrigatório.");
+            if(!rawCpf || rawCpf.replace(/\D/g, "").length < 11) return alert("O campo CPF é obrigatório e deve conter 11 dígitos.");
+            if(!rawNasc) return alert("O campo DATA DE NASCIMENTO é obrigatório.");
+            if(!rawMae) return alert("O campo NOME DA MÃE é obrigatório.");
+            if(!rawPai) return alert("O campo NOME DO PAI é obrigatório.");
+            if(!rawTurma) return alert("O campo CURSO E TURMA é obrigatório.");
+
+            const nome = limpar(rawNome).toUpperCase();
+            const cpf = formatCPF(rawCpf);
+            const nasc = formatData(rawNasc);
+            const mae = limpar(rawMae).toUpperCase();
+            const pai = limpar(rawPai).toUpperCase();
+            const turma = rawTurma;
             const dataH = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
-            if(!nome || cpfRaw.length < 11 || !turma) return alert("Preencha Nome, CPF completo e Turma.");
-
             const { jsPDF } = window.jspdf;
-            const doc = jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-            const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
-            const margin = 25; // 2,5 cm de margem lateral
-            const contentWidth = pageWidth - (margin * 2); // 160mm de largura útil
+            const doc = jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+            const pageWidth = 210; const margin = 25; const widthUtil = pageWidth - (margin * 2);
 
             const imgTopo = new Image(); imgTopo.src = 'LOGO CIMA.png';
             imgTopo.onload = () => {
                 doc.addImage(imgTopo, 'PNG', 0, 5, pageWidth, 45);
-
                 const imgMeio = new Image(); imgMeio.src = 'LOGO MEIO.png';
                 imgMeio.onload = () => {
                     doc.setGState(new doc.GState({opacity: 0.1})); 
-                    doc.addImage(imgMeio, 'PNG', (pageWidth - 120) / 2, 100, 120, 45); 
+                    doc.addImage(imgMeio, 'PNG', (pageWidth - 120) / 2, 100, 120, 45);
                     doc.setGState(new doc.GState({opacity: 1.0}));
-                    
                     doc.setFont("times", "bold"); doc.setFontSize(16);
                     doc.text("DECLARAÇÃO", pageWidth / 2, 75, { align: "center" });
 
                     doc.setFont("times", "normal"); doc.setFontSize(12);
-                    const texto = `Declaramos para os devidos fins de direito que ${nome}, CPF nº ${cpfFormatado}, nascido(a) em ${nasc}, filho(a) de ${mae} e ${pai}, está regularmente matriculado(a) nesta Unidade de Ensino no ${turma}, de segunda-feira à sexta-feira no horário das 07:30 às 17:00.`;
-                    
-                    // DIVISÃO DO TEXTO EM LINHAS RESPEITANDO A LARGURA ÚTIL DA FOLHA (160mm)
-                    const splitText = doc.splitTextToSize(texto, contentWidth);
-                    
-                    // IMPRESSÃO DE TODO O TEXTO CENTRALIZADO LINHA POR LINHA
-                    let yOffset = 100;
-                    splitText.forEach(line => {
-                        doc.text(line, pageWidth / 2, yOffset, { align: "center" });
-                        yOffset += 7; // Espaçamento entre linhas
+                    const parts = [
+                        { text: "Declaramos para os devidos fins de direito que ", bold: false },
+                        { text: nome, bold: true },
+                        { text: ", CPF nº ", bold: false },
+                        { text: cpf, bold: true },
+                        { text: ", nascido(a) em ", bold: false },
+                        { text: nasc, bold: true },
+                        { text: ", filho(a) de ", bold: false },
+                        { text: mae, bold: true },
+                        { text: " e ", bold: false },
+                        { text: pai, bold: true },
+                        { text: ", está regularmente matriculado(a) nesta Unidade de Ensino no ", bold: false },
+                        { text: turma, bold: true },
+                        { text: ", de segunda-feira à sexta-feira no horário das ", bold: false },
+                        { text: "07:30 às 17:00", bold: true },
+                        { text: ".", bold: false }
+                    ];
+
+                    let curY = 95;
+                    const words = [];
+                    parts.forEach(p => {
+                        const style = p.bold ? "bold" : "normal";
+                        p.text.split(" ").forEach(w => { if(w !== "") words.push({ text: w + " ", style: style }); });
                     });
 
-                    // Bloco final centralizado no meio da folha
-                    doc.text(`Jaboatão dos Guararapes, ${dataH}.`, pageWidth / 2, yOffset + 15, { align: "center" });
-                    doc.text("Atenciosamente,", pageWidth / 2, yOffset + 30, { align: "center" });
-                    
-                    // Linha de assinatura centralizada
-                    doc.text("___________________________________", pageWidth / 2, yOffset + 55, { align: "center" });
+                    let line = []; let lineWidth = 0;
+                    words.forEach((w, i) => {
+                        doc.setFont("times", w.style); const wWidth = doc.getTextWidth(w.text);
+                        if (lineWidth + wWidth > widthUtil) {
+                            const spaceCount = line.length - 1; const extraSpace = (widthUtil - lineWidth) / spaceCount;
+                            let curX = margin;
+                            line.forEach((lw, li) => { doc.setFont("times", lw.style); doc.text(lw.text, curX, curY); curX += doc.getTextWidth(lw.text) + (li < spaceCount ? extraSpace : 0); });
+                            line = [w]; lineWidth = wWidth; curY += 7;
+                        } else { line.push(w); lineWidth += wWidth; }
+                        if (i === words.length - 1) {
+                            let curX = margin; line.forEach(lw => { doc.setFont("times", lw.style); doc.text(lw.text, curX, curY); curX += doc.getTextWidth(lw.text); });
+                        }
+                    });
+
+                    doc.setFont("times", "bold");
+                    doc.text(`Jaboatão dos Guararapes, ${dataH}.`, pageWidth / 2, curY + 20, { align: "center" });
+                    doc.text("Atenciosamente,", pageWidth / 2, curY + 35, { align: "center" });
+                    doc.text("___________________________________", pageWidth / 2, curY + 60, { align: "center" });
                     
                     const imgBase = new Image(); imgBase.src = 'LOGO BAIXO.png';
-                    imgBase.onload = () => {
-                        doc.addImage(imgBase, 'PNG', 10, 265, 190, 25);
-                        doc.save(`Declaracao_${nome}.pdf`);
-                    };
+                    imgBase.onload = () => { doc.addImage(imgBase, 'PNG', 10, 265, 190, 25); doc.save(`Declaracao_${nome}.pdf`); };
                 };
             };
         };
 
-        async function initIA() { const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; await faceapi.nets.tinyFaceDetector.loadFromUri(URL); await faceapi.nets.faceLandmark68Net.loadFromUri(URL); await faceapi.nets.faceRecognitionNet.loadFromUri(URL); }
-        document.getElementById('btnCam').onclick = async () => { document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }); };
-        document.getElementById('btnSalvar').onclick = async () => { const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value, v = document.getElementById('webcam'); const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor(); if(!det) return alert("Erro"); await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, descritor: Array.from(det.descriptor) }); location.reload(); };
+        // --- FIREBASE OPERAÇÕES ---
+        async function initIA() { 
+            const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+            await faceapi.nets.tinyFaceDetector.loadFromUri(URL); await faceapi.nets.faceLandmark68Net.loadFromUri(URL); await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
+        }
+
+        document.getElementById('btnCam').onclick = async () => { document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: true }); };
+
+        document.getElementById('btnSalvar').onclick = async () => {
+            const n = limpar(document.getElementById('nAluno').value), s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
+            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            if(!det) return alert("Erro Facial!");
+            await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, descritor: Array.from(det.descriptor) });
+            location.reload();
+        };
 
         function escutarDados() {
             onSnapshot(collection(db, "alunos"), snap => {
-                const t = document.getElementById('tabelaAlunos'); t.innerHTML = "";
-                snap.forEach(d => { t.innerHTML += `<tr><td class="fw-bold">${d.data().nome}</td><td>${d.data().sala}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary" onclick="window.abrirEdicaoAluno('${d.id}','${d.data().nome}','${d.data().sala}','${d.data().tel}','${d.data().email}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+                const listaContainer = document.getElementById('listaAgrupadaAlunos');
+                listaContainer.innerHTML = "";
+                const alunosPorTurma = {};
+                snap.forEach(d => {
+                    const a = d.data();
+                    if (!alunosPorTurma[a.sala]) alunosPorTurma[a.sala] = [];
+                    alunosPorTurma[a.sala].push({ id: d.id, ...a });
+                });
+                Object.keys(alunosPorTurma).sort().forEach(turma => {
+                    listaContainer.innerHTML += `<div class="turma-header shadow-sm rounded mb-2">${turma.toUpperCase()}</div>`;
+                    let tabela = `<div class="card-custom p-0 overflow-hidden mb-4"><table class="table mb-0 align-middle"><tbody>`;
+                    alunosPorTurma[turma].sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(aluno => {
+                        tabela += `<tr><td class="fw-bold">${aluno.nome}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary me-2" onclick="window.abrirEdicaoAluno('${aluno.id}','${aluno.nome}','${aluno.sala}','${aluno.tel || ''}','${aluno.email || ''}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('alunos','${aluno.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                    });
+                    listaContainer.innerHTML += tabela + `</tbody></table></div>`;
+                });
                 document.getElementById('st-total').innerText = snap.size;
             });
             onSnapshot(collection(db, "logins"), snap => {
                 const t = document.getElementById('tabelaLogins'); t.innerHTML = "";
-                snap.forEach(d => { t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary" onclick='window.editL("${d.id}","${d.data().usuario}","${d.data().senha}","${d.data().tel}","${d.data().email}",${JSON.stringify(d.data().permissoes)})'><i class="fas fa-cog"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+                snap.forEach(d => { 
+                    const l = d.data();
+                    t.innerHTML += `<tr><td>${l.usuario}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary me-2" onclick='window.editL("${d.id}","${l.usuario}","${l.senha}","${l.tel || ''}","${l.email || ''}",${JSON.stringify(l.permissoes || [])})'><i class="fas fa-cog"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; 
+                });
             });
             const hoje = new Date().toLocaleDateString('pt-BR');
             onSnapshot(collection(db, "frequencia"), snap => { let p = 0; snap.forEach(d => { if(d.data().data === hoje) p++; }); document.getElementById('st-presentes').innerText = p; document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - p); updateCharts(); });
         }
 
-        window.abrirEdicaoAluno = (id, n, s, t, e) => { document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n; document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t || ""; document.getElementById('editAlunoEmail').value = e || ""; new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); };
+        window.abrirEdicaoAluno = (id, n, s, t, e) => { document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n; document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t; document.getElementById('editAlunoEmail').value = e; new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); };
         window.salvarEdicaoAluno = async () => { await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), { nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value, tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value }); location.reload(); };
 
-        document.getElementById('btnL').onclick = async () => { const perms = Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value); await addDoc(collection(db, "logins"), { usuario: document.getElementById('lu').value, senha: document.getElementById('ls').value, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: perms }); location.reload(); };
+        document.getElementById('btnL').onclick = async () => { 
+            const user = document.getElementById('lu').value, pass = document.getElementById('ls').value;
+            if(!user || !pass) return alert("Preencha Usuário e Senha!");
+            const q = query(collection(db, "logins"), where("usuario", "==", user));
+            const snap = await getDocs(q);
+            if(!snap.empty) return alert("Usuário já existe!");
+            await addDoc(collection(db, "logins"), { usuario: user, senha: pass, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value) }); 
+            location.reload(); 
+        };
+
         window.editL = (id, u, s, t, e, p) => { document.getElementById('eid').value = id; document.getElementById('eu').value = u; document.getElementById('es').value = s; document.getElementById('et').value = t; document.getElementById('ee').value = e; document.querySelectorAll('.pce').forEach(c => c.checked = p.includes(c.value)); new bootstrap.Modal(document.getElementById('modalL')).show(); };
         window.salvarEL = async () => { await updateDoc(doc(db, "logins", document.getElementById('eid').value), { usuario: document.getElementById('eu').value, senha: document.getElementById('es').value, tel: document.getElementById('et').value, email: document.getElementById('ee').value, permissoes: Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value) }); location.reload(); };
 
         window.gerarRelatorio = async () => {
-            const dt = document.getElementById('filtroData').value, tr = document.getElementById('filtroTurmaRelatorio').value; if(!dt) return alert("Data!"); const dataBR = dt.split('-').reverse().join('/'); const q = query(collection(db, "frequencia"), where("data", "==", dataBR)); const snap = await getDocs(q); const t = document.getElementById('tabelaRelatorio'); t.innerHTML = ""; window.dadosExport = [];
-            snap.forEach(d => { if(tr === "TODAS" || d.data().sala === tr) { t.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().sala || '--'}</td><td>${d.data().hora}</td></tr>`; window.dadosExport.push([d.data().nome, d.data().sala || '--', d.data().hora]); } });
+            const dt = document.getElementById('filtroData').value, tr = document.getElementById('filtroTurmaRelatorio').value; if(!dt) return alert("Data!"); const dataBR = dt.split('-').reverse().join('/');
+            const q = query(collection(db, "frequencia"), where("data", "==", dataBR));
+            const snap = await getDocs(q); const t = document.getElementById('tabelaRelatorio'); t.innerHTML = "";
+            snap.forEach(d => { if(tr === "TODAS" || d.data().sala === tr) t.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().sala}</td><td>${d.data().hora}</td></tr>`; });
         };
-        window.baixarPDF = () => { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.autoTable({ head:[['Nome','Turma','Hora']], body: window.dadosExport }); doc.save("Relatorio.pdf"); };
         window.del = async (c, i) => { if(confirm("Confirmar?")) await deleteDoc(doc(db, c, i)); };
-        window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#tabelaAlunos tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
+        window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#listaAgrupadaAlunos tr').forEach(tr => { if(tr.querySelector('td')) tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"; }); };
         function updateCharts() { const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0; if(chartP) chartP.destroy(); chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['P', 'F'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#ef4444'], borderWidth:0 }] }, options:{cutout:'70%'} }); if(chartB) chartB.destroy(); chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'], borderRadius:10 }] } }); }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
