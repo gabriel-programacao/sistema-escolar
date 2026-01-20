@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>TERMINAL FACIAL - ESCOLA</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #111; color: white; text-align: center; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; justify-content: center; margin: 0; overflow: hidden; }
+        .container-video { position: relative; display: inline-block; }
+        video { border: 10px solid #333; border-radius: 30px; width: 640px; height: 480px; background: #000; transform: scaleX(-1); object-fit: cover; }
+        
+        .status { 
+            font-size: 32px; 
+            margin-top: 20px; 
+            padding: 30px; 
+            border-radius: 20px; 
+            width: 750px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            background: #222; 
+            transition: all 0.4s ease;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nome-aluno { font-weight: bold; font-size: 40px; color: #fff; text-transform: uppercase; }
+        .sala-aluno { font-size: 24px; opacity: 0.9; margin-bottom: 10px; }
+        .confirmacao { font-size: 20px; letter-spacing: 2px; }
+
+        .verde { background: #198754; border: 4px solid #fff; box-shadow: 0 0 30px #198754; transform: scale(1.05); }
+        .vermelho { background: #dc3545; border: 4px solid #fff; }
+        .loading-ia { color: #ffc107; font-size: 18px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2 id="titulo">SISTEMA DE IDENTIFICAÇÃO BIOMÉTRICA</h2>
+    <div id="loading" class="loading-ia">Carregando Inteligência Artificial...</div>
+    
+    <div class="container-video">
+        <video id="video" autoplay muted playsinline></video>
+    </div>
+
+    <div id="status" class="status">
+        <div id="status-texto">INICIALIZANDO...</div>
+    </div>
+    
+    <button id="btnPlay" class="btn btn-warning mt-3 d-none" onclick="iniciarTudo()">FORÇAR INÍCIO</button>
+
+    <script>
+        const video = document.getElementById('video');
+        const statusDiv = document.getElementById('status');
+        const statusTexto = document.getElementById('status-texto');
+        const loading = document.getElementById('loading');
+        let FaceMatcher = null;
+        let pausado = false; // Variável para controlar a pausa de 3 segundos
+
+        async function iniciarTudo() {
+            try {
+                const URL_MODELS = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+                await faceapi.nets.tinyFaceDetector.loadFromUri(URL_MODELS);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(URL_MODELS);
+                await faceapi.nets.faceRecognitionNet.loadFromUri(URL_MODELS);
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                video.srcObject = stream;
+
+                video.onloadedmetadata = () => {
+                    video.play();
+                    loading.style.display = 'none';
+                    prepararBancoEComparacao();
+                };
+            } catch (err) {
+                statusTexto.innerText = "ERRO NA CÂMERA: " + err.message;
+                document.getElementById('btnPlay').classList.remove('d-none');
+            }
+        }
+
+        function prepararBancoEComparacao() {
+            const alunosCadastrados = JSON.parse(localStorage.getItem('alunos')) || [];
+            if (alunosCadastrados.length === 0) {
+                statusTexto.innerText = "NENHUM ALUNO CADASTRADO!";
+                return;
+            }
+
+            const labeledDescriptors = alunosCadastrados.map(a => {
+                return new faceapi.LabeledFaceDescriptors(a.nome, [new Float32Array(a.descritor)]);
+            });
+
+            FaceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
+            loopReconhecimento();
+        }
+
+        async function loopReconhecimento() {
+            setInterval(async () => {
+                if (pausado) return; // Se estiver mostrando um aluno, não faz nada
+
+                const deteccao = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+                                             .withFaceLandmarks()
+                                             .withFaceDescriptor();
+
+                if (deteccao && FaceMatcher) {
+                    const resultado = FaceMatcher.findBestMatch(deteccao.descriptor);
+                    
+                    if (resultado.label !== 'unknown') {
+                        exibirSucesso(resultado.label);
+                    } else {
+                        statusTexto.innerText = "ALUNO NÃO IDENTIFICADO";
+                        statusDiv.className = "status vermelho";
+                    }
+                } else {
+                    statusTexto.innerHTML = "AGUARDANDO ALUNO...";
+                    statusDiv.className = "status";
+                }
+            }, 600); 
+        }
+
+        function exibirSucesso(nome) {
+            pausado = true; // Trava o reconhecimento
+            
+            // Busca os dados da sala no banco para mostrar na tela
+            const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
+            const dadosAluno = alunos.find(a => a.nome === nome);
+            const sala = dadosAluno ? dadosAluno.sala : "";
+
+            // Atualiza a interface com destaque
+            statusDiv.className = "status verde";
+            statusTexto.innerHTML = `
+                <div class="confirmacao">PRESENÇA CONFIRMADA</div>
+                <div class="nome-aluno">${nome}</div>
+                <div class="sala-aluno">${sala}</div>
+            `;
+
+            salvarPresenca(nome, sala);
+
+            // Aguarda 3 segundos e libera para o próximo aluno
+            setTimeout(() => {
+                pausado = false;
+                statusDiv.className = "status";
+                statusTexto.innerText = "AGUARDANDO ALUNO...";
+            }, 3000); 
+        }
+
+        function salvarPresenca(nome, sala) {
+            let lista = JSON.parse(localStorage.getItem('frequencia')) || [];
+            const agora = new Date();
+            
+            // Evita duplicados rápidos (menos de 1 minuto)
+            const ultimo = lista.length > 0 ? lista[lista.length - 1] : null;
+            if (ultimo && ultimo.nome === nome && (agora - new Date(ultimo.dataFull)) < 60000) return;
+
+            lista.push({ 
+                nome: nome, 
+                sala: sala,
+                hora: agora.toLocaleTimeString('pt-BR'), 
+                dataFull: agora 
+            });
+            localStorage.setItem('frequencia', JSON.stringify(lista));
+        }
+
+        window.onload = iniciarTudo;
+    </script>
+</body>
+</html>
