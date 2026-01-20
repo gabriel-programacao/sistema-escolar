@@ -95,7 +95,7 @@
                                 <input type="text" id="buscaBio" class="form-control w-50" placeholder="Filtrar nesta lista..." onkeyup="window.filtrarListaBio()">
                             </div>
                             <div id="listaBiometriaAgrupada" style="max-height: 600px; overflow-y: auto; padding-right: 5px;">
-                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-5 d-none" id="painelCameraBio">
@@ -266,7 +266,15 @@
         window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
 
         function montarMenu() {
-            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-line'},{id:'sec-biometria', label:'Biometria', icon:'fa-fingerprint'},{id:'sec-declaracao', label:'Declaração', icon:'fa-file-signature'},{id:'sec-consultas', label:'Relatórios', icon:'fa-print'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}];
+            const itens = [
+                {id:'sec-stats', label:'Painel', icon:'fa-chart-line'},
+                {id:'sec-declaracao', label:'Declaração', icon:'fa-file-signature'},
+                {id:'sec-consultas', label:'Relatórios', icon:'fa-print'},
+                {id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},
+                {id:'sec-faltas', label:'Alunos', icon:'fa-users'},
+                {id:'sec-biometria', label:'Biometria', icon:'fa-fingerprint'},
+                {id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}
+            ];
             let h = ""; let primeiraAbaPermitida = null;
             itens.forEach(i => {
                 const abaId = i.id.replace('sec-', 'aba-');
@@ -312,7 +320,7 @@
             doc.save("Relatorio.pdf");
         };
 
-        // --- BIOMETRIA (NOVA LÓGICA) ---
+        // --- BIOMETRIA ---
         document.getElementById('btnCamBio').onclick = async () => { document.getElementById('webcamBio').srcObject = await navigator.mediaDevices.getUserMedia({ video: true }); };
         
         window.abrirPainelBio = (id, nome) => {
