@@ -53,10 +53,7 @@
         </div>
         
         <div class="d-flex align-items-center gap-3">
-            <div class="user-badge">
-                <i class="fas fa-user-circle"></i>
-                <span id="username-display">---</span>
-            </div>
+            <div class="user-badge"><i class="fas fa-user-circle"></i> <span id="username-display">---</span></div>
             <button class="btn-logout" onclick="window.logout()"><i class="fas fa-power-off"></i></button>
         </div>
     </header>
@@ -77,7 +74,7 @@
         <main class="main-content">
             <div id="sec-stats" class="secao ativa">
                 <h4 class="fw-bold mb-4">Monitoramento de Frequência</h4>
-                <div class="row g-4">
+                <div class="row g-4 text-center">
                     <div class="col-md-4"><div class="stat-box shadow" style="background: var(--pe-blue)"><div><small>Matriculados</small><h2 id="st-total">0</h2></div><i class="fas fa-users fa-2x opacity-50"></i></div></div>
                     <div class="col-md-4"><div class="stat-box shadow" style="background: #10b981"><div><small>Presentes Hoje</small><h2 id="st-presentes">0</h2></div><i class="fas fa-check-circle fa-2x opacity-50"></i></div></div>
                     <div class="col-md-4"><div class="stat-box shadow" style="background: var(--pe-red)"><div><small>Faltas Hoje</small><h2 id="st-faltas">0</h2></div><i class="fas fa-user-times fa-2x opacity-50"></i></div></div>
@@ -88,75 +85,54 @@
                 </div>
             </div>
 
+            <div id="sec-declaracao" class="secao">
+                <h4 class="fw-bold mb-4">Emissão de Declaração Escolar</h4>
+                <div class="card-custom">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="small fw-bold">ESTUDANTE</label><input type="text" id="decNome" class="form-control" placeholder="NOME COMPLETO"></div>
+                        <div class="col-md-6"><label class="small fw-bold">CPF (APENAS NÚMEROS)</label><input type="text" id="decCpf" class="form-control" maxlength="11" placeholder="00000000000"></div>
+                        <div class="col-md-4"><label class="small fw-bold">NASCIMENTO</label><input type="text" id="decNasc" class="form-control" placeholder="00/00/0000"></div>
+                        <div class="col-md-4"><label class="small fw-bold">MÃE</label><input type="text" id="decMae" class="form-control"></div>
+                        <div class="col-md-4"><label class="small fw-bold">PAI</label><input type="text" id="decPai" class="form-control"></div>
+                        <div class="col-md-12">
+                            <label class="small fw-bold">CURSO E TURMA</label>
+                            <select id="decTurma" class="form-select">
+                                <option value="1º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">1º ano - Logística</option>
+                                <option value="1º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Redes de Computadores">1º ano - Redes</option>
+                                <option value="2º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">2º ano - Logística</option>
+                                <option value="2º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Redes de Computadores">2º ano - Redes</option>
+                                <option value="3º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Logística">3º ano - Logística</option>
+                                <option value="3º ano do Novo Ensino Médio Integral/Integrado curso Técnico em Redes de Computadores">3º ano - Redes</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mt-4"><button class="btn btn-primary w-100 py-3 fw-bold shadow" onclick="window.gerarPDFDeclaracao()">BAIXAR DECLARAÇÃO PDF</button></div>
+                    </div>
+                </div>
+            </div>
+
             <div id="sec-consultas" class="secao">
                 <h4 class="fw-bold mb-4">Relatórios Oficiais</h4>
                 <div class="card-custom mb-4">
-                    <div class="row g-3">
+                    <div class="row g-3 align-items-end">
                         <div class="col-md-3"><label class="small fw-bold">DATA</label><input type="date" id="filtroData" class="form-control"></div>
-                        <div class="col-md-4">
-                            <label class="small fw-bold">TURMA</label>
-                            <select id="filtroTurmaRelatorio" class="form-select">
-                                <option value="TODAS">Todas as Turmas</option>
-                                <optgroup label="1º ANO">
-                                    <option>1º Ano A - Redes de Computadores</option>
-                                    <option>1º Ano B - Redes de Computadores</option>
-                                    <option>1º Ano A - Logística</option>
-                                    <option>1º Ano B - Logística</option>
-                                </optgroup>
-                                <optgroup label="2º ANO">
-                                    <option>2º Ano A - Redes de Computadores</option>
-                                    <option>2º Ano B - Redes de Computadores</option>
-                                    <option>2º Ano A - Logística</option>
-                                    <option>2º Ano B - Logística</option>
-                                </optgroup>
-                                <optgroup label="3º ANO">
-                                    <option>3º Ano A - Redes de Computadores</option>
-                                    <option>3º Ano B - Redes de Computadores</option>
-                                    <option>3º Ano A - Logística</option>
-                                    <option>3º Ano B - Logística</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="col-md-5 d-flex align-items-end gap-2"><button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button><button class="btn btn-danger" onclick="window.baixarPDF()"><i class="fas fa-file-pdf"></i></button><button class="btn btn-success" onclick="window.baixarExcel()"><i class="fas fa-file-excel"></i></button></div>
+                        <div class="col-md-4"><label class="small fw-bold">TURMA</label><select id="filtroTurmaRelatorio" class="form-select"><option value="TODAS">Todas as Turmas</option><option>Logística</option><option>Redes</option></select></div>
+                        <div class="col-md-5 d-flex gap-2"><button class="btn btn-primary flex-grow-1" onclick="window.gerarRelatorio()">Consultar</button><button class="btn btn-danger" onclick="window.baixarPDF()"><i class="fas fa-file-pdf"></i></button><button class="btn btn-success" onclick="window.baixarExcel()"><i class="fas fa-file-excel"></i></button></div>
                     </div>
                 </div>
                 <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle text-center"><thead class="table-light"><tr><th>Estudante</th><th>Turma</th><th>Hora</th></tr></thead><tbody id="tabelaRelatorio"></tbody></table></div>
             </div>
 
             <div id="sec-facial" class="secao">
-                <h4 class="fw-bold mb-4">Novo Cadastro de Estudante</h4>
+                <h4 class="fw-bold mb-4">Novo Cadastro</h4>
                 <div class="card-custom">
                     <div class="row g-4">
                         <div class="col-lg-5">
                             <label class="small fw-bold">NOME</label><input type="text" id="nAluno" class="form-control mb-2">
-                            
-                            <label class="small fw-bold">TURMA</label>
-                            <select id="sAluno" class="form-select mb-2">
-                                <option value="" disabled selected>Selecione a turma...</option>
-                                <optgroup label="1º ANO">
-                                    <option>1º Ano A - Redes de Computadores</option>
-                                    <option>1º Ano B - Redes de Computadores</option>
-                                    <option>1º Ano A - Logística</option>
-                                    <option>1º Ano B - Logística</option>
-                                </optgroup>
-                                <optgroup label="2º ANO">
-                                    <option>2º Ano A - Redes de Computadores</option>
-                                    <option>2º Ano B - Redes de Computadores</option>
-                                    <option>2º Ano A - Logística</option>
-                                    <option>2º Ano B - Logística</option>
-                                </optgroup>
-                                <optgroup label="3º ANO">
-                                    <option>3º Ano A - Redes de Computadores</option>
-                                    <option>3º Ano B - Redes de Computadores</option>
-                                    <option>3º Ano A - Logística</option>
-                                    <option>3º Ano B - Logística</option>
-                                </optgroup>
-                            </select>
-
+                            <label class="small fw-bold">TURMA</label><select id="sAluno" class="form-select mb-2"><option>Logística</option><option>Redes</option></select>
                             <label class="small fw-bold">TELEFONE</label><input type="text" id="tAluno" class="form-control mb-2">
-                            <label class="small fw-bold">E-MAIL</label><input type="email" id="eAluno" class="form-control mb-4">
-                            <button class="btn btn-primary w-100 py-3 mb-2" id="btnCam">Ativar Câmera</button>
-                            <button class="btn btn-success w-100 py-3" id="btnSalvar">Salvar Cadastro</button>
+                            <label class="small fw-bold">E-MAIL</label><input type="email" id="eAluno" class="form-control mb-4" placeholder="E-mail">
+                            <button class="btn btn-primary w-100 mb-2" id="btnCam">Ativar Câmera</button>
+                            <button class="btn btn-success w-100" id="btnSalvar">Salvar Aluno</button>
                         </div>
                         <div class="col-lg-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
                     </div>
@@ -164,11 +140,8 @@
             </div>
 
             <div id="sec-faltas" class="secao">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold">Gestão de Alunos</h4>
-                    <input type="text" id="buscaA" class="form-control w-50 rounded-pill" placeholder="🔍 Buscar..." onkeyup="window.filtrarAlunos()">
-                </div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle"><thead><tr class="table-light"><th>Nome</th><th>Turma</th><th class="text-end">Gerir</th></tr></thead><tbody id="tabelaAlunos"></tbody></table></div>
+                <div class="d-flex justify-content-between align-items-center mb-4"><h4 class="fw-bold">Alunos</h4><input type="text" id="buscaA" class="form-control w-50" placeholder="Buscar..." onkeyup="window.filtrarAlunos()"></div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle"><thead class="table-light"><tr><th>Nome</th><th>Turma</th><th class="text-end">Gerir</th></tr></thead><tbody id="tabelaAlunos"></tbody></table></div>
             </div>
 
             <div id="sec-usuarios" class="secao">
@@ -180,79 +153,30 @@
                         <div class="col-md-3"><input type="text" id="lt" class="form-control" placeholder="Tel"></div>
                         <div class="col-md-3"><input type="email" id="le" class="form-control" placeholder="E-mail"></div>
                     </div>
-                    <div class="mb-3 d-flex gap-3 bg-light p-2 rounded">
+                    <div class="mb-3 d-flex gap-3 bg-light p-2 rounded shadow-sm">
                         <label><input type="checkbox" class="pc" value="aba-stats" checked> Painel</label>
+                        <label><input type="checkbox" class="pc" value="aba-declaracao"> Declaração</label>
                         <label><input type="checkbox" class="pc" value="aba-consultas"> Relatórios</label>
                         <label><input type="checkbox" class="pc" value="aba-facial"> Matrícula</label>
                         <label><input type="checkbox" class="pc" value="aba-faltas"> Alunos</label>
                         <label><input type="checkbox" class="pc" value="aba-usuarios"> Sistemas</label>
                     </div>
-                    <button class="btn btn-primary px-5" id="btnL">Criar Acesso</button>
+                    <button class="btn btn-primary px-5" id="btnL">Criar Operador</button>
                 </div>
-                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0"><thead><tr class="table-dark"><th>Operador</th><th class="text-end">Ações</th></tr></thead><tbody id="tabelaLogins"></tbody></table></div>
+                <div class="card-custom p-0 overflow-hidden"><table class="table mb-0 align-middle"><thead class="table-dark"><tr><th>Operador</th><th class="text-end">Gerenciar</th></tr></thead><tbody id="tabelaLogins"></tbody></table></div>
             </div>
         </main>
     </div>
 
-    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog"><div class="modal-content shadow">
-        <div class="modal-header border-0 bg-primary text-white"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body p-4">
-            <input type="hidden" id="editAlunoId">
-            <label class="small fw-bold">NOME</label><input type="text" id="editAlunoNome" class="form-control mb-3">
-            
-            <label class="small fw-bold">TURMA</label>
-            <select id="editAlunoSala" class="form-select mb-3">
-                <optgroup label="1º ANO">
-                    <option>1º Ano A - Redes de Computadores</option>
-                    <option>1º Ano B - Redes de Computadores</option>
-                    <option>1º Ano A - Logística</option>
-                    <option>1º Ano B - Logística</option>
-                </optgroup>
-                <optgroup label="2º ANO">
-                    <option>2º Ano A - Redes de Computadores</option>
-                    <option>2º Ano B - Redes de Computadores</option>
-                    <option>2º Ano A - Logística</option>
-                    <option>2º Ano B - Logística</option>
-                </optgroup>
-                <optgroup label="3º ANO">
-                    <option>3º Ano A - Redes de Computadores</option>
-                    <option>3º Ano B - Redes de Computadores</option>
-                    <option>3º Ano A - Logística</option>
-                    <option>3º Ano B - Logística</option>
-                </optgroup>
-            </select>
+    <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white" style="border-radius:20px 20px 0 0"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="editAlunoId"><label class="small fw-bold">NOME</label><input type="text" id="editAlunoNome" class="form-control mb-2"><label class="small fw-bold">TURMA</label><input type="text" id="editAlunoSala" class="form-control mb-2"><label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editAlunoTel" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="editAlunoEmail" class="form-control mb-2"></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoAluno()">Confirmar</button></div></div></div></div>
 
-            <label class="small fw-bold">TEL. RESPONSÁVEL</label><input type="text" id="editAlunoTel" class="form-control mb-3">
-            <label class="small fw-bold">E-MAIL</label><input type="email" id="editAlunoEmail" class="form-control mb-3">
-        </div>
-        <div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoAluno()">Salvar</button></div>
-    </div></div></div>
-
-    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5>Editar Operador</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4">
-        <input type="hidden" id="eid"><input type="text" id="eu" class="form-control mb-2"><input type="password" id="es" class="form-control mb-2" placeholder="Senha">
-        <input type="text" id="et" class="form-control mb-2"><input type="email" id="ee" class="form-control mb-3">
-        <div id="ep" class="d-flex flex-wrap gap-2">
-            <label><input type="checkbox" class="pce" value="aba-stats"> Painel</label>
-            <label><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label>
-            <label><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label>
-            <label><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label>
-            <label><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label>
-        </div>
-    </div><div class="modal-footer"><button class="btn btn-primary w-100" onclick="window.salvarEL()">Confirmar</button></div></div></div></div>
+    <div class="modal fade" id="modalL" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white" style="border-radius:20px 20px 0 0"><h5>Editar Operador</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="eid"><label class="small fw-bold">USUÁRIO</label><input type="text" id="eu" class="form-control mb-2"><label class="small fw-bold">SENHA</label><input type="password" id="es" class="form-control mb-2" placeholder="Nova Senha"><label class="small fw-bold">TEL</label><input type="text" id="et" class="form-control mb-2"><label class="small fw-bold">E-MAIL</label><input type="email" id="ee" class="form-control mb-3"><h6>Permissões</h6><div id="ep" class="d-flex flex-wrap gap-2 p-2 bg-light rounded"><label><input type="checkbox" class="pce" value="aba-stats"> Painel</label><label><input type="checkbox" class="pce" value="aba-declaracao"> Declaração</label><label><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label><label><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label><label><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label><label><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="window.salvarEL()">Salvar Alterações</button></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo",
-            authDomain: "escolapro-15e5e.firebaseapp.com",
-            projectId: "escolapro-15e5e",
-            storageBucket: "escolapro-15e5e.firebasestorage.app",
-            messagingSenderId: "339019791514",
-            appId: "1:339019791514:web:44e0d58b6835f0fe6df323"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", authDomain: "escolapro-15e5e.firebaseapp.com", projectId: "escolapro-15e5e", storageBucket: "escolapro-15e5e.firebasestorage.app", messagingSenderId: "339019791514", appId: "1:339019791514:web:44e0d58b6835f0fe6df323" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
@@ -267,133 +191,110 @@
         window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
 
         function montarMenu() {
-            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-line'},{id:'sec-consultas', label:'Relatórios', icon:'fa-print'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}];
+            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-line'},{id:'sec-declaracao', label:'Declaração', icon:'fa-file-signature'},{id:'sec-consultas', label:'Relatórios', icon:'fa-print'},{id:'sec-facial', label:'Matrícula', icon:'fa-id-card'},{id:'sec-faltas', label:'Alunos', icon:'fa-users'},{id:'sec-usuarios', label:'Sistemas', icon:'fa-cogs'}];
             let h = "";
-            itens.forEach(i => {
-                if(logado.usuario === 'Adm master' || (logado.permissoes && logado.permissoes.includes(i.id.replace('sec-', 'aba-')))) {
-                    h += `<button class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas"><i class="fas ${i.icon}"></i> ${i.label}</button>`;
-                }
-            });
+            itens.forEach(i => { if(logado.usuario === 'Adm master' || (logado.permissoes && logado.permissoes.includes(i.id.replace('sec-', 'aba-')))) h += `<button class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas"><i class="fas ${i.icon}"></i> ${i.label}</button>`; });
             h += `<hr class="text-white-50"><a href="terminal.html" class="nav-link-pe" style="color:var(--pe-yellow)"><i class="fas fa-camera"></i> Abrir Terminal</a>`;
             document.getElementById('menu-links').innerHTML = h; document.getElementById('menu-links-mobile').innerHTML = h;
         }
 
-        window.trocarAba = (id, btn) => {
-            document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-            document.getElementById(id).classList.add('ativa');
-            document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active'); if(id === 'sec-stats') updateCharts();
+        window.trocarAba = (id, btn) => { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); if(id === 'sec-stats') updateCharts(); };
+
+        function formatarCPF(cpf) { cpf = cpf.replace(/\D/g, ""); return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
+
+        window.gerarPDFDeclaracao = () => {
+            const nome = document.getElementById('decNome').value.toUpperCase();
+            const cpfRaw = document.getElementById('decCpf').value;
+            const cpfFormatado = formatarCPF(cpfRaw);
+            const nasc = document.getElementById('decNasc').value;
+            const mae = document.getElementById('decMae').value.toUpperCase();
+            const pai = document.getElementById('decPai').value.toUpperCase();
+            const turma = document.getElementById('decTurma').value;
+            const dataH = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            if(!nome || cpfRaw.length < 11 || !turma) return alert("Preencha Nome, CPF completo e Turma.");
+
+            const { jsPDF } = window.jspdf;
+            const doc = jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+            const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
+            const margin = 25; // 2,5 cm de margem lateral
+            const contentWidth = pageWidth - (margin * 2); // 160mm de largura útil
+
+            const imgTopo = new Image(); imgTopo.src = 'LOGO CIMA.png';
+            imgTopo.onload = () => {
+                doc.addImage(imgTopo, 'PNG', 0, 5, pageWidth, 45);
+
+                const imgMeio = new Image(); imgMeio.src = 'LOGO MEIO.png';
+                imgMeio.onload = () => {
+                    doc.setGState(new doc.GState({opacity: 0.1})); 
+                    doc.addImage(imgMeio, 'PNG', (pageWidth - 120) / 2, 100, 120, 45); 
+                    doc.setGState(new doc.GState({opacity: 1.0}));
+                    
+                    doc.setFont("times", "bold"); doc.setFontSize(16);
+                    doc.text("DECLARAÇÃO", pageWidth / 2, 75, { align: "center" });
+
+                    doc.setFont("times", "normal"); doc.setFontSize(12);
+                    const texto = `Declaramos para os devidos fins de direito que ${nome}, CPF nº ${cpfFormatado}, nascido(a) em ${nasc}, filho(a) de ${mae} e ${pai}, está regularmente matriculado(a) nesta Unidade de Ensino no ${turma}, de segunda-feira à sexta-feira no horário das 07:30 às 17:00.`;
+                    
+                    // DIVISÃO DO TEXTO EM LINHAS RESPEITANDO A LARGURA ÚTIL DA FOLHA (160mm)
+                    const splitText = doc.splitTextToSize(texto, contentWidth);
+                    
+                    // IMPRESSÃO DE TODO O TEXTO CENTRALIZADO LINHA POR LINHA
+                    let yOffset = 100;
+                    splitText.forEach(line => {
+                        doc.text(line, pageWidth / 2, yOffset, { align: "center" });
+                        yOffset += 7; // Espaçamento entre linhas
+                    });
+
+                    // Bloco final centralizado no meio da folha
+                    doc.text(`Jaboatão dos Guararapes, ${dataH}.`, pageWidth / 2, yOffset + 15, { align: "center" });
+                    doc.text("Atenciosamente,", pageWidth / 2, yOffset + 30, { align: "center" });
+                    
+                    // Linha de assinatura centralizada
+                    doc.text("___________________________________", pageWidth / 2, yOffset + 55, { align: "center" });
+                    
+                    const imgBase = new Image(); imgBase.src = 'LOGO BAIXO.png';
+                    imgBase.onload = () => {
+                        doc.addImage(imgBase, 'PNG', 10, 265, 190, 25);
+                        doc.save(`Declaracao_${nome}.pdf`);
+                    };
+                };
+            };
         };
 
-        async function initIA() {
-            const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-            await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
-            await faceapi.nets.faceLandmark68Net.loadFromUri(URL);
-            await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
-        }
-
+        async function initIA() { const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; await faceapi.nets.tinyFaceDetector.loadFromUri(URL); await faceapi.nets.faceLandmark68Net.loadFromUri(URL); await faceapi.nets.faceRecognitionNet.loadFromUri(URL); }
         document.getElementById('btnCam').onclick = async () => { document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }); };
-
-        document.getElementById('btnSalvar').onclick = async () => {
-            const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
-            if(!n || !s) return alert("Por favor, preencha o nome e selecione uma turma.");
-            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-            if(!det) return alert("Rosto não detectado!");
-            await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, descritor: Array.from(det.descriptor) });
-            alert("Sucesso!"); location.reload();
-        };
-
-        window.gerarRelatorio = async () => {
-            const dInput = document.getElementById('filtroData').value, tFiltro = document.getElementById('filtroTurmaRelatorio').value;
-            if(!dInput) return alert("Escolha a data");
-            const dataBR = dInput.split('-').reverse().join('/');
-            const q = query(collection(db, "frequencia"), where("data", "==", dataBR));
-            const snapFreq = await getDocs(q);
-            const t = document.getElementById('tabelaRelatorio'); t.innerHTML = ""; window.dadosExport = [];
-            snapFreq.forEach(d => {
-                const f = d.data();
-                if(tFiltro === "TODAS" || f.sala === tFiltro) {
-                    t.innerHTML += `<tr><td>${f.nome}</td><td>${f.sala || '--'}</td><td>${f.hora}</td></tr>`;
-                    window.dadosExport.push([f.nome, f.sala || '--', f.hora]);
-                }
-            });
-        };
-
-        window.baixarPDF = () => {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            doc.text("Relatorio de Frequencia", 14, 20); doc.autoTable({ head:[['Nome','Turma','Hora']], body: window.dadosExport, startY: 25 });
-            doc.save("frequencia.pdf");
-        };
-
-        window.baixarExcel = () => {
-            let csv = "Nome;Turma;Hora\n"; window.dadosExport.forEach(r => csv += r.join(";") + "\n");
-            const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
-            link.download = "frequencia.csv"; link.click();
-        };
+        document.getElementById('btnSalvar').onclick = async () => { const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value, v = document.getElementById('webcam'); const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor(); if(!det) return alert("Erro"); await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('tAluno').value, email: document.getElementById('eAluno').value, descritor: Array.from(det.descriptor) }); location.reload(); };
 
         function escutarDados() {
             onSnapshot(collection(db, "alunos"), snap => {
                 const t = document.getElementById('tabelaAlunos'); t.innerHTML = "";
-                snap.forEach(d => {
-                    const a = d.data();
-                    t.innerHTML += `<tr><td class="fw-bold">${a.nome}</td><td>${a.sala}</td><td class="text-end"><button class="btn btn-sm text-primary" onclick="window.abrirEdicaoAluno('${d.id}','${a.nome}','${a.sala}','${a.tel}','${a.email}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
-                });
-                document.getElementById('st-total').innerText = snap.size; updateCharts();
+                snap.forEach(d => { t.innerHTML += `<tr><td class="fw-bold">${d.data().nome}</td><td>${d.data().sala}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary" onclick="window.abrirEdicaoAluno('${d.id}','${d.data().nome}','${d.data().sala}','${d.data().tel}','${d.data().email}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('alunos','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+                document.getElementById('st-total').innerText = snap.size;
             });
             onSnapshot(collection(db, "logins"), snap => {
                 const t = document.getElementById('tabelaLogins'); t.innerHTML = "";
-                snap.forEach(d => t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm text-primary" onclick='window.editL("${d.id}","${d.data().usuario}","${d.data().senha}","${d.data().tel}","${d.data().email}",${JSON.stringify(d.data().permissoes)})'><i class="fas fa-edit"></i></button><button class="btn btn-sm text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`);
+                snap.forEach(d => { t.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-end"><button class="btn btn-sm btn-light text-primary" onclick='window.editL("${d.id}","${d.data().usuario}","${d.data().senha}","${d.data().tel}","${d.data().email}",${JSON.stringify(d.data().permissoes)})'><i class="fas fa-cog"></i></button><button class="btn btn-sm btn-light text-danger" onclick="window.del('logins','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`; });
             });
             const hoje = new Date().toLocaleDateString('pt-BR');
-            onSnapshot(collection(db, "frequencia"), snap => {
-                let p = 0; snap.forEach(d => { if(d.data().data === hoje) p++; });
-                document.getElementById('st-presentes').innerText = p;
-                document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - p);
-                updateCharts();
-            });
+            onSnapshot(collection(db, "frequencia"), snap => { let p = 0; snap.forEach(d => { if(d.data().data === hoje) p++; }); document.getElementById('st-presentes').innerText = p; document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - p); updateCharts(); });
         }
 
-        window.abrirEdicaoAluno = (id, n, s, t, e) => {
-            document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n;
-            document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t || "";
-            document.getElementById('editAlunoEmail').value = e || "";
-            new bootstrap.Modal(document.getElementById('modalEditAluno')).show();
-        };
+        window.abrirEdicaoAluno = (id, n, s, t, e) => { document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n; document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t || ""; document.getElementById('editAlunoEmail').value = e || ""; new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); };
+        window.salvarEdicaoAluno = async () => { await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), { nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value, tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value }); location.reload(); };
 
-        window.salvarEdicaoAluno = async () => {
-            await updateDoc(doc(db, "alunos", document.getElementById('editAlunoId').value), { nome: document.getElementById('editAlunoNome').value, sala: document.getElementById('editAlunoSala').value, tel: document.getElementById('editAlunoTel').value, email: document.getElementById('editAlunoEmail').value });
-            alert("Atualizado!"); location.reload();
-        };
+        document.getElementById('btnL').onclick = async () => { const perms = Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value); await addDoc(collection(db, "logins"), { usuario: document.getElementById('lu').value, senha: document.getElementById('ls').value, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: perms }); location.reload(); };
+        window.editL = (id, u, s, t, e, p) => { document.getElementById('eid').value = id; document.getElementById('eu').value = u; document.getElementById('es').value = s; document.getElementById('et').value = t; document.getElementById('ee').value = e; document.querySelectorAll('.pce').forEach(c => c.checked = p.includes(c.value)); new bootstrap.Modal(document.getElementById('modalL')).show(); };
+        window.salvarEL = async () => { await updateDoc(doc(db, "logins", document.getElementById('eid').value), { usuario: document.getElementById('eu').value, senha: document.getElementById('es').value, tel: document.getElementById('et').value, email: document.getElementById('ee').value, permissoes: Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value) }); location.reload(); };
 
-        document.getElementById('btnL').onclick = async () => {
-            const perms = Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value);
-            await addDoc(collection(db, "logins"), { usuario: document.getElementById('lu').value, senha: document.getElementById('ls').value, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: perms });
-            alert("Operador Criado!");
+        window.gerarRelatorio = async () => {
+            const dt = document.getElementById('filtroData').value, tr = document.getElementById('filtroTurmaRelatorio').value; if(!dt) return alert("Data!"); const dataBR = dt.split('-').reverse().join('/'); const q = query(collection(db, "frequencia"), where("data", "==", dataBR)); const snap = await getDocs(q); const t = document.getElementById('tabelaRelatorio'); t.innerHTML = ""; window.dadosExport = [];
+            snap.forEach(d => { if(tr === "TODAS" || d.data().sala === tr) { t.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().sala || '--'}</td><td>${d.data().hora}</td></tr>`; window.dadosExport.push([d.data().nome, d.data().sala || '--', d.data().hora]); } });
         };
-
-        window.editL = (id, u, s, t, e, p) => {
-            document.getElementById('eid').value = id; document.getElementById('eu').value = u; document.getElementById('es').value = s;
-            document.getElementById('et').value = t; document.getElementById('ee').value = e;
-            document.querySelectorAll('.pce').forEach(c => c.checked = p.includes(c.value));
-            new bootstrap.Modal(document.getElementById('modalL')).show();
-        };
-
-        window.salvarEL = async () => {
-            const perms = Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value);
-            await updateDoc(doc(db, "logins", document.getElementById('eid').value), { usuario: document.getElementById('eu').value, senha: document.getElementById('es').value, tel: document.getElementById('et').value, email: document.getElementById('ee').value, permissoes: perms });
-            alert("Atualizado!"); location.reload();
-        };
-
-        window.del = async (c, i) => { if(confirm("Excluir?")) await deleteDoc(doc(db, c, i)); };
+        window.baixarPDF = () => { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.autoTable({ head:[['Nome','Turma','Hora']], body: window.dadosExport }); doc.save("Relatorio.pdf"); };
+        window.del = async (c, i) => { if(confirm("Confirmar?")) await deleteDoc(doc(db, c, i)); };
         window.filtrarAlunos = () => { const v = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('#tabelaAlunos tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(v) ? "" : "none"); };
-
-        function updateCharts() {
-            const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0;
-            if(chartP) chartP.destroy();
-            chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presenças', 'Faltas'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#ef4444'] }] } });
-            if(chartB) chartB.destroy();
-            chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'] }] } });
-        }
+        function updateCharts() { const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0; if(chartP) chartP.destroy(); chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['P', 'F'], datasets: [{ data: [p, t-p], backgroundColor: ['#10b981', '#ef4444'], borderWidth:0 }] }, options:{cutout:'70%'} }); if(chartB) chartB.destroy(); chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ label: 'Qtd', data: [t, p], backgroundColor: ['#003399', '#10b981'], borderRadius:10 }] } }); }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
