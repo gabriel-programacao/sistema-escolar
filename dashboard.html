@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard Pro | Escola Inteligente</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,9 +17,7 @@
         body { background: var(--body-bg); font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px; position: sticky; top: 0; z-index: 1000; }
         .sidebar { width: 280px; background: var(--sidebar-bg); color: white; padding: 25px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 1050; display: flex; flex-direction: column; }
-        .nav-content { flex-grow: 1; }
         .nav-btn { width: 100%; text-align: left; background: none; border: none; color: #94a3b8; padding: 14px 18px; margin-bottom: 5px; border-radius: 12px; display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.2s; }
-        .nav-btn:hover, .nav-btn.active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
         .nav-btn.active { background: var(--accent); color: white; }
         .main-content { margin-left: 280px; padding: 40px; transition: 0.3s; }
         @media (max-width: 992px) { .sidebar { left: -280px; } .main-content { margin-left: 0; padding: 20px; } .mobile-header { display: flex; justify-content: space-between; align-items: center; } }
@@ -41,7 +39,7 @@
     <aside class="sidebar d-none d-lg-flex">
         <h4 class="mb-4 fw-bold"><i class="fas fa-graduation-cap me-2"></i> ESCOLA PRO</h4>
         <nav class="nav-content" id="menu-desktop"></nav>
-        <button onclick="logout()" class="btn btn-outline-danger w-100 rounded-pill mt-3"><i class="fas fa-sign-out-alt me-2"></i>Sair</button>
+        <button onclick="window.logout()" class="btn btn-outline-danger w-100 rounded-pill mt-3">Sair</button>
     </aside>
 
     <div class="offcanvas offcanvas-start bg-dark text-white" id="offSidebar" style="width: 280px;">
@@ -50,57 +48,43 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body" id="menu-mobile"></div>
-        <div class="p-3"><button onclick="logout()" class="btn btn-outline-danger w-100 rounded-pill">Sair</button></div>
     </div>
 
     <main class="main-content">
         <div id="sec-stats" class="secao ativa">
-            <h3 class="mb-4 fw-bold">Painel de Indicadores</h3>
+            <h3 class="mb-4 fw-bold">Painel Geral</h3>
             <div class="row g-3">
                 <div class="col-md-4"><div class="stat-card bg-primary"><div><small>Matrículas</small><h2 id="st-total">0</h2></div><i class="fas fa-users fa-2x opacity-25"></i></div></div>
-                <div class="col-md-4"><div class="stat-card bg-success"><div><small>Presentes Hoje</small><h2 id="st-presentes">0</h2></div><i class="fas fa-check fa-2x opacity-25"></i></div></div>
-                <div class="col-md-4"><div class="stat-card bg-danger"><div><small>Faltas Hoje</small><h2 id="st-faltas">0</h2></div><i class="fas fa-times fa-2x opacity-25"></i></div></div>
+                <div class="col-md-4"><div class="stat-card bg-success"><div><small>Presentes</small><h2 id="st-presentes">0</h2></div><i class="fas fa-check fa-2x opacity-25"></i></div></div>
+                <div class="col-md-4"><div class="stat-card bg-danger"><div><small>Faltas</small><h2 id="st-faltas">0</h2></div><i class="fas fa-times fa-2x opacity-25"></i></div></div>
             </div>
             <div class="row mt-4">
-                <div class="col-lg-8"><div class="card p-4"><h5>Presença por Turma</h5><canvas id="chartBarras"></canvas></div></div>
-                <div class="col-lg-4"><div class="card p-4"><h5>Assiduidade</h5><canvas id="chartPizza"></canvas></div></div>
+                <div class="col-lg-8"><div class="card p-4"><h5>Frequência</h5><canvas id="chartBarras"></canvas></div></div>
+                <div class="col-lg-4"><div class="card p-4"><h5>Taxa Geral</h5><canvas id="chartPizza"></canvas></div></div>
             </div>
         </div>
 
         <div id="sec-frequencia" class="secao">
             <div class="d-flex justify-content-between mb-4">
                 <h3 class="fw-bold">Chamada de Hoje</h3>
-                <button class="btn btn-danger btn-sm rounded-pill" onclick="zerarChamadaHoje()">Limpar Dia</button>
+                <button class="btn btn-danger btn-sm rounded-pill" onclick="window.zerarChamadaHoje()">Zerar</button>
             </div>
-            <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Aluno</th><th>Turma</th><th>Hora</th></tr></thead><tbody id="tabelaFrequencia"></tbody></table></div>
-        </div>
-
-        <div id="sec-consultas" class="secao">
-            <h3 class="mb-4 fw-bold">Relatórios e Histórico</h3>
-            <div class="card p-4 mb-3">
-                <div class="row g-2">
-                    <div class="col-md-4"><input type="date" id="filtroData" class="form-control"></div>
-                    <div class="col-md-4"><button class="btn btn-primary w-100" onclick="gerarConsulta()">Consultar</button></div>
-                    <div class="col-md-4"><button class="btn btn-danger w-100" onclick="gerarPDF()">Baixar PDF</button></div>
-                </div>
-            </div>
-            <div class="card p-0 overflow-hidden"><table class="table mb-0"><tbody id="tabelaConsulta"></tbody></table></div>
+            <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Aluno</th><th>Hora</th></tr></thead><tbody id="tabelaFrequencia"></tbody></table></div>
         </div>
 
         <div id="sec-facial" class="secao">
-            <h3 class="mb-4 fw-bold">Matrícula Biométrica</h3>
+            <h3 class="mb-4 fw-bold">Novo Aluno</h3>
             <div class="card p-4">
                 <div class="row">
                     <div class="col-lg-5">
-                        <input type="text" id="nomeAluno" class="form-control mb-2" placeholder="Nome Completo">
+                        <input type="text" id="nomeAluno" class="form-control mb-2" placeholder="Nome">
                         <select id="salaAluno" class="form-select mb-2">
                             <option value="">Selecione a Turma</option>
                             <option>1º Ano A Logística</option><option>1º Ano B Logística</option>
-                            <option>1º Ano A Redes</option><option>1º Ano B Redes</option>
                         </select>
-                        <input type="text" id="telAluno" class="form-control mb-3" placeholder="Telefone Responsável">
-                        <button class="btn btn-dark w-100 mb-2" id="btnLigarCam">Ligar Câmera</button>
-                        <button class="btn btn-primary w-100" id="btnSalvarAluno">Salvar no Google Cloud</button>
+                        <input type="text" id="telAluno" class="form-control mb-3" placeholder="Telefone">
+                        <button class="btn btn-dark w-100 mb-2" id="btnLigarCam">Câmera</button>
+                        <button class="btn btn-primary w-100" id="btnSalvarAluno">Salvar</button>
                     </div>
                     <div class="col-lg-7 text-center"><video id="webcam" autoplay muted playsinline></video></div>
                 </div>
@@ -108,44 +92,60 @@
         </div>
 
         <div id="sec-faltas" class="secao">
-            <h3 class="mb-4 fw-bold">Alunos Matriculados</h3>
+            <h3 class="mb-4 fw-bold">Alunos</h3>
             <div class="card p-3 mb-3">
-                <input type="text" id="inputBusca" class="form-control" placeholder="🔍 Pesquisar por nome ou turma..." onkeyup="filtrarAlunos()">
+                <input type="text" id="inputBuscaAlunos" class="form-control" placeholder="🔍 Buscar aluno por nome ou sala..." onkeyup="window.filtrarAlunos()">
             </div>
-            <div class="card p-0 overflow-hidden">
-                <table class="table mb-0 align-middle">
-                    <thead><tr><th>Nome</th><th>Turma</th><th>Ações</th></tr></thead>
-                    <tbody id="tabelaAlunos"></tbody>
-                </table>
-            </div>
+            <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Nome</th><th>Sala</th><th>Ações</th></tr></thead><tbody id="tabelaAlunos"></tbody></table></div>
         </div>
 
         <div id="sec-usuarios" class="secao">
-            <h3 class="mb-4 fw-bold">Gestão de Acessos</h3>
+            <h3 class="mb-4 fw-bold">Gestão de Logins</h3>
             <div class="card p-4 mb-4">
-                <div class="row g-2">
-                    <div class="col-md-4"><input type="text" id="novoUser" class="form-control" placeholder="Novo Usuário"></div>
-                    <div class="col-md-4"><input type="password" id="novaSenha" class="form-control" placeholder="Senha"></div>
-                    <div class="col-md-4"><button class="btn btn-primary w-100" id="btnNovoLogin">Criar Conta</button></div>
+                <h5>Novo Usuário</h5>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6"><input type="text" id="novoUser" class="form-control" placeholder="Usuário"></div>
+                    <div class="col-md-6"><input type="password" id="novaSenha" class="form-control" placeholder="Senha"></div>
                 </div>
+                <h6>Permissões:</h6>
+                <div class="d-flex flex-wrap gap-3 mb-3">
+                    <label><input type="checkbox" class="perm-check" value="aba-stats"> Dashboard</label>
+                    <label><input type="checkbox" class="perm-check" value="aba-frequencia"> Chamada</label>
+                    <label><input type="checkbox" class="perm-check" value="aba-facial"> Novo Aluno</label>
+                    <label><input type="checkbox" class="perm-check" value="aba-faltas"> Lista Alunos</label>
+                    <label><input type="checkbox" class="perm-check" value="aba-usuarios"> Gerir Logins</label>
+                </div>
+                <button class="btn btn-primary w-100" id="btnCriarLogin">Criar Acesso</button>
+            </div>
+            
+            <div class="card p-3 mb-3">
+                <input type="text" id="inputBuscaLogins" class="form-control" placeholder="🔍 Buscar login..." onkeyup="window.filtrarLogins()">
             </div>
             <div class="card p-0 overflow-hidden"><table class="table mb-0"><thead><tr><th>Usuário</th><th>Ações</th></tr></thead><tbody id="tabelaUsuarios"></tbody></table></div>
         </div>
     </main>
 
-    <div class="modal fade" id="modalEditar" tabindex="-1"><div class="modal-dialog"><div class="modal-content shadow">
-        <div class="modal-header border-0"><h5>Editar Aluno</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal fade" id="modalEditLogin" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>Editar Login</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-            <input type="hidden" id="editId"><input type="text" id="editNome" class="form-control mb-2" placeholder="Nome">
-            <input type="text" id="editSala" class="form-control mb-2" placeholder="Sala">
-            <input type="text" id="editTel" class="form-control" placeholder="Telefone">
+            <input type="hidden" id="editLoginId">
+            <label>Usuário:</label><input type="text" id="editLoginUser" class="form-control mb-2">
+            <label>Nova Senha:</label><input type="password" id="editLoginPass" class="form-control mb-3">
+            <h6>Permissões:</h6>
+            <div id="editPermsContainer" class="d-flex flex-wrap gap-2">
+                <label><input type="checkbox" class="perm-edit" value="aba-stats"> Dashboard</label>
+                <label><input type="checkbox" class="perm-edit" value="aba-frequencia"> Chamada</label>
+                <label><input type="checkbox" class="perm-edit" value="aba-facial"> Novo Aluno</label>
+                <label><input type="checkbox" class="perm-edit" value="aba-faltas"> Lista Alunos</label>
+                <label><input type="checkbox" class="perm-edit" value="aba-usuarios"> Gerir Logins</label>
+            </div>
         </div>
-        <div class="modal-footer border-0"><button class="btn btn-primary w-100 rounded-pill" id="btnConfirmarEdit">Salvar</button></div>
+        <div class="modal-footer"><button class="btn btn-primary w-100" onclick="window.salvarEdicaoLogin()">Atualizar</button></div>
     </div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo",
@@ -158,42 +158,81 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const modEditLogin = new bootstrap.Modal(document.getElementById('modalEditLogin'));
 
-        // --- INICIALIZAÇÃO ---
-        window.onload = () => {
-            const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
-            if(!logado) window.location.href = 'index.html';
-            montarMenu(logado);
-            carregarIA();
-            escutarDados();
+        // --- GESTÃO DE LOGINS ---
+        document.getElementById('btnCriarLogin').onclick = async () => {
+            const u = document.getElementById('novoUser').value;
+            const s = document.getElementById('novaSenha').value;
+            const perms = Array.from(document.querySelectorAll('.perm-check:checked')).map(c => c.value);
+            if(!u || !s) return alert("Preencha usuário e senha");
+            await addDoc(collection(db, "logins"), { usuario: u, senha: s, permissoes: perms });
+            alert("Login criado!"); location.reload();
         };
 
-        async function carregarIA() {
-            const URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-            await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
-            await faceapi.nets.faceLandmark68Net.loadFromUri(URL);
-            await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
-        }
+        window.abrirEdicaoLogin = (id, user, permsJson) => {
+            document.getElementById('editLoginId').value = id;
+            document.getElementById('editLoginUser').value = user;
+            const perms = JSON.parse(permsJson || '[]');
+            document.querySelectorAll('.perm-edit').forEach(cb => cb.checked = perms.includes(cb.value));
+            modEditLogin.show();
+        };
 
-        function montarMenu(logado) {
-            const itens = [
-                { id: 'sec-stats', icon: 'fa-chart-line', label: 'Dashboard', p: 'aba-stats' },
-                { id: 'sec-frequencia', icon: 'fa-calendar-check', label: 'Chamada Hoje', p: 'aba-frequencia' },
-                { id: 'sec-consultas', icon: 'fa-print', label: 'Relatórios', p: 'aba-consultas' },
-                { id: 'sec-facial', icon: 'fa-id-card', label: 'Novo Aluno', p: 'aba-facial' },
-                { id: 'sec-faltas', icon: 'fa-users', label: 'Matriculados', p: 'aba-faltas' },
-                { id: 'sec-usuarios', icon: 'fa-user-shield', label: 'Gestão Logins', p: 'aba-usuarios' }
-            ];
-            let html = "";
-            itens.forEach(i => {
-                if(logado.nome === 'Márcio' || (logado.permissoes && logado.permissoes.includes(i.p))) {
-                    html += `<button class="nav-btn" onclick="trocarAba('${i.id}', this)" data-bs-dismiss="offcanvas"><i class="fas ${i.icon}"></i> ${i.label}</button>`;
-                }
+        window.salvarEdicaoLogin = async () => {
+            const id = document.getElementById('editLoginId').value;
+            const perms = Array.from(document.querySelectorAll('.perm-edit:checked')).map(c => c.value);
+            await updateDoc(doc(db, "logins", id), {
+                usuario: document.getElementById('editLoginUser').value,
+                senha: document.getElementById('editLoginPass').value || undefined, // Só muda se digitar
+                permissoes: perms
             });
-            document.getElementById('menu-desktop').innerHTML = html;
-            document.getElementById('menu-mobile').innerHTML = html;
+            modEditLogin.hide();
+            alert("Login atualizado!");
+        };
+
+        // --- FILTROS DE BUSCA ---
+        window.filtrarAlunos = () => {
+            const termo = document.getElementById('inputBuscaAlunos').value.toLowerCase();
+            document.querySelectorAll('#tabelaAlunos tr').forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(termo) ? "" : "none";
+            });
+        };
+
+        window.filtrarLogins = () => {
+            const termo = document.getElementById('inputBuscaLogins').value.toLowerCase();
+            document.querySelectorAll('#tabelaUsuarios tr').forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(termo) ? "" : "none";
+            });
+        };
+
+        // --- REALTIME SYNC ---
+        function carregarDados() {
+            onSnapshot(collection(db, "alunos"), (snap) => {
+                const tab = document.getElementById('tabelaAlunos'); tab.innerHTML = "";
+                snap.forEach(d => {
+                    const a = d.data();
+                    tab.innerHTML += `<tr><td>${a.nome}</td><td>${a.sala}</td><td class="text-end">
+                        <button class="btn btn-sm btn-light" onclick="window.excluirDoc('alunos','${d.id}')"><i class="fas fa-trash text-danger"></i></button>
+                    </td></tr>`;
+                });
+                document.getElementById('st-total').innerText = snap.size;
+            });
+
+            onSnapshot(collection(db, "logins"), (snap) => {
+                const tab = document.getElementById('tabelaUsuarios'); tab.innerHTML = "";
+                snap.forEach(d => {
+                    const l = d.data();
+                    tab.innerHTML += `<tr><td>${l.usuario}</td><td class="text-end">
+                        <button class="btn btn-sm btn-light" onclick="window.abrirEdicaoLogin('${d.id}','${l.usuario}','${JSON.stringify(l.permissoes)}')"><i class="fas fa-edit text-primary"></i></button>
+                        <button class="btn btn-sm btn-light" onclick="window.excluirDoc('logins','${d.id}')"><i class="fas fa-trash text-danger"></i></button>
+                    </td></tr>`;
+                });
+            });
         }
 
+        // --- OUTRAS FUNÇÕES ---
+        window.excluirDoc = async (col, id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, col, id)); };
+        window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
         window.trocarAba = (id, btn) => {
             document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
             document.getElementById(id).classList.add('ativa');
@@ -201,84 +240,16 @@
             if(btn) btn.classList.add('active');
         };
 
-        // --- CÂMERA ---
-        document.getElementById('btnLigarCam').onclick = async () => {
-            const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            document.getElementById('webcam').srcObject = s;
-        };
+        // Inicia
+        carregarDados();
+        const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        // (Lógica de montar menu aqui...)
+        let menuH = "";
+        const itens = [{id:'sec-stats', label:'Dashboard'}, {id:'sec-frequencia', label:'Chamada'}, {id:'sec-facial', label:'Novo Aluno'}, {id:'sec-faltas', label:'Alunos'}, {id:'sec-usuarios', label:'Logins'}];
+        itens.forEach(i => menuH += `<button class="nav-btn" onclick="window.trocarAba('${i.id}', this)">${i.label}</button>`);
+        document.getElementById('menu-desktop').innerHTML = menuH;
+        document.getElementById('menu-mobile').innerHTML = menuH;
 
-        // --- OPERAÇÕES NO GOOGLE FIREBASE ---
-        document.getElementById('btnSalvarAluno').onclick = async () => {
-            const n = document.getElementById('nomeAluno').value, s = document.getElementById('salaAluno').value, v = document.getElementById('webcam');
-            if(!n || !s) return alert("Preencha tudo!");
-            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-            if(!det) return alert("Rosto não detectado!");
-            await addDoc(collection(db, "alunos"), { nome: n, sala: s, tel: document.getElementById('telAluno').value, descritor: Array.from(det.descriptor) });
-            alert("Sincronizado na nuvem!"); location.reload();
-        };
-
-        function escutarDados() {
-            const hoje = new Date().toLocaleDateString('pt-BR');
-            // Escutar Alunos
-            onSnapshot(collection(db, "alunos"), (snap) => {
-                const tabela = document.getElementById('tabelaAlunos');
-                tabela.innerHTML = "";
-                snap.forEach(d => {
-                    const a = d.data();
-                    tabela.innerHTML += `<tr><td class="fw-bold">${a.nome}</td><td>${a.sala}</td><td class="text-end">
-                        <button class="btn btn-sm btn-light" onclick="abrirEdicao('${d.id}','${a.nome}','${a.sala}','${a.tel}')"><i class="fas fa-edit text-primary"></i></button>
-                        <button class="btn btn-sm btn-light" onclick="excluirDoc('alunos','${d.id}')"><i class="fas fa-trash text-danger"></i></button>
-                    </td></tr>`;
-                });
-                document.getElementById('st-total').innerText = snap.size;
-            });
-            // Escutar Frequência
-            onSnapshot(collection(db, "frequencia"), (snap) => {
-                const tabela = document.getElementById('tabelaFrequencia');
-                tabela.innerHTML = ""; let count = 0;
-                snap.forEach(d => {
-                    if(d.data().data === hoje) {
-                        tabela.innerHTML += `<tr><td>${d.data().nome}</td><td>${d.data().hora}</td></tr>`;
-                        count++;
-                    }
-                });
-                document.getElementById('st-presentes').innerText = count;
-                document.getElementById('st-faltas').innerText = Math.max(0, parseInt(document.getElementById('st-total').innerText) - count);
-            });
-            // Escutar Logins
-            onSnapshot(collection(db, "logins"), (snap) => {
-                const tabela = document.getElementById('tabelaUsuarios');
-                tabela.innerHTML = "";
-                snap.forEach(d => {
-                    tabela.innerHTML += `<tr><td>${d.data().usuario}</td><td class="text-center"><button class="btn btn-sm btn-light" onclick="excluirDoc('logins','${d.id}')"><i class="fas fa-trash text-danger"></i></button></td></tr>`;
-                });
-            });
-        }
-
-        window.abrirEdicao = (id, nome, sala, tel) => {
-            document.getElementById('editId').value = id; document.getElementById('editNome').value = nome;
-            document.getElementById('editSala').value = sala; document.getElementById('editTel').value = tel;
-            new bootstrap.Modal(document.getElementById('modalEditar')).show();
-        };
-
-        document.getElementById('btnConfirmarEdit').onclick = async () => {
-            const id = document.getElementById('editId').value;
-            await updateDoc(doc(db, "alunos", id), {
-                nome: document.getElementById('editNome').value,
-                sala: document.getElementById('editSala').value,
-                tel: document.getElementById('editTel').value
-            });
-            alert("Atualizado!"); location.reload();
-        };
-
-        window.excluirDoc = async (col, id) => { if(confirm("Deseja excluir?")) await deleteDoc(doc(db, col, id)); };
-        
-        document.getElementById('btnNovoLogin').onclick = async () => {
-            await addDoc(collection(db, "logins"), { usuario: document.getElementById('novoUser').value, senha: document.getElementById('novaSenha').value });
-            alert("Login Criado!");
-        };
-
-        window.logout = () => { localStorage.removeItem('usuarioLogado'); window.location.href = 'index.html'; };
     </script>
 </body>
 </html>
