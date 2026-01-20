@@ -41,6 +41,10 @@
         .turma-header { background: #e9ecef; font-weight: bold; color: var(--pe-blue); padding: 10px 20px; border-left: 5px solid var(--pe-yellow); margin-top: 15px; }
 
         @media (max-width: 992px) { .sidebar { display: none; } .main-content { padding: 20px; } .top-bar { padding: 10px 15px; } }
+        
+        /* Estilo para o olhinho da senha */
+        .password-container { position: relative; }
+        .password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; }
     </style>
 </head>
 <body>
@@ -231,6 +235,61 @@
         </main>
     </div>
 
+    <div class="modal fade" id="modalL" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0" style="border-radius:20px">
+                <div class="modal-header border-0 bg-dark text-white">
+                    <h5>Editar Operador</h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="eid">
+                    <label class="small fw-bold">LOGIN</label>
+                    <input type="text" id="eu" class="form-control mb-2">
+                    
+                    <label class="small fw-bold">SENHA</label>
+                    <div class="password-container mb-2">
+                        <input type="password" id="es" class="form-control">
+                        <i class="fas fa-eye password-toggle" onclick="window.toggleSenha('es', this)"></i>
+                    </div>
+
+                    <label class="small fw-bold">TEL (WhatsApp)</label>
+                    <input type="text" id="et" class="form-control mb-2">
+                    
+                    <label class="small fw-bold">E-MAIL</label>
+                    <input type="email" id="ee" class="form-control mb-3">
+
+                    <label class="small fw-bold d-block mb-2">PERMISSÕES</label>
+                    <div class="d-flex flex-wrap gap-2 mb-3 bg-light p-2 rounded">
+                        <label class="small"><input type="checkbox" class="pce" value="aba-stats"> Painel</label>
+                        <label class="small"><input type="checkbox" class="pce" value="aba-biometria"> Biometria</label>
+                        <label class="small"><input type="checkbox" class="pce" value="aba-declaracao"> Declaração</label>
+                        <label class="small"><input type="checkbox" class="pce" value="aba-consultas"> Relatórios</label>
+                        <label class="small"><input type="checkbox" class="pce" value="aba-facial"> Matrícula</label>
+                        <label class="small"><input type="checkbox" class="pce" value="aba-faltas"> Alunos</label>
+                        <label class="small"><input type="checkbox" class="pce" value="aba-usuarios"> Sistemas</label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="window.salvarEL()">Salvar Alterações</button>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button class="btn btn-outline-success btn-sm w-100" onclick="window.enviarLoginZap()">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-outline-secondary btn-sm w-100" onclick="window.enviarLoginEmail()">
+                                    <i class="fas fa-envelope"></i> E-mail
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modalEditAluno" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg border-0" style="border-radius:20px"><div class="modal-header border-0 bg-primary text-white"><h5>Editar Estudante</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
     <div class="modal-body p-4">
         <input type="hidden" id="editAlunoId">
@@ -293,7 +352,7 @@
             document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
             document.getElementById(id).classList.add('ativa');
             document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active'); if(id === 'sec-stats') updateCharts();
+            if(id === 'sec-stats') updateCharts();
         };
 
         const limpar = (t) => t.replace(/\s+/g, ' ').trim();
@@ -474,11 +533,9 @@
                 });
 
                 Object.keys(turmas).sort().forEach(t => {
-                    // Lista Alunos
                     listAlunos.innerHTML += `<div class="turma-header shadow-sm mb-2">${t.toUpperCase()}</div>`;
                     let tbAlu = `<div class="card-custom p-0 overflow-hidden mb-4"><table class="table mb-0"><tbody>`;
                     
-                    // Lista Biometria
                     listBio.innerHTML += `<div class="turma-header shadow-sm mb-2" style="font-size: 0.9rem; padding: 5px 15px;">${t.toUpperCase()}</div>`;
                     let tbBio = `<div class="card-custom p-0 overflow-hidden mb-4"><table class="table table-sm mb-0"><tbody>`;
 
@@ -499,8 +556,60 @@
         }
 
         async function initIA() { const U = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; await faceapi.nets.tinyFaceDetector.loadFromUri(U); await faceapi.nets.faceLandmark68Net.loadFromUri(U); await faceapi.nets.faceRecognitionNet.loadFromUri(U); }
-        window.editL = (id, u, s, t, e, p) => { document.getElementById('eid').value = id; document.getElementById('eu').value = u; document.getElementById('es').value = s; document.getElementById('et').value = t; document.getElementById('ee').value = e; document.querySelectorAll('.pce').forEach(c => c.checked = p.includes(c.value)); new bootstrap.Modal(document.getElementById('modalL')).show(); };
-        window.salvarEL = async () => { await updateDoc(doc(db, "logins", document.getElementById('eid').value), { usuario: document.getElementById('eu').value, senha: document.getElementById('es').value, tel: document.getElementById('et').value, email: document.getElementById('ee').value, permissoes: Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value) }); location.reload(); };
+        
+        // --- FUNÇÕES DE OPERADOR ATUALIZADAS ---
+        window.editL = (id, u, s, t, e, p) => { 
+            document.getElementById('eid').value = id; 
+            document.getElementById('eu').value = u; 
+            document.getElementById('es').value = s; 
+            document.getElementById('et').value = t; 
+            document.getElementById('ee').value = e; 
+            document.querySelectorAll('.pce').forEach(c => c.checked = p.includes(c.value)); 
+            new bootstrap.Modal(document.getElementById('modalL')).show(); 
+        };
+
+        window.toggleSenha = (inputId, icon) => {
+            const input = document.getElementById(inputId);
+            if(input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        };
+
+        window.enviarLoginZap = () => {
+            const tel = document.getElementById('et').value.replace(/\D/g, "");
+            const user = document.getElementById('eu').value;
+            const pass = document.getElementById('es').value;
+            if(!tel) return alert("Informe um telefone válido!");
+            const msg = window.encodeURIComponent(`Olá ${user}, seguem seus dados de acesso ao SIAF PE:\n\nUsuário: ${user}\nSenha: ${pass}\n\nAcesse pelo link do sistema.`);
+            window.open(`https://wa.me/55${tel}?text=${msg}`, '_blank');
+        };
+
+        window.enviarLoginEmail = () => {
+            const email = document.getElementById('ee').value;
+            const user = document.getElementById('eu').value;
+            const pass = document.getElementById('es').value;
+            if(!email) return alert("Informe um e-mail válido!");
+            const subject = window.encodeURIComponent("Dados de Acesso - SIAF PE");
+            const body = window.encodeURIComponent(`Olá ${user},\n\nSeus dados de acesso ao sistema foram configurados:\n\nUsuário: ${user}\nSenha: ${pass}`);
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        };
+
+        window.salvarEL = async () => { 
+            await updateDoc(doc(db, "logins", document.getElementById('eid').value), { 
+                usuario: document.getElementById('eu').value, 
+                senha: document.getElementById('es').value, 
+                tel: document.getElementById('et').value, 
+                email: document.getElementById('ee').value, 
+                permissoes: Array.from(document.querySelectorAll('.pce:checked')).map(c => c.value) 
+            }); 
+            alert("Operador atualizado!");
+            location.reload(); 
+        };
+
         document.getElementById('btnL').onclick = async () => { const u = document.getElementById('lu').value, s = document.getElementById('ls').value; if(!u || !s) return alert("Login!"); await addDoc(collection(db, "logins"), { usuario: u, senha: s, tel: document.getElementById('lt').value, email: document.getElementById('le').value, permissoes: Array.from(document.querySelectorAll('.pc:checked')).map(c => c.value) }); location.reload(); };
         window.del = async (c, i) => { if(confirm("Confirmar?")) await deleteDoc(doc(db, c, i)); };
         window.abrirEdicaoAluno = (id, n, s, t, e, er) => { document.getElementById('editAlunoId').value = id; document.getElementById('editAlunoNome').value = n; document.getElementById('editAlunoSala').value = s; document.getElementById('editAlunoTel').value = t; document.getElementById('editAlunoEmail').value = e; document.getElementById('editAlunoEmailResp').value = er || ""; new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); };
