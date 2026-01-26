@@ -3,55 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAF PE | Login Institucional</title>
+    <title>SIAF PE | Login Unificado Elite</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        :root { --pe-blue: #003399; --pe-yellow: #ffcc00; }
-        body { 
-            background: linear-gradient(135deg, var(--pe-blue) 0%, #001a4d 100%); 
-            height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif;
+        :root {
+            --primary: #003399;
+            --accent: #ffcc00;
+            --bg-gradient: linear-gradient(135deg, #001a4d 0%, #003399 100%);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin: 0;
+            overflow: hidden;
         }
+
+        /* --- LOGIN CARD COM GLASSMORPHISM --- */
         .login-card {
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            padding: 40px; border-radius: 30px; width: 90%; max-width: 420px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-top: 8px solid var(--pe-yellow);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 50px 40px;
+            border-radius: 35px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
         }
-        .logo-box { background: var(--pe-blue); padding: 25px; border-radius: 15px; margin-bottom: 25px; }
-        .btn-pe { background: var(--pe-blue); border: none; padding: 12px; border-radius: 30px; font-weight: 600; color: white; transition: 0.3s; width: 100%; }
-        .btn-pe:hover { background: #002673; transform: scale(1.02); }
-        .form-control { border-radius: 30px; padding: 12px 20px; border: 1px solid #ddd; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-area {
+            background: var(--primary);
+            padding: 25px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 51, 0.2);
+        }
+
+        h4 { color: var(--primary); font-weight: 800; letter-spacing: -0.5px; }
+        p.text-muted { font-weight: 500; font-size: 0.9rem; }
+
+        /* --- INPUTS MODERNOS --- */
+        .form-control {
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            border-radius: 18px;
+            padding: 15px 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            background: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.1);
+            outline: none;
+        }
+
+        /* --- BOTÃO ELITE --- */
+        .btn-elite {
+            background: linear-gradient(135deg, #003399 0%, #001a4d 100%);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 15px;
+            font-weight: 700;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 51, 153, 0.2);
+        }
+
+        .btn-elite:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0, 51, 153, 0.3);
+            color: var(--accent);
+        }
+
+        .btn-terminal {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 18px;
+            padding: 12px;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .btn-terminal:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .loader-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div class="login-card text-center">
-        <div class="logo-box">
-            <img src="logo-SEE-branca-1-2_novo.png" alt="Secretaria de Educação PE" class="img-fluid">
+
+    <div class="loader-overlay" id="loader">
+        <div class="spinner-border text-warning mb-3" style="width: 3rem; height: 3rem;"></div>
+        <h5 class="fw-bold">Sincronizando com a Rede...</h5>
+    </div>
+
+    <div class="login-card">
+        <div class="logo-area">
+            <img src="logo_acessaedu.png" alt="SIAF PE" height="100">
         </div>
 
-        <h4 class="fw-bold mb-1">SIAF PE</h4>
-        <p class="text-muted small mb-4">Gestão de Frequência Escolar</p>
+        <h4>Acessa <span class="text-warning">Edu</span></h4>
+        <p class="text-muted mb-4">Gestão de Entrada de Estudantes</p>
         
         <div id="login-form">
-            <input type="text" id="u" class="form-control mb-3" placeholder="Usuário">
-            <input type="password" id="p" class="form-control mb-4" placeholder="Senha">
-            <button class="btn btn-pe mb-3" id="btnLogin">ACESSAR PAINEL</button>
-            <hr>
-            <a href="terminal.html" class="btn btn-outline-primary w-100 rounded-pill fw-bold"><i class="fas fa-camera me-2"></i> IR PARA O TERMINAL</a>
-            <a href="#" class="text-muted small mt-3 d-block" onclick="toggleR(true)">Esqueceu a senha?</a>
-        </div>
-        
-        <div id="recover-form" style="display:none">
-            <input type="email" id="eR" class="form-control mb-3" placeholder="E-mail cadastrado">
-            <button class="btn btn-pe mb-3" id="btnR">RECUPERAR</button>
-            <a href="#" class="text-muted small d-block" onclick="toggleR(false)">Voltar</a>
+            <div class="mb-3">
+                <input type="email" id="u" class="form-control" placeholder="E-mail de Acesso">
+            </div>
+            <div class="mb-4">
+                <input type="password" id="p" class="form-control" placeholder="Sua Senha">
+            </div>
+            
+            <button class="btn btn-elite mb-4" id="btnLogin">ACESSAR PAINEL</button>
+            
+            <div class="d-flex align-items-center mb-4">
+                <hr class="flex-grow-1">
+                <span class="mx-3 text-muted small fw-bold">OU</span>
+                <hr class="flex-grow-1">
+            </div>
+
+            <a href="terminal.html" class="btn btn-terminal w-100 mb-3">
+                <i class="fas fa-camera-retro me-2"></i>ABRIR TERMINAL
+            </a>
+            
+            <a href="#" class="text-primary small fw-bold text-decoration-none" id="btnRecover">Esqueceu sua senha?</a>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, doc, query, where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
         const firebaseConfig = { 
             apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", 
@@ -64,26 +177,93 @@
         
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
-        
-        window.toggleR = (s) => { 
-            document.getElementById('login-form').style.display = s ? 'none' : 'block'; 
-            document.getElementById('recover-form').style.display = s ? 'block' : 'none'; 
-        };
-        
+        const auth = getAuth(app);
+
+        const loader = document.getElementById('loader');
+
+        // FUNÇÃO DE REGISTRO DE LOGS (Acrescentada)
+        async function registrarLog(dadosUser, acao, detalhes) {
+            try {
+                await addDoc(collection(db, "logs_atividades"), {
+                    usuario: dadosUser.usuario || dadosUser.email,
+                    email: dadosUser.email,
+                    escolaId: dadosUser.escolaId,
+                    acao: acao,
+                    detalhes: detalhes,
+                    dataHora: serverTimestamp(),
+                    origem: "login"
+                });
+            } catch (e) { console.error("Erro log:", e); }
+        }
+
         document.getElementById('btnLogin').onclick = async () => {
-            const user = document.getElementById('u').value, pass = document.getElementById('p').value;
-            if(user === "Adm master" && pass === "Gabriel@01") { 
-                localStorage.setItem('usuarioLogado', JSON.stringify({usuario: "Adm master", permissoes: ["aba-stats", "aba-consultas", "aba-facial", "aba-faltas", "aba-usuarios"]})); 
-                window.location.href = 'dashboard.html'; return; 
+            const emailInput = document.getElementById('u').value.trim();
+            const pass = document.getElementById('p').value;
+
+            if(!emailInput || !pass) return alert("Por favor, preencha as credenciais!");
+            
+            loader.style.display = 'flex';
+
+            try {
+                await signOut(auth).catch(() => {});
+
+                // 1. AUTENTICAÇÃO VIA FIREBASE AUTH
+                const userCredential = await signInWithEmailAndPassword(auth, emailInput, pass);
+                const user = userCredential.user;
+
+                // 2. BUSCA DADOS DIRETOS NO FIRESTORE (Ajustado para o novo padrão de ID=E-mail)
+                const docRef = doc(db, "logins", emailInput);
+                const snap = await getDoc(docRef);
+
+                if(snap.exists()) {
+                    const dadosUser = snap.data();
+                    
+                    // 3. VERIFICA SE A UNIDADE ESTÁ BLOQUEADA
+                    const escolaSnap = await getDoc(doc(db, "unidades", dadosUser.escolaId));
+                    if (escolaSnap.exists() && escolaSnap.data().status === 'Bloqueado') {
+                        loader.style.display = 'none';
+                        await signOut(auth);
+                        return alert("ACESSO BLOQUEADO: Esta instituição possui pendências administrativas.");
+                    }
+
+                    // 4. SALVA NO LOCALSTORAGE E REGISTRA LOG (Acrescentado)
+                    localStorage.setItem('usuarioLogado', JSON.stringify(dadosUser));
+                    await registrarLog(dadosUser, "LOGIN", "Usuário entrou no sistema");
+                    
+                    if(emailInput === "gabriel.tec.redes@gmail.com") {
+                        window.location.href = 'master.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    loader.style.display = 'none';
+                    alert("Documento de perfil não encontrado. Verifique se o ID do documento na coleção 'logins' é o seu e-mail.");
+                }
+
+            } catch (error) {
+                loader.style.display = 'none';
+                console.error(error);
+                let msg = "Falha na autenticação.";
+                if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    msg = "E-mail ou senha incorretos.";
+                } else if(error.code === 'auth/too-many-requests') {
+                    msg = "Muitas tentativas falhas. Tente novamente mais tarde.";
+                } else if(error.code === 'auth/permission-denied') {
+                    msg = "Acesso negado pelas regras de segurança do banco.";
+                }
+                alert(msg + " (" + error.code + ")");
             }
-            const q = query(collection(db, "logins"), where("usuario", "==", user), where("senha", "==", pass));
-            const snap = await getDocs(q);
-            if(!snap.empty) { 
-                snap.forEach(d => { 
-                    localStorage.setItem('usuarioLogado', JSON.stringify(d.data())); 
-                    window.location.href = 'dashboard.html'; 
-                }); 
-            } else { alert("Acesso Negado"); }
+        };
+
+        // RECUPERAÇÃO DE SENHA
+        document.getElementById('btnRecover').onclick = async () => {
+            const email = prompt("Digite seu e-mail cadastrado:");
+            if(email) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    alert("Link de recuperação enviado para " + email);
+                } catch (e) { alert("Erro: " + e.message); }
+            }
         };
     </script>
 </body>

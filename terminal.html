@@ -59,7 +59,7 @@
 
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.5); }
-            to { opacity: 1; transform: scale(1); }
+            to { opacity: 1; scale(1); }
         }
 
         .loader { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: inline-block; }
@@ -90,7 +90,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, query, where, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", 
@@ -103,8 +104,20 @@
 
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        let ultimoNomeDetectado = ""; // Evita múltiplas leituras seguidas
+        let tempoUltimaDeteccao = 0;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) { initTerminal(); } 
+            else { document.getElementById('display').innerHTML = "Sessão expirada."; }
+        });
 
         async function initTerminal() {
+            if(!logado) return;
+
             try {
                 const URL_MODELS = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
                 await faceapi.nets.tinyFaceDetector.loadFromUri(URL_MODELS);
@@ -113,16 +126,22 @@
 
                 document.getElementById('video').srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 
-                const snap = await getDocs(collection(db, "alunos"));
+                const qAlunos = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId));
+                const snap = await getDocs(qAlunos);
+                
                 const mapaAlunos = {};
-                const labledDescriptors = snap.docs.map(d => {
+                const labledDescriptors = [];
+
+                snap.forEach(d => {
                     const data = d.data();
-                    mapaAlunos[data.nome] = data.sala || "Turma não informada";
-                    return new faceapi.LabeledFaceDescriptors(data.nome, [new Float32Array(data.descritor)]);
+                    if(data.descritor) {
+                        mapaAlunos[data.nome] = data.sala || "Sem Turma";
+                        labledDescriptors.push(new faceapi.LabeledFaceDescriptors(data.nome, [new Float32Array(data.descritor)]));
+                    }
                 });
 
                 if(labledDescriptors.length === 0) {
-                    document.getElementById('display').innerText = "Nenhum aluno cadastrado no sistema.";
+                    document.getElementById('display').innerText = "Nenhum FaceID cadastrado.";
                     return;
                 }
 
@@ -132,64 +151,71 @@
                 let isProcessing = false;
 
                 setInterval(async () => {
+                    // BLOQUEIO 1: Se já estiver processando um aluno, ignora novas detecções
                     if(isProcessing) return;
+
+                    const video = document.getElementById('video');
                     const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
                     
                     if(detection) {
                         const match = faceMatcher.findBestMatch(detection.descriptor);
+                        const agora = Date.now();
+
                         if(match.label !== 'unknown') {
-                            isProcessing = true;
                             const nome = match.label;
+
+                            // BLOQUEIO 2: Delay de 10 segundos para o mesmo aluno (evita duplicatas)
+                            if(nome === ultimoNomeDetectado && (agora - tempoUltimaDeteccao) < 10000) {
+                                return;
+                            }
+
+                            isProcessing = true; // Trava o terminal
                             const sala = mapaAlunos[nome];
                             const hoje = new Date().toLocaleDateString('pt-BR');
 
-                            // VERIFICA SE O ALUNO JÁ PASSOU HOJE
-                            const q = query(collection(db, "frequencia"), where("nome", "==", nome), where("data", "==", hoje));
-                            const checkSnap = await getDocs(q);
+                            // Verifica se já registrou no banco
+                            const qFreq = query(collection(db, "frequencia"), 
+                                where("nome", "==", nome), 
+                                where("data", "==", hoje),
+                                where("escolaId", "==", logado.escolaId)
+                            );
+                            const checkSnap = await getDocs(qFreq);
 
                             if (!checkSnap.empty) {
-                                // MENSAGEM DE BLOQUEIO (FUNDO VERMELHO E CAIXA ALTA)
                                 document.getElementById('display').innerHTML = `
                                     <div class="card-bloqueio">
-                                        <h2 class="fw-bold mb-1">ACESSO NEGADO</h2>
-                                        <p class="mb-2 opacity-75">${nome.toUpperCase()}</p>
-                                        <hr style="border-color: rgba(255,255,255,0.3)">
-                                        <h4 class="fw-bold mb-0 text-uppercase">VOCÊ JÁ REGISTROU SUA ENTRADA HOJE!</h4>
+                                        <h2 class="fw-bold mb-1">JÁ REGISTRADO</h2>
+                                        <p class="mb-0">${nome.toUpperCase()}</p>
                                     </div>
                                 `;
                             } else {
-                                // REGISTRO DE SUCESSO
                                 document.getElementById('display').innerHTML = `
                                     <div class="card-aluno">
-                                        <h2 class="fw-bold mb-1">${nome.toUpperCase()}</h2>
-                                        <p class="mb-2 opacity-75">${sala.toUpperCase()}</p>
-                                        <hr style="border-color: rgba(255,255,255,0.3)">
-                                        <h4 class="fw-bold mb-0">TENHA UM ÓTIMO DIA!</h4>
+                                        <h2 class="fw-bold mb-1">CONFIRMADO</h2>
+                                        <p class="mb-0">${nome.toUpperCase()}</p>
                                     </div>
                                 `;
 
                                 await addDoc(collection(db, "frequencia"), { 
-                                    nome: nome, 
-                                    sala: sala,
-                                    data: hoje, 
-                                    hora: new Date().toLocaleTimeString('pt-BR') 
+                                    nome: nome, sala: sala, escolaId: logado.escolaId,
+                                    data: hoje, hora: new Date().toLocaleTimeString('pt-BR'),
+                                    dataHora: serverTimestamp() 
                                 });
                             }
 
+                            // Atualiza os dados da última detecção bem-sucedida
+                            ultimoNomeDetectado = nome;
+                            tempoUltimaDeteccao = agora;
+
                             setTimeout(() => {
                                 document.getElementById('display').innerHTML = '<p class="fs-4 fw-bold mt-3" style="opacity: 0.8;">Posicione seu rosto para identificação</p>';
-                                isProcessing = false;
-                            }, 4000);
+                                isProcessing = false; // Destrava o terminal após 3 segundos de feedback visual
+                            }, 3000);
                         }
                     }
-                }, 800);
-            } catch (err) {
-                console.error(err);
-                document.getElementById('display').innerText = "Erro ao carregar sistema.";
-            }
+                }, 700);
+            } catch (err) { console.error(err); }
         }
-
-        initTerminal();
     </script>
 </body>
 </html>
