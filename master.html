@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAF PE | Master Elite Hub</title>
+    <title>AcessaEdu | Master Elite Hub</title>
+
+    <link rel="icon" type="image/png" href="Icone_acessaedu.ico">
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -155,6 +158,16 @@
 
         let escolaSelecionadaId = "";
 
+        // Função para Alertas Premium
+        const toast = (msg, icon = 'success') => {
+            Swal.fire({
+                title: msg,
+                icon: icon,
+                confirmButtonColor: '#003399',
+                customClass: { popup: 'rounded-4' }
+            });
+        };
+
         async function registrarLogMaster(acao, detalhes) {
             try {
                 await addDoc(collection(db, "logs_atividades"), {
@@ -190,7 +203,7 @@
             const turmasRaw = document.getElementById('mTurmas').value;
             const turmasArray = turmasRaw.split(',').map(t => t.trim()).filter(t => t !== "");
 
-            if(!id || !nome) return alert("Preencha ID e Nome!");
+            if(!id || !nome) return toast("Preencha ID e Nome!", "warning");
 
             await setDoc(doc(db, "unidades", id), { 
                 escolaId: id, 
@@ -201,7 +214,7 @@
             }, { merge: true });
 
             await registrarLogMaster("CONFIGURACAO_UNIDADE", `Configurou escola: ${nome} (Cota: ${limite})`);
-            alert("Unidade configurada!");
+            toast("Unidade configurada com sucesso!");
             document.getElementById('mID').value = ""; document.getElementById('mNome').value = ""; document.getElementById('mTurmas').value = "";
         };
 
@@ -255,7 +268,7 @@
             const email = document.getElementById('editEmail').value.trim();
             const senha = document.getElementById('editSenha').value.trim();
 
-            if(!email || senha.length < 6) return alert("Preencha o e-mail e uma senha de no mínimo 6 dígitos!");
+            if(!email || senha.length < 6) return toast("E-mail inválido ou senha muito curta (mínimo 6 dígitos)", "error");
 
             try {
                 const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, senha);
@@ -269,27 +282,51 @@
                 await signOut(secondaryAuth);
 
                 await registrarLogMaster("CRIAR_ACESSO", `Criou login ${email} para a escola ${escolaSelecionadaId}`);
-                alert("CONTA CRIADA!");
+                toast("ACESSO CRIADO COM SUCESSO!", "success");
                 document.getElementById('editEmail').value = ""; 
                 document.getElementById('editSenha').value = "";
                 window.carregarUsuarios();
-            } catch (e) { alert("Erro: " + e.message); }
+            } catch (e) { toast("Erro: " + e.message, "error"); }
         };
 
         window.excluirUsuario = async (id) => {
-            if(confirm("Remover este acesso?")) {
-                await deleteDoc(doc(db, "logins", id));
-                await registrarLogMaster("DELETAR_ACESSO", `Removeu login ${id}`);
-                window.carregarUsuarios();
-            }
+            Swal.fire({
+                title: 'Remover Acesso?',
+                text: "O usuário perderá o acesso imediatamente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, remover!',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await deleteDoc(doc(db, "logins", id));
+                    await registrarLogMaster("DELETAR_ACESSO", `Removeu login ${id}`);
+                    window.carregarUsuarios();
+                    toast("Acesso removido.");
+                }
+            });
         };
 
         window.toggleStatus = async (id, status, nome) => {
             const acao = status === 'Ativo' ? 'Bloqueado' : 'Ativo';
-            if(confirm(`Deseja alterar status de ${nome} para ${acao}?`)) {
-                await updateDoc(doc(db, "unidades", id), { status: acao });
-                await registrarLogMaster("ALTERAR_STATUS", `${acao} unidade ${nome}`);
-            }
+            
+            Swal.fire({
+                title: 'Alterar Status?',
+                text: `Deseja alterar status de ${nome} para ${acao}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: acao === 'Ativo' ? '#10b981' : '#ef4444',
+                confirmButtonText: 'Sim, confirmar',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await updateDoc(doc(db, "unidades", id), { status: acao });
+                    await registrarLogMaster("ALTERAR_STATUS", `${acao} unidade ${nome}`);
+                    toast(`Status alterado para ${acao}`);
+                }
+            });
         };
 
         function escutarLogsGlobal() {

@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAF PE | Login Unificado Elite</title>
+    <title>AcessaEdu | Login Unificado</title>
     
+    <link rel="icon" type="image/png" href="Icone_acessaedu.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SIAF PE">
+<link rel="apple-touch-icon" href="Icone_acessaedu.png">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#003399">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -59,7 +68,6 @@
         h4 { color: var(--primary); font-weight: 800; letter-spacing: -0.5px; }
         p.text-muted { font-weight: 500; font-size: 0.9rem; }
 
-        /* --- INPUTS MODERNOS --- */
         .form-control {
             background: #f1f5f9;
             border: 2px solid transparent;
@@ -76,7 +84,6 @@
             outline: none;
         }
 
-        /* --- BOTÃO ELITE --- */
         .btn-elite {
             background: linear-gradient(135deg, #003399 0%, #001a4d 100%);
             color: white;
@@ -93,20 +100,6 @@
             transform: translateY(-3px);
             box-shadow: 0 15px 25px rgba(0, 51, 153, 0.3);
             color: var(--accent);
-        }
-
-        .btn-terminal {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            border-radius: 18px;
-            padding: 12px;
-            font-weight: 700;
-            transition: 0.3s;
-        }
-
-        .btn-terminal:hover {
-            background: var(--primary);
-            color: white;
         }
 
         .loader-overlay {
@@ -126,7 +119,7 @@
 
     <div class="loader-overlay" id="loader">
         <div class="spinner-border text-warning mb-3" style="width: 3rem; height: 3rem;"></div>
-        <h5 class="fw-bold">Sincronizando com a Rede...</h5>
+        <h5 class="fw-bold">Sincronizando...</h5>
     </div>
 
     <div class="login-card">
@@ -152,10 +145,6 @@
                 <span class="mx-3 text-muted small fw-bold">OU</span>
                 <hr class="flex-grow-1">
             </div>
-
-            <a href="terminal.html" class="btn btn-terminal w-100 mb-3">
-                <i class="fas fa-camera-retro me-2"></i>ABRIR TERMINAL
-            </a>
             
             <a href="#" class="text-primary small fw-bold text-decoration-none" id="btnRecover">Esqueceu sua senha?</a>
         </div>
@@ -181,7 +170,6 @@
 
         const loader = document.getElementById('loader');
 
-        // FUNÇÃO DE REGISTRO DE LOGS (Acrescentada)
         async function registrarLog(dadosUser, acao, detalhes) {
             try {
                 await addDoc(collection(db, "logs_atividades"), {
@@ -200,33 +188,43 @@
             const emailInput = document.getElementById('u').value.trim();
             const pass = document.getElementById('p').value;
 
-            if(!emailInput || !pass) return alert("Por favor, preencha as credenciais!");
+            if(!emailInput || !pass) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos Vazios',
+                    text: 'Por favor, preencha o e-mail e a senha para continuar.',
+                    confirmButtonColor: '#003399'
+                });
+            }
             
             loader.style.display = 'flex';
 
             try {
                 await signOut(auth).catch(() => {});
 
-                // 1. AUTENTICAÇÃO VIA FIREBASE AUTH
                 const userCredential = await signInWithEmailAndPassword(auth, emailInput, pass);
                 const user = userCredential.user;
 
-                // 2. BUSCA DADOS DIRETOS NO FIRESTORE (Ajustado para o novo padrão de ID=E-mail)
                 const docRef = doc(db, "logins", emailInput);
                 const snap = await getDoc(docRef);
 
                 if(snap.exists()) {
                     const dadosUser = snap.data();
                     
-                    // 3. VERIFICA SE A UNIDADE ESTÁ BLOQUEADA
                     const escolaSnap = await getDoc(doc(db, "unidades", dadosUser.escolaId));
                     if (escolaSnap.exists() && escolaSnap.data().status === 'Bloqueado') {
                         loader.style.display = 'none';
                         await signOut(auth);
-                        return alert("ACESSO BLOQUEADO: Esta instituição possui pendências administrativas.");
+                        
+                        return Swal.fire({
+                            icon: 'error',
+                            title: 'Unidade Bloqueada',
+                            text: 'Sua escola foi bloqueada. Entre em contato com o administrador para mais detalhes.',
+                            confirmButtonColor: '#003399',
+                            customClass: { popup: 'rounded-4' }
+                        });
                     }
 
-                    // 4. SALVA NO LOCALSTORAGE E REGISTRA LOG (Acrescentado)
                     localStorage.setItem('usuarioLogado', JSON.stringify(dadosUser));
                     await registrarLog(dadosUser, "LOGIN", "Usuário entrou no sistema");
                     
@@ -237,32 +235,69 @@
                     }
                 } else {
                     loader.style.display = 'none';
-                    alert("Documento de perfil não encontrado. Verifique se o ID do documento na coleção 'logins' é o seu e-mail.");
+                    await signOut(auth);
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Perfil não encontrado',
+                        text: 'Seu usuário está autenticado, mas não encontramos seus dados de perfil no sistema.',
+                        confirmButtonColor: '#003399'
+                    });
                 }
 
             } catch (error) {
                 loader.style.display = 'none';
                 console.error(error);
                 let msg = "Falha na autenticação.";
+                
                 if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                    msg = "E-mail ou senha incorretos.";
-                } else if(error.code === 'auth/too-many-requests') {
-                    msg = "Muitas tentativas falhas. Tente novamente mais tarde.";
-                } else if(error.code === 'auth/permission-denied') {
-                    msg = "Acesso negado pelas regras de segurança do banco.";
+                    msg = "E-mail ou senha estão incorretos. Verifique os dados e tente novamente.";
+                } else if (error.code === 'auth/too-many-requests') {
+                    msg = "Muitas tentativas sem sucesso. Aguarde um momento e tente novamente.";
                 }
-                alert(msg + " (" + error.code + ")");
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acesso Negado',
+                    text: msg,
+                    confirmButtonColor: '#003399',
+                    customClass: { popup: 'rounded-4' }
+                });
             }
         };
 
-        // RECUPERAÇÃO DE SENHA
-        document.getElementById('btnRecover').onclick = async () => {
-            const email = prompt("Digite seu e-mail cadastrado:");
+        document.getElementById('btnRecover').onclick = async (e) => {
+            e.preventDefault();
+            const { value: email } = await Swal.fire({
+                title: 'Recuperar Acesso',
+                text: 'Informe seu e-mail cadastrado:',
+                input: 'email',
+                inputPlaceholder: 'exemplo@escola.com',
+                showCancelButton: true,
+                confirmButtonText: 'Enviar Link',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#003399',
+                cancelButtonColor: '#6c757d',
+                background: '#ffffff',
+                customClass: { popup: 'rounded-4' }
+            });
+
             if(email) {
                 try {
                     await sendPasswordResetEmail(auth, email);
-                    alert("Link de recuperação enviado para " + email);
-                } catch (e) { alert("Erro: " + e.message); }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Link Enviado!',
+                        text: 'Verifique sua caixa de entrada: ' + email,
+                        confirmButtonColor: '#003399'
+                    });
+                } catch (e) { 
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro no Envio',
+                        text: 'Não foi possível processar a recuperação. Verifique o e-mail.',
+                        confirmButtonColor: '#003399'
+                    });
+                }
             }
         };
     </script>

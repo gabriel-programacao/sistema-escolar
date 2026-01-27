@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AcessaEdu | Dashboard</title>
     
+    <link rel="icon" type="image/png" href="Icone_acessaedu.ico">
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,6 +14,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -40,8 +43,9 @@
             position: fixed;
             padding: 30px 20px;
             color: white;
-            z-index: 1000;
+            z-index: 1050;
             box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
 
         .nav-link-pe {
@@ -70,11 +74,43 @@
             box-shadow: 0 10px 20px rgba(255, 204, 0, 0.2);
         }
 
-        /* --- MAIN CONTENT AREA --- */
         .main-content {
             margin-left: var(--sidebar-w);
             padding: 40px;
             min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* --- BOTÃO MOBILE --- */
+        .btn-mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1040;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { left: -100%; }
+            .sidebar.show { left: 0; width: 80%; }
+            .main-content { margin-left: 0 !important; padding: 20px !important; padding-top: 80px !important; }
+            .btn-mobile-toggle { display: block; }
+            .sidebar-overlay.show { display: block; }
+            .stat-box h1 { font-size: 2.2rem; }
         }
 
         /* --- CARD PREMIUM --- */
@@ -89,11 +125,8 @@
             transition: transform 0.3s ease;
         }
 
-        .card-premium:hover {
-            transform: translateY(-5px);
-        }
+        .card-premium:hover { transform: translateY(-5px); }
 
-        /* --- STAT BOXES --- */
         .stat-box {
             padding: 25px;
             border-radius: 24px;
@@ -104,72 +137,47 @@
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
         }
 
-        .stat-box i {
-            position: absolute;
-            right: -10px;
-            bottom: -10px;
-            font-size: 5rem;
-            opacity: 0.15;
-            transform: rotate(-15deg);
-        }
+        .stat-box i { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.15; transform: rotate(-15deg); }
 
-        /* --- BOTÕES --- */
-        .btn-modern {
-            border-radius: 14px;
-            padding: 12px 24px;
-            font-weight: 600;
-            transition: all 0.3s;
-            border: none;
-        }
+        .btn-modern { border-radius: 14px; padding: 12px 24px; font-weight: 600; border: none; }
+        .btn-primary-modern { background: linear-gradient(135deg, #003399 0%, #001a4d 100%); color: white; }
 
-        .btn-primary-modern {
-            background: linear-gradient(135deg, #003399 0%, #001a4d 100%);
-            color: white;
-        }
+        #webcam { width: 100%; border-radius: 24px; background: #000; border: 6px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.1); transform: scaleX(-1); }
 
-        .btn-primary-modern:hover {
-            box-shadow: 0 8px 20px rgba(0, 51, 153, 0.3);
-            transform: scale(1.02);
-        }
-
-        /* --- VIDEO --- */
-        #webcam {
-            width: 100%;
-            border-radius: 24px;
-            background: #000;
-            border: 6px solid white;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transform: scaleX(-1);
-        }
-
-        /* --- ANIMAÇÃO DE ENTRADA --- */
         .secao { display: none; }
-        .ativa { 
-            display: block; 
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+        .ativa { display: block; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .turma-header { font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin: 20px 0 10px 5px; }
+
+        /* Tabelas e Accordions */
+        .table-estudantes { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .table-estudantes tr { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 12px; }
+        .table-estudantes td { padding: 15px; vertical-align: middle; }
+        .table-estudantes td:first-child { border-radius: 12px 0 0 12px; font-weight: 600; }
+        .table-estudantes td:last-child { border-radius: 0 12px 12px 0; text-align: right; }
+
+        .accordion-button:not(.collapsed) { background-color: rgba(0, 51, 153, 0.05); color: var(--primary); box-shadow: none; }
+        .accordion-button:focus { box-shadow: none; border-color: rgba(0,0,0,.125); }
+
+        /* Estilo da Lixeira */
+        .btn-delete-turma {
+            background: #fff5f5;
+            border: 1px solid #fee2e2;
+            color: var(--danger);
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
         }
+        .btn-delete-turma:hover { background: var(--danger); color: white; transform: scale(1.05); }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Estilo do Modal de Confirmação */
+        .modal-confirm-delete .modal-content { border-radius: 32px; border: none; }
+        .modal-confirm-delete .modal-header { background: #fff5f5; color: var(--danger); border-radius: 32px 32px 0 0; border: none; padding: 25px; }
+        .modal-confirm-delete .input-senha { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; font-weight: 800; letter-spacing: 2px; }
 
-        .turma-header {
-            font-weight: 800;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.8rem;
-            margin: 20px 0 10px 5px;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* ACRÉSCIMO: CSS para Impressão */
         @media print {
             .no-print { display: none !important; }
             .main-content { margin-left: 0; padding: 0; }
@@ -179,21 +187,26 @@
 </head>
 <body>
 
-    <aside class="sidebar no-print">
-        <div class="text-center mb-5">
-            <img src="logo_acessaedu.png" height="60" class="mb-2">
+    <button class="btn-mobile-toggle no-print" onclick="window.toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay no-print" id="overlay" onclick="window.toggleMenu()"></div>
+
+    <aside class="sidebar no-print" id="sidebar">
+        <div class="text-center mb-4 d-none d-lg-block">
+            <img src="logo_acessaedu.png" height="50" class="mb-3">
             <h5 class="fw-bold text-white mb-0">Acessa <span class="text-warning">Edu</span></h5>
-            <small class="opacity-50">Criado por Gabriel Santos</small>
         </div>
         
-        <div id="menu-links"></div>
+        <div id="menu-links" class="d-flex flex-column gap-1"></div>
 
-        <div class="mt-auto pt-5">
-            <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
-                <small class="d-block opacity-50 mb-2">INSTITUIÇÃO</small>
-                <h6 id="school-display" class="fw-bold mb-0">---</h6>
+        <div class="mt-auto pt-3 border-top border-white border-opacity-10">
+            <div class="p-3 rounded-4 bg-white bg-opacity-10 mb-3">
+                <small class="d-block opacity-50 mb-1">INSTITUIÇÃO</small>
+                <h6 id="school-display" class="fw-bold mb-0 small">---</h6>
             </div>
-            <button class="btn btn-danger w-100 mt-3 rounded-4 py-3 fw-bold" onclick="window.logout()">
+            <button class="btn btn-danger w-100 rounded-4 py-2 fw-bold small" onclick="window.logout()">
                 <i class="fas fa-power-off me-2"></i>SAIR
             </button>
         </div>
@@ -202,9 +215,9 @@
     <main class="main-content">
         
         <div class="d-flex justify-content-between align-items-center mb-5 no-print">
-            <div>
+            <div class="d-none d-lg-block">
                 <h3 class="fw-bold mb-1" id="saudacao">Olá, Bem-Vindo(a)</h3>
-                <p class="text-muted mb-0" id="data-atual">Sexta-feira, 25 de Janeiro de 2026</p>
+                <p class="text-muted mb-0" id="data-atual">---</p>
             </div>
             <div class="d-flex gap-3">
                 <a href="terminal.html" target="_blank" class="btn btn-white shadow-sm btn-modern">
@@ -219,42 +232,13 @@
 
         <div id="sec-stats" class="secao">
             <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="stat-box" style="background: linear-gradient(135deg, #003399 0%, #001a4d 100%);">
-                        <small class="opacity-75 fw-bold">TOTAL MATRICULADOS</small>
-                        <h1 id="st-total" class="display-4 fw-bold mt-2">0</h1>
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-box" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                        <small class="opacity-75 fw-bold">PRESENTES HOJE</small>
-                        <h1 id="st-presentes" class="display-4 fw-bold mt-2">0</h1>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-box" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-                        <small class="opacity-75 fw-bold">FALTAS REGISTRADAS</small>
-                        <h1 id="st-faltas" class="display-4 fw-bold mt-2">0</h1>
-                        <i class="fas fa-user-times"></i>
-                    </div>
-                </div>
+                <div class="col-6 col-md-4"><div class="stat-box h-100" style="background: linear-gradient(135deg, #003399 0%, #001a4d 100%);"><small class="opacity-75 fw-bold">MATRICULADOS</small><h1 id="st-total" class="fw-bold mt-2">0</h1><i class="fas fa-users"></i></div></div>
+                <div class="col-6 col-md-4"><div class="stat-box h-100" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><small class="opacity-75 fw-bold">PRESENTES</small><h1 id="st-presentes" class="fw-bold mt-2">0</h1><i class="fas fa-check-circle"></i></div></div>
+                <div class="col-12 col-md-4"><div class="stat-box h-100" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"><small class="opacity-75 fw-bold">FALTAS</small><h1 id="st-faltas" class="fw-bold mt-2">0</h1><i class="fas fa-user-times"></i></div></div>
             </div>
-
             <div class="row">
-                <div class="col-lg-8">
-                    <div class="card-premium">
-                        <h5 class="fw-bold mb-4">Fluxo de Estudantes</h5>
-                        <canvas id="chartBarras" height="150"></canvas>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="card-premium">
-                        <h5 class="fw-bold mb-4">Assiduidade Geral</h5>
-                        <canvas id="chartPizza"></canvas>
-                    </div>
-                </div>
+                <div class="col-lg-8"><div class="card-premium"><canvas id="chartBarras" height="150"></canvas></div></div>
+                <div class="col-lg-4"><div class="card-premium"><canvas id="chartPizza"></canvas></div></div>
             </div>
         </div>
 
@@ -263,42 +247,17 @@
                 <div class="col-lg-5">
                     <div class="card-premium">
                         <h5 class="fw-bold mb-4 text-primary">Nova Matrícula</h5>
-                        <div class="mb-3">
-                            <label class="small fw-bold text-muted mb-2">NOME COMPLETO</label>
-                            <input type="text" id="nAluno" class="form-control form-control-lg border-0 bg-light rounded-4">
-                        </div>
-                        <div class="mb-3">
-                            <label class="small fw-bold text-muted mb-2">SALA / TURMA</label>
-                            <select id="sAluno" class="form-select form-select-lg border-0 bg-light rounded-4">
-                                <option>Carregando turmas...</option>
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label class="small fw-bold text-muted mb-2">WHATSAPP RESPONSÁVEL</label>
-                            <input type="text" id="tAluno" class="form-control form-control-lg border-0 bg-light rounded-4">
-                        </div>
+                        <input type="text" id="nAluno" class="form-control form-control-lg border-0 bg-light rounded-4 mb-3" placeholder="Nome Completo">
+                        <select id="sAluno" class="form-select form-select-lg border-0 bg-light rounded-4 mb-3"></select>
+                        <input type="text" id="tAluno" class="form-control form-control-lg border-0 bg-light rounded-4 mb-4" placeholder="WhatsApp Responsável">
                         <div class="d-grid gap-3">
-                            <button class="btn btn-primary-modern py-3 rounded-4 fw-bold" id="btnCam">
-                                <i class="fas fa-video me-2"></i>ATIVAR CÂMERA
-                            </button>
-                            <button class="btn btn-success py-3 rounded-4 fw-bold shadow-sm" id="btnSalvar">
-                                <i class="fas fa-face-smile me-2"></i>SALVAR COM BIOMETRIA
-                            </button>
-                            <button class="btn btn-outline-secondary py-3 rounded-4 fw-bold" onclick="window.salvarSemBiometria()">
-                                SEM BIOMETRIA
-                            </button>
+                            <button class="btn btn-primary-modern py-3 rounded-4 fw-bold" id="btnCam">ATIVAR CÂMERA</button>
+                            <button class="btn btn-success py-3 rounded-4 fw-bold shadow-sm" id="btnSalvar">SALVAR COM BIOMETRIA</button>
+                            <button class="btn btn-outline-secondary py-3 rounded-4 fw-bold" onclick="window.salvarSemBiometria()">SEM BIOMETRIA</button>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-7">
-                    <div class="card-premium h-100">
-                        <h5 class="fw-bold mb-4">Visualização de Captura</h5>
-                        <video id="webcam" autoplay muted playsinline></video>
-                        <div class="mt-4 p-4 rounded-4 bg-light border text-center">
-                            <p class="small mb-0 text-muted" id="ia-status">Inicie a câmera para processamento da IA.</p>
-                        </div>
-                    </div>
-                </div>
+                <div class="col-lg-7 text-center"><div class="card-premium h-100"><video id="webcam" autoplay muted playsinline></video><p class="small mb-0 text-muted mt-3" id="ia-status">Inicie a câmera para processamento da IA.</p></div></div>
             </div>
         </div>
 
@@ -306,54 +265,28 @@
             <div class="card-premium">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="fw-bold m-0">Gestão Face ID</h5>
-                    <input type="text" id="buscaFace" class="form-control w-25 rounded-pill" placeholder="Pesquisar por nome..." onkeyup="window.filtrarGestaoFace()">
+                    <input type="text" id="buscaFace" class="form-control w-25 rounded-pill shadow-sm border-0 bg-light" placeholder="Pesquisar..." onkeyup="window.filtrarGestaoFace()">
                 </div>
-                <div id="listaGestaoFacialAgrupada"></div>
+                <div class="accordion accordion-flush" id="accordionBiometria"></div>
             </div>
         </div>
 
         <div id="sec-relatorios" class="secao">
             <div class="card-premium no-print">
-                <h5 class="fw-bold mb-4 text-primary">Gerar Relatórios de Frequência</h5>
+                <h5 class="fw-bold mb-4 text-primary">Relatórios</h5>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="small fw-bold text-muted mb-2">DATA</label>
-                        <input type="date" id="relData" class="form-control rounded-4 border-0 bg-light">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="small fw-bold text-muted mb-2">TURMA</label>
-                        <select id="relTurma" class="form-select rounded-4 border-0 bg-light">
-                            <option value="TODAS">Todas as Turmas</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 d-flex gap-2">
+                    <div class="col-6 col-md-3"><input type="date" id="relData" class="form-control rounded-4 border-0 bg-light"></div>
+                    <div class="col-6 col-md-3"><select id="relTurma" class="form-select rounded-4 border-0 bg-light"></select></div>
+                    <div class="col-12 col-md-6 d-flex gap-2">
                         <button class="btn btn-primary-modern flex-grow-1 rounded-4 fw-bold" onclick="window.gerarRelatorio()">VISUALIZAR</button>
                         <button class="btn btn-success rounded-4 fw-bold" onclick="window.exportarRelatorioExcel()"><i class="fas fa-file-excel"></i></button>
                         <button class="btn btn-danger rounded-4 fw-bold" onclick="window.imprimirRelatorio()"><i class="fas fa-file-pdf"></i></button>
                     </div>
                 </div>
             </div>
-
             <div class="card-premium" id="area-relatorio">
-                <div class="text-center mb-4">
-                    <h4 class="fw-bold m-0" id="rel-escola-nome">---</h4>
-                    <p class="text-muted" id="rel-subtitulo">Selecione os filtros acima</p>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="tabela-relatorio">
-                        <thead>
-                            <tr class="table-light">
-                                <th>ESTUDANTE</th>
-                                <th>TURMA</th>
-                                <th>STATUS</th>
-                                <th>HORÁRIO</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaRelatorio">
-                            <tr><td colspan="4" class="text-center py-5 text-muted">Aguardando geração de dados...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="text-center mb-4"><h4 class="fw-bold m-0" id="rel-escola-nome">---</h4><p class="text-muted" id="rel-subtitulo">Selecione os filtros acima</p></div>
+                <div class="table-responsive"><table class="table table-hover align-middle" id="tabela-relatorio"><thead><tr class="table-light"><th>ESTUDANTE</th><th>TURMA</th><th>STATUS</th><th>HORÁRIO</th></tr></thead><tbody id="listaRelatorio"></tbody></table></div>
             </div>
         </div>
 
@@ -361,379 +294,306 @@
             <div class="card-premium">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="fw-bold m-0">Lista Geral de Estudantes</h5>
-                    <input type="text" id="buscaA" class="form-control w-25 rounded-pill" placeholder="Pesquisar..." onkeyup="window.filtrarAlunos()">
+                    <input type="text" id="buscaA" class="form-control w-25 rounded-pill shadow-sm border-0 bg-light" placeholder="Pesquisar..." onkeyup="window.filtrarAlunos()">
                 </div>
-                <div id="listaAgrupadaAlunos"></div>
+                <div class="accordion accordion-flush" id="accordionEstudantes"></div>
+            </div>
+        </div>
+
+        <div id="sec-importar" class="secao">
+            <div class="card-premium mx-auto" style="max-width: 700px;">
+                <h5 class="fw-bold mb-4 text-primary"><i class="fas fa-file-import me-2"></i>Importação em Massa</h5>
+                <div class="bg-light p-4 rounded-4 border text-center mb-4"><i class="fas fa-file-excel fa-3x text-success mb-3"></i><h6 class="fw-bold">A: Nome | B: Turma | C: WhatsApp</h6></div>
+                <div class="d-grid gap-3">
+                    <input type="file" id="inputPlanilha" class="d-none" accept=".xlsx, .xls, .csv" onchange="window.importarExcel(this)">
+                    <button class="btn btn-success py-3 rounded-4 fw-bold" onclick="document.getElementById('inputPlanilha').click()">SELECIONAR PLANILHA</button>
+                    <button class="btn btn-outline-primary py-2 rounded-4 fw-bold small" onclick="window.baixarModeloExcel()">BAIXAR MODELO</button>
+                </div>
+                <div id="statusImportacao" class="mt-4 small fw-bold text-center"></div>
             </div>
         </div>
 
     </main>
 
-    <div class="modal fade" id="modalCapturaRapida" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal fade modal-confirm-delete" id="modalConfirmarApagarTurma" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-5 shadow-lg">
-                <div class="modal-header bg-primary text-white p-4 border-0">
-                    <h5 class="fw-bold m-0">Biometria: <span id="nomeAlunoModal">---</span></h5>
-                    <button type="button" class="btn-close btn-close-white" onclick="window.fecharModalCaptura()"></button>
+            <div class="modal-content shadow-lg">
+                <div class="modal-header text-center d-block">
+                    <i class="fas fa-exclamation-circle fa-3x mb-3"></i>
+                    <h5 class="fw-bold m-0" id="txtTurmaApagar">Apagar Turma</h5>
                 </div>
                 <div class="modal-body p-4 text-center">
-                    <video id="videoModal" style="width: 100%; border-radius: 20px; background: #000; transform: scaleX(-1);" autoplay muted playsinline></video>
-                    <div id="statusModal" class="small fw-bold mt-3 text-muted">Aguardando enquadramento...</div>
-                    <button class="btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold" id="btnEfetivarFaceModal">SALVAR BIOMETRIA AGORA</button>
+                    <p class="text-muted">Isso excluirá todos os alunos e dados de biometria desta sala. Esta ação não pode ser desfeita.</p>
+                    <input type="password" id="senhaApagarTurma" class="form-control input-senha w-100 mb-4" placeholder="DIGITE SUA SENHA">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light flex-grow-1 rounded-4 fw-bold py-3" data-bs-dismiss="modal">CANCELAR</button>
+                        <button class="btn btn-danger flex-grow-1 rounded-4 fw-bold py-3 shadow-sm" id="btnConfirmarExclusaoFinal">APAGAR AGORA</button>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCapturaRapida" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-5 shadow-lg"><div class="modal-header bg-primary text-white p-4 border-0"><h5 class="fw-bold m-0" id="nomeAlunoModal">Biometria</h5><button type="button" class="btn-close btn-close-white" onclick="window.fecharModalCaptura()"></button></div><div class="modal-body p-4 text-center"><video id="videoModal" style="width: 100%; border-radius: 20px; background: #000; transform: scaleX(-1);" autoplay muted playsinline></video><div id="statusModal" class="small fw-bold mt-3 text-muted">Aguardando...</div><button class="btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold" id="btnEfetivarFaceModal">SALVAR AGORA</button></div></div>
         </div>
     </div>
 
     <div class="modal fade" id="modalEditAluno" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg border-0 rounded-5">
-                <div class="modal-header p-4 border-0">
-                    <h5 class="fw-bold mb-0">Editar Cadastro</h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4 pt-0">
-                    <input type="hidden" id="editId">
-                    <input type="text" id="editNome" class="form-control form-control-lg bg-light border-0 mb-3 rounded-4" placeholder="Nome">
-                    <select id="editSala" class="form-select form-select-lg bg-light border-0 mb-3 rounded-4"></select>
-                    <input type="text" id="editTel" class="form-control form-control-lg bg-light border-0 rounded-4" placeholder="Telefone">
-                    <button class="btn btn-primary-modern w-100 py-3 mt-4 rounded-4 fw-bold" onclick="window.confirmarEdicao()">SALVAR ALTERAÇÕES</button>
-                </div>
-            </div>
+            <div class="modal-content p-4 rounded-5 border-0"><h5 class="fw-bold mb-4">Editar Cadastro</h5><input type="hidden" id="editId"><input type="text" id="editNome" class="form-control mb-3 shadow-none border-light bg-light"><select id="editSala" class="form-select shadow-none border-light bg-light mb-3"></select><input type="text" id="editTel" class="form-control mb-4 shadow-none border-light bg-light"><button class="btn btn-primary-modern w-100" onclick="window.confirmarEdicao()">SALVAR</button></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, query, where, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", authDomain: "escolapro-15e5e.firebaseapp.com", projectId: "escolapro-15e5e", storageBucket: "escolapro-15e5e.firebasestorage.app", messagingSenderId: "339019791514", appId: "1:339019791514:web:44e0d58b6835f0fe6df323" };
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
         let logado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        let chartB = null, chartP = null;
-        let idAlunoCapturaModal = "";
+        let chartB = null, chartP = null, idAlunoCapturaModal = "";
+        let turmaParaApagarGlobal = "";
 
-        async function registrarLog(acao, detalhes) {
-            if (!logado) return;
-            try {
-                await addDoc(collection(db, "logs_atividades"), {
-                    usuario: logado.usuario || logado.email,
-                    email: logado.email,
-                    escolaId: logado.escolaId,
-                    acao: acao,
-                    detalhes: detalhes,
-                    dataHora: serverTimestamp(),
-                    origem: "dashboard"
-                });
-            } catch (e) { console.error("Erro log:", e); }
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (!user || !logado) {
-                window.location.href = 'index.html';
-            } else {
-                onSnapshot(doc(db, "unidades", logado.escolaId), (snapshot) => {
-                    if (snapshot.exists() && snapshot.data().status === 'Bloqueado') {
-                        alert("ACESSO SUSPENSO: Esta unidade foi bloqueada administrativamente.");
-                        window.logout();
-                    }
-                });
-                initDashboard();
-            }
-        });
+        window.toggleMenu = () => { document.getElementById('sidebar').classList.toggle('show'); document.getElementById('overlay').classList.toggle('show'); };
+        onAuthStateChanged(auth, (user) => { if (!user || !logado) window.location.href = 'index.html'; else initDashboard(); });
 
         async function initDashboard() {
             document.getElementById('username-display').innerText = logado.usuario || logado.email;
             document.getElementById('school-display').innerText = logado.escolaId.toUpperCase();
-            document.getElementById('data-atual').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            // ACRÉSCIMO: Configura Data Atual no Filtro de Relatório
+            document.getElementById('data-atual').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('relData').valueAsDate = new Date();
-
             try {
                 const escDoc = await getDoc(doc(db, "unidades", logado.escolaId));
                 if(escDoc.exists()) {
                     document.getElementById('rel-escola-nome').innerText = escDoc.data().nome.toUpperCase();
                     const turmas = escDoc.data().turmas || [];
-                    const sAluno = document.getElementById('sAluno');
-                    const editSala = document.getElementById('editSala');
-                    const relTurma = document.getElementById('relTurma');
-
-                    if(turmas.length > 0) {
-                        let options = turmas.map(t => `<option value="${t}">${t}</option>`).join('');
-                        sAluno.innerHTML = options;
-                        editSala.innerHTML = options;
-                        relTurma.innerHTML = `<option value="TODAS">Todas as Turmas</option>` + options;
-                    }
+                    const s = document.getElementById('sAluno'), e = document.getElementById('editSala'), r = document.getElementById('relTurma');
+                    let opt = turmas.map(t => `<option value="${t}">${t}</option>`).join('');
+                    s.innerHTML = opt; e.innerHTML = opt; r.innerHTML = `<option value="TODAS">Todas</option>` + opt;
                 }
             } catch (e) {}
-
-            montarMenu(); 
-            initIA(); 
-            escutarDados();
+            montarMenu(); initIA(); escutarDados();
         }
 
-        window.logout = async () => { 
-            await registrarLog("LOGOUT", "Usuário saiu do sistema");
-            await signOut(auth);
-            localStorage.clear();
-            window.location.href = 'index.html'; 
+        // --- NOVA FUNÇÃO DE VERIFICAÇÃO DE COTA ---
+        async function verificarCotaDisponivel() {
+            try {
+                const escDoc = await getDoc(doc(db, "unidades", logado.escolaId));
+                if (!escDoc.exists()) return { autorizado: false, msg: "Unidade não encontrada." };
+                const limite = escDoc.data().limiteAlunos || 0;
+                const qAlunos = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId));
+                const snapAlunos = await getDocs(qAlunos);
+                const totalAtual = snapAlunos.size;
+                if (totalAtual >= limite) {
+                    return { autorizado: false, msg: `Limite de cota atingido (${totalAtual}/${limite}). Contrate um plano maior.` };
+                }
+                return { autorizado: true };
+            } catch (e) {
+                return { autorizado: false, msg: "Erro ao validar cota." };
+            }
+        }
+
+        window.importarExcel = async (input) => {
+            const status = document.getElementById('statusImportacao'); const file = input.files[0]; if (!file) return;
+            status.innerText = "Lendo..."; const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' });
+                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+                
+                // Validação de cota para Importação
+                const cota = await verificarCotaDisponivel();
+                if(!cota.autorizado) {
+                    status.innerText = "Erro: Limite atingido.";
+                    return Swal.fire("Limite de Alunos", cota.msg, "warning");
+                }
+
+                for (let i = 1; i < json.length; i++) {
+                    const [nome, turma, tel] = json[i];
+                    if (nome && turma) {
+                        // Re-checar cota a cada inserção para garantir precisão
+                        const check = await verificarCotaDisponivel();
+                        if(!check.autorizado) break; 
+
+                        await addDoc(collection(db, "alunos"), { nome: nome.toString(), sala: turma.toString(), escolaId: logado.escolaId, descritor: null, tel: tel ? tel.toString() : "" });
+                    }
+                }
+                status.innerText = "Sucesso!";
+            }; reader.readAsArrayBuffer(file);
         };
 
+        window.baixarModeloExcel = () => { const dados = [["Nome", "Turma", "WhatsApp"]]; const ws = XLSX.utils.aoa_to_sheet(dados); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Modelo"); XLSX.writeFile(wb, "Modelo_Alunos.xlsx"); };
+
         function montarMenu() {
-            const itens = [
-                {id:'sec-stats', label:'Painel', icon:'fa-chart-pie'},
-                {id:'sec-facial', label:'Novo Registro', icon:'fa-user-plus'},
-                {id:'sec-gestao-face', label:'Gestão Face ID', icon:'fa-fingerprint'},
-                {id:'sec-relatorios', label:'Relatórios', icon:'fa-file-invoice'}, // ACRÉSCIMO
-                {id:'sec-faltas', label:'Estudantes', icon:'fa-users-viewfinder'}
-            ];
-            let h = "";
-            itens.forEach(i => { h += `<a href="#" class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)"><i class="fas ${i.icon}"></i> ${i.label}</a>`; });
-            document.getElementById('menu-links').innerHTML = h;
+            const itens = [{id:'sec-stats', label:'Painel', icon:'fa-chart-pie'},{id:'sec-facial', label:'Matrícula', icon:'fa-user-plus'},{id:'sec-gestao-face', label:'Biometria', icon:'fa-fingerprint'},{id:'sec-relatorios', label:'Relatórios', icon:'fa-file-invoice'},{id:'sec-faltas', label:'Estudantes', icon:'fa-users'},{id:'sec-importar', label:'Importar Excel', icon:'fa-file-excel text-success'}];
+            document.getElementById('menu-links').innerHTML = itens.map(i => `<a href="#" class="nav-link-pe" onclick="window.trocarAba('${i.id}', this)"><i class="fas ${i.icon}"></i> ${i.label}</a>`).join('');
             window.trocarAba('sec-stats', document.querySelector('.nav-link-pe'));
         }
 
         window.trocarAba = (id, btn) => {
             document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-            const target = document.getElementById(id);
-            if(target) target.classList.add('ativa');
+            document.getElementById(id).classList.add('ativa');
             document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
+            if(window.innerWidth <= 992) window.toggleMenu();
             if(id === 'sec-stats') updateCharts();
         };
 
-        // ACRÉSCIMO: Lógica de Geração de Relatório Cruzado
         window.gerarRelatorio = async () => {
-            const rawData = document.getElementById('relData').value;
-            if(!rawData) return alert("Selecione uma data!");
-            const dataFiltro = new Date(rawData + 'T00:00:00').toLocaleDateString('pt-BR');
-            const turmaFiltro = document.getElementById('relTurma').value;
-            const listaBody = document.getElementById('listaRelatorio');
-            
-            listaBody.innerHTML = "<tr><td colspan='4' class='text-center py-5'><div class='spinner-border text-primary'></div></td></tr>";
-
+            const dF = new Date(document.getElementById('relData').value + 'T00:00:00').toLocaleDateString('pt-BR');
+            const tF = document.getElementById('relTurma').value;
+            const body = document.getElementById('listaRelatorio'); body.innerHTML = "Lendo...";
             try {
-                // 1. Pega Alunos
-                let qAlunos = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId));
-                if(turmaFiltro !== "TODAS") qAlunos = query(qAlunos, where("sala", "==", turmaFiltro));
-                const snapAlunos = await getDocs(qAlunos);
-
-                // 2. Pega Frequência do dia
-                const qFreq = query(collection(db, "frequencia"), where("escolaId", "==", logado.escolaId), where("data", "==", dataFiltro));
-                const snapFreq = await getDocs(qFreq);
-                const mapaPresenca = {};
-                snapFreq.forEach(d => mapaPresenca[d.data().nome] = d.data().hora);
-
-                // 3. Monta Tabela
-                let html = "";
-                let alunosArr = [];
-                snapAlunos.forEach(d => alunosArr.push(d.data()));
-                alunosArr.sort((a,b) => a.nome.localeCompare(b.nome));
-
-                alunosArr.forEach(al => {
-                    const presente = mapaPresenca[al.nome];
-                    html += `
-                        <tr>
-                            <td class="fw-bold">${al.nome}</td>
-                            <td>${al.sala}</td>
-                            <td><span class="badge rounded-pill ${presente ? 'bg-success' : 'bg-danger'}">${presente ? 'PRESENTE' : 'FALTA'}</span></td>
-                            <td>${presente || '---'}</td>
-                        </tr>`;
-                });
-
-                listaBody.innerHTML = html || "<tr><td colspan='4' class='text-center'>Nenhum estudante encontrado.</td></tr>";
-                document.getElementById('rel-subtitulo').innerText = `Relatório de Frequência - ${dataFiltro} (${turmaFiltro})`;
-
-            } catch (e) { console.error(e); alert("Erro ao gerar relatório."); }
+                let qA = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId)); if(tF !== "TODAS") qA = query(qA, where("sala", "==", tF));
+                const snapA = await getDocs(qA);
+                const qFr = query(collection(db, "frequencia"), where("escolaId", "==", logado.escolaId), where("data", "==", dF));
+                const snapFr = await getDocs(qFr); const mapa = {}; snapFr.forEach(d => mapa[d.data().nome] = d.data().hora);
+                let h = ""; snapA.forEach(d => { const al = d.data(); const pres = mapa[al.nome]; h += `<tr><td class="fw-bold">${al.nome}</td><td>${al.sala}</td><td><span class="badge rounded-pill ${pres?'bg-success':'bg-danger'}">${pres?'PRESENTE':'FALTA'}</span></td><td>${pres||'--'}</td></tr>`; });
+                body.innerHTML = h || "Sem dados."; document.getElementById('rel-subtitulo').innerText = `${dF} (${tF})`;
+            } catch (e) { body.innerHTML = "Erro."; }
         };
 
-        window.exportarRelatorioExcel = () => {
-            const table = document.getElementById("tabela-relatorio");
-            const wb = XLSX.utils.table_to_book(table);
-            XLSX.writeFile(wb, `SIAF_Relatorio_${document.getElementById('relData').value}.xlsx`);
-        };
-
+        window.exportarRelatorioExcel = () => { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("tabela-relatorio")), `SIAF_Relatorio.xlsx`); };
         window.imprimirRelatorio = () => { window.print(); };
 
-        document.getElementById('btnCam').onclick = async () => { 
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('webcam').srcObject = stream;
-                document.getElementById('ia-status').innerText = "Câmera Ativa.";
-            } catch (e) { alert("Erro ao acessar câmera."); }
-        };
-
-        async function initIA() { 
-            const U = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; 
-            await faceapi.nets.tinyFaceDetector.loadFromUri(U); 
-            await faceapi.nets.faceLandmark68Net.loadFromUri(U); 
-            await faceapi.nets.faceRecognitionNet.loadFromUri(U); 
-        }
-
-        window.salvarSemBiometria = async () => {
-            const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value;
-            if(!n) return alert("Preencha o nome!");
-            await addDoc(collection(db, "alunos"), { nome: n, sala: s, escolaId: logado.escolaId, descritor: null, tel: document.getElementById('tAluno').value });
-            await registrarLog("CADASTRO_ALUNO", `Cadastrou aluno ${n}`);
-            alert("Sucesso!"); 
-            document.getElementById('nAluno').value = "";
-        };
-
+        // --- ATUALIZAÇÃO SALVAR COM BIOMETRIA ---
         document.getElementById('btnSalvar').onclick = async () => {
-            const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value, v = document.getElementById('webcam');
-            if(!n || !v.srcObject) return alert("Dados insuficientes!");
+            const n = document.getElementById('nAluno').value.trim();
+            const s = document.getElementById('sAluno').value;
+            const t = document.getElementById('tAluno').value.trim();
+            const v = document.getElementById('webcam');
+
+            if(!n) return Swal.fire("Erro", "Nome obrigatório", "error");
+
+            const cota = await verificarCotaDisponivel();
+            if(!cota.autorizado) return Swal.fire("Limite Atingido", cota.msg, "warning");
+
             const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-            if(!det) return alert("Rosto não detectado!");
-            await addDoc(collection(db, "alunos"), { nome: n, sala: s, escolaId: logado.escolaId, descritor: Array.from(det.descriptor), tel: document.getElementById('tAluno').value });
-            await registrarLog("CADASTRO_BIOMETRIA", `Biometria de ${n}`);
-            alert("Salvo!");
-            document.getElementById('nAluno').value = "";
+            if(!det) return Swal.fire("Atenção", "Rosto não detectado", "warning");
+
+            try {
+                await addDoc(collection(db, "alunos"), { nome: n, sala: s, escolaId: logado.escolaId, descritor: Array.from(det.descriptor), tel: t });
+                Swal.fire("Sucesso", "Aluno cadastrado!", "success");
+                document.getElementById('nAluno').value = ""; document.getElementById('tAluno').value = "";
+            } catch(e) { Swal.fire("Erro", "Falha ao salvar", "error"); }
+        };
+
+        async function initIA() { const U = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; await faceapi.nets.tinyFaceDetector.loadFromUri(U); await faceapi.nets.faceLandmark68Net.loadFromUri(U); await faceapi.nets.faceRecognitionNet.loadFromUri(U); }
+        document.getElementById('btnCam').onclick = async () => { const s = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('webcam').srcObject = s; };
+
+        // --- ATUALIZAÇÃO SALVAR SEM BIOMETRIA ---
+        window.salvarSemBiometria = async () => { 
+            const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value; 
+            if(!n) return Swal.fire("Erro", "Nome obrigatório", "error"); 
+
+            const cota = await verificarCotaDisponivel();
+            if(!cota.autorizado) return Swal.fire("Limite Atingido", cota.msg, "warning");
+
+            await addDoc(collection(db, "alunos"), { nome: n, sala: s, escolaId: logado.escolaId, descritor: null, tel: document.getElementById('tAluno').value }); 
+            Swal.fire("Sucesso", "Cadastrado com sucesso!", "success"); 
+            document.getElementById('nAluno').value = ""; 
         };
 
         function escutarDados() {
             const q = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId));
             onSnapshot(q, snap => {
-                const list = document.getElementById('listaAgrupadaAlunos'); 
-                const listGestao = document.getElementById('listaGestaoFacialAgrupada');
-                list.innerHTML = ""; listGestao.innerHTML = "";
-                const turmas = {};
+                const accordionE = document.getElementById('accordionEstudantes');
+                const accordionB = document.getElementById('accordionBiometria');
+                accordionE.innerHTML = ""; accordionB.innerHTML = "";
                 
+                let turmas = {};
                 snap.forEach(d => { 
-                    const a = d.data(); 
+                    let a = d.data(); 
                     if(!turmas[a.sala]) turmas[a.sala] = []; 
                     turmas[a.sala].push({id: d.id, ...a}); 
                 });
                 
                 Object.keys(turmas).sort().forEach(t => {
-                    list.innerHTML += `<div class="turma-header">${t}</div><div class="card p-3 border-0 shadow-sm rounded-4 mb-3"><table class="table mb-0 align-middle"><tbody>`;
-                    listGestao.innerHTML += `<div class="turma-header">${t}</div><div class="row row-cols-1 row-cols-md-2 g-3 mb-4">`;
+                    const idT = t.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+                    const idAccordionE = `accE-${idT}`;
+                    const idAccordionB = `accB-${idT}`;
+
+                    let linhasEstudantes = "";
+                    let cardsBiometria = "";
 
                     turmas[t].sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(al => {
-                        list.innerHTML += `<tr><td class="fw-bold">${al.nome}</td><td class="text-end">
-                            <button class="btn btn-sm btn-light rounded-pill px-3 me-2" onclick="window.abrirEdicao('${al.id}','${al.nome}','${al.sala}','${al.tel||''}')"><i class="fas fa-edit text-primary"></i></button>
-                            <button class="btn btn-sm btn-light rounded-pill px-3" onclick="window.del('alunos','${al.id}', '${al.nome}')"><i class="fas fa-trash text-danger"></i></button>
-                        </td></tr>`;
-
-                        const temFace = !!al.descritor;
-                        listGestao.innerHTML += `
-                            <div class="col item-face" data-nome="${al.nome.toLowerCase()}">
-                                <div class="p-3 bg-white border rounded-4 d-flex justify-content-between align-items-center shadow-sm">
-                                    <div><span class="fw-bold d-block">${al.nome}</span><small class="${temFace ? 'text-success' : 'text-danger'} fw-bold">${temFace ? 'FACE ID ATIVO' : 'SEM FACE ID'}</small></div>
-                                    <button class="btn ${temFace ? 'btn-outline-primary' : 'btn-primary'} btn-sm rounded-3 fw-bold" onclick="window.abrirCapturaModal('${al.id}','${al.nome}')">
-                                        ${temFace ? 'REFAZER' : 'VINCULAR'}
-                                    </button>
-                                </div>
-                            </div>`;
+                        linhasEstudantes += `<tr class="aluno-row"><td class="ps-4 fw-bold text-uppercase" style="font-size: 0.85rem;">${al.nome}</td><td class="text-end pe-4"><button class="btn btn-sm btn-light rounded-pill me-1" onclick="window.abrirEdicao('${al.id}','${al.nome}','${al.sala}','${al.tel||''}')"><i class="fas fa-edit text-primary"></i></button><button class="btn btn-sm btn-light rounded-pill" onclick="window.del('alunos','${al.id}', '${al.nome}')"><i class="fas fa-trash text-danger"></i></button></td></tr>`;
+                        const tem = !!al.descritor;
+                        cardsBiometria += `<div class="col item-face" data-nome="${al.nome.toLowerCase()}"><div class="p-3 bg-white border rounded-4 d-flex justify-content-between align-items-center shadow-sm"><div><span class="fw-bold d-block small">${al.nome}</span><small class="${tem?'text-success':'text-danger'} fw-bold">${tem?'ATIVO':'SEM FACE'}</small></div><button class="btn btn-sm ${tem?'btn-outline-primary':'btn-primary'} px-3 rounded-3" onclick="window.abrirCapturaModal('${al.id}','${al.nome}')">${tem?'REFAZER':'VINCULAR'}</button></div></div>`;
                     });
-                    list.innerHTML += `</tbody></table></div>`;
-                    listGestao.innerHTML += `</div>`;
+
+                    accordionE.innerHTML += `
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+                            <div class="d-flex align-items-center bg-white pr-3">
+                                <h2 class="accordion-header flex-grow-1">
+                                    <button class="accordion-button collapsed fw-bold text-primary py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#${idAccordionE}">
+                                        <i class="fas fa-graduation-cap me-2"></i> ${t}
+                                    </button>
+                                </h2>
+                                <button class="btn-delete-turma no-print" onclick="window.abrirModalApagarTurma('${t}')" title="Apagar Turma">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <div id="${idAccordionE}" class="accordion-collapse collapse">
+                                <div class="accordion-body p-0">
+                                    <table class="table-estudantes mb-0"><tbody>${linhasEstudantes}</tbody></table>
+                                </div>
+                            </div>
+                        </div>`;
+
+                    accordionB.innerHTML += `
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+                            <h2 class="accordion-header"><button class="accordion-button collapsed fw-bold text-primary py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#${idAccordionB}"><i class="fas fa-fingerprint me-2"></i> ${t}</button></h2>
+                            <div id="${idAccordionB}" class="accordion-collapse collapse"><div class="accordion-body p-4 bg-light"><div class="row row-cols-1 row-cols-md-2 g-3">${cardsBiometria}</div></div></div>
+                        </div>`;
                 });
                 document.getElementById('st-total').innerText = snap.size;
             });
-
             const hj = new Date().toLocaleDateString('pt-BR');
-            onSnapshot(query(collection(db, "frequencia"), where("escolaId", "==", logado.escolaId), where("data", "==", hj)), snap => {
-                document.getElementById('st-presentes').innerText = snap.size;
-                updateCharts();
-            });
+            onSnapshot(query(collection(db, "frequencia"), where("escolaId", "==", logado.escolaId), where("data", "==", hj)), snap => { document.getElementById('st-presentes').innerText = snap.size; updateCharts(); });
         }
 
-        window.abrirCapturaModal = async (id, nome) => {
-            idAlunoCapturaModal = id;
-            document.getElementById('nomeAlunoModal').innerText = nome;
-            const modal = new bootstrap.Modal(document.getElementById('modalCapturaRapida'));
-            modal.show();
+        window.abrirModalApagarTurma = (turma) => {
+            turmaParaApagarGlobal = turma;
+            document.getElementById('txtTurmaApagar').innerText = `Apagar ${turma}`;
+            document.getElementById('senhaApagarTurma').value = "";
+            new bootstrap.Modal(document.getElementById('modalConfirmarApagarTurma')).show();
+        };
+
+        document.getElementById('btnConfirmarExclusaoFinal').onclick = async () => {
+            const senha = document.getElementById('senhaApagarTurma').value;
+            if (senha !== logado.senha) return Swal.fire("Erro", "Senha incorreta", "error");
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('videoModal').srcObject = stream;
-            } catch (e) { alert("Câmera bloqueada."); }
-        };
-
-        window.fecharModalCaptura = () => {
-            const v = document.getElementById('videoModal');
-            if(v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
-            bootstrap.Modal.getInstance(document.getElementById('modalCapturaRapida')).hide();
-        };
-
-        document.getElementById('btnEfetivarFaceModal').onclick = async () => {
-            const v = document.getElementById('videoModal');
-            const status = document.getElementById('statusModal');
-            status.innerText = "Processando...";
-            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-            if(!det) {
-                status.innerText = "Erro: Rosto não detectado.";
-                return;
-            }
-            await updateDoc(doc(db, "alunos", idAlunoCapturaModal), { descritor: Array.from(det.descriptor) });
-            await registrarLog("VINCULO_FACE", `ID: ${idAlunoCapturaModal}`);
-            status.innerText = "Sucesso!";
-            setTimeout(() => { window.fecharModalCaptura(); }, 1000);
-        };
-
-        window.filtrarGestaoFace = () => {
-            const termo = document.getElementById('buscaFace').value.toLowerCase();
-            document.querySelectorAll('.item-face').forEach(card => {
-                card.style.display = card.getAttribute('data-nome').includes(termo) ? '' : 'none';
-            });
-        };
-
-        window.abrirEdicao = (id, n, s, t) => { 
-            document.getElementById('editId').value = id; 
-            document.getElementById('editNome').value = n; 
-            document.getElementById('editSala').value = s; 
-            document.getElementById('editTel').value = t; 
-            new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); 
-        };
-
-        window.confirmarEdicao = async () => { 
-            await updateDoc(doc(db, "alunos", document.getElementById('editId').value), { 
-                nome: document.getElementById('editNome').value, 
-                sala: document.getElementById('editSala').value, 
-                tel: document.getElementById('editTel').value 
-            }); 
-            bootstrap.Modal.getInstance(document.getElementById('modalEditAluno')).hide();
-        };
-
-        window.del = async (c, i, nome) => { 
-            if(confirm(`Excluir permanentemente ${nome}?`)) {
-                await deleteDoc(doc(db, c, i)); 
-                await registrarLog("EXCLUSAO_ALUNO", `Removeu aluno ${nome}`);
+                const q = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId), where("sala", "==", turmaParaApagarGlobal));
+                const snap = await getDocs(q);
+                const batch = writeBatch(db);
+                snap.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                bootstrap.Modal.getInstance(document.getElementById('modalConfirmarApagarTurma')).hide();
+                Swal.fire("Apagado", "Turma removida com sucesso.", "success");
+            } catch (e) {
+                Swal.fire("Erro", "Falha ao excluir.", "error");
             }
         };
+
+        window.abrirCapturaModal = async (id, nome) => { idAlunoCapturaModal = id; document.getElementById('nomeAlunoModal').innerText = nome; new bootstrap.Modal(document.getElementById('modalCapturaRapida')).show(); try { const s = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('videoModal').srcObject = s; } catch (e) {} };
+        window.fecharModalCaptura = () => { const v = document.getElementById('videoModal'); if(v.srcObject) v.srcObject.getTracks().forEach(t => t.stop()); bootstrap.Modal.getInstance(document.getElementById('modalCapturaRapida')).hide(); };
+        document.getElementById('btnEfetivarFaceModal').onclick = async () => { const v = document.getElementById('videoModal'), st = document.getElementById('statusModal'); st.innerText = "Lendo..."; const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor(); if(!det) return st.innerText = "Erro."; await updateDoc(doc(db, "alunos", idAlunoCapturaModal), { descritor: Array.from(det.descriptor) }); st.innerText = "Salvo!"; setTimeout(() => window.fecharModalCaptura(), 1000); };
+        window.filtrarGestaoFace = () => { const t = document.getElementById('buscaFace').value.toLowerCase(); document.querySelectorAll('#accordionBiometria .item-face').forEach(c => c.style.display = c.getAttribute('data-nome').includes(t) ? '' : 'none'); };
+        window.abrirEdicao = (id, n, s, t) => { document.getElementById('editId').value = id; document.getElementById('editNome').value = n; document.getElementById('editSala').value = s; document.getElementById('editTel').value = t; new bootstrap.Modal(document.getElementById('modalEditAluno')).show(); };
+        window.confirmarEdicao = async () => { await updateDoc(doc(db, "alunos", document.getElementById('editId').value), { nome: document.getElementById('editNome').value, sala: document.getElementById('editSala').value, tel: document.getElementById('editTel').value }); bootstrap.Modal.getInstance(document.getElementById('modalEditAluno')).hide(); };
+        window.del = async (c, i, n) => { if(confirm(`Excluir ${n}?`)) await deleteDoc(doc(db, c, i)); };
+        window.logout = async () => { await signOut(auth); localStorage.clear(); window.location.href = 'index.html'; };
 
         function updateCharts() {
-            const t = parseInt(document.getElementById('st-total').innerText) || 0;
-            const p = parseInt(document.getElementById('st-presentes').innerText) || 0;
-            const f = Math.max(0, t - p);
+            const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0, f = Math.max(0, t - p);
             document.getElementById('st-faltas').innerText = f;
-
-            if(chartP) chartP.destroy(); 
-            chartP = new Chart(document.getElementById('chartPizza'), { 
-                type: 'doughnut', 
-                data: { labels: ['Presença', 'Falta'], datasets: [{ data: [p, f], backgroundColor: ['#10b981', '#ef4444'], borderWidth: 0 }] }, 
-                options: { cutout: '80%', plugins: { legend: { display: false } } } 
-            });
-
-            if(chartB) chartB.destroy(); 
-            chartB = new Chart(document.getElementById('chartBarras'), { 
-                type: 'bar', 
-                data: { labels: ['Matriculados', 'Presentes'], datasets: [{ label: 'Estudantes', data: [t, p], backgroundColor: ['#003399', '#10b981'], borderRadius: 12 }] }, 
-                options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } 
-            });
+            if(chartP) chartP.destroy(); chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presença', 'Falta'], datasets: [{ data: [p, f], backgroundColor: ['#10b981', '#ef4444'] }] }, options: { cutout: '75%', plugins: { legend: { display: false } } } });
+            if(chartB) chartB.destroy(); chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ data: [t, p], backgroundColor: ['#003399', '#10b981'] }] }, options: { plugins: { legend: { display: false } } } });
         }
-
-        window.filtrarAlunos = () => {
-            const termo = document.getElementById('buscaA').value.toLowerCase();
-            document.querySelectorAll('#listaAgrupadaAlunos tr').forEach(tr => {
-                tr.style.display = tr.innerText.toLowerCase().includes(termo) ? '' : 'none';
-            });
-        };
+        window.filtrarAlunos = () => { const t = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('.aluno-row').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(t) ? '' : 'none'); };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
