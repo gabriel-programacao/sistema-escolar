@@ -18,7 +18,7 @@
         .card-aluno { background: var(--pe-green); color: white; padding: 20px; border-radius: 25px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .card-bloqueio { background: var(--pe-red); color: white; padding: 20px; border-radius: 25px; animation: shake 0.5s ease-in-out; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        .btn-voltar { position: fixed; top: 20px; left: 20px; background: rgba(255,255,255,0.2); color: white; border-radius: 30px; padding: 8px 20px; text-decoration: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s; }
+        .btn-voltar { position: fixed; top: 20px; left: 20px; background: rgba(255,255,255,0.2); color: white; border-radius: 30px; padding: 8px 20px; text-decoration: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s; z-index: 100; }
         .btn-voltar:hover { background: white; color: var(--pe-blue); }
         @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; scale(1); } }
         .loader { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: inline-block; }
@@ -33,14 +33,14 @@
         <div class="logo-terminal"><img src="logo_acessaedu.png" alt="AcessaEdu" class="img-fluid" style="max-height: 70px;"></div>
         <video id="video" autoplay muted playsinline></video>
         <div class="feedback-area" id="display">
-            <div id="loading"><div class="loader mb-2"></div><p class="small">Sincronizando Banco de Dados...</p></div>
-            <p class="fs-4 fw-bold mt-3" style="opacity: 0.8;">Posicione seu rosto para identificação</p>
+            <div id="loading"><div class="loader mb-2"></div><p class="small">Iniciando Terminal Inteligente...</p></div>
+            <p class="fs-4 fw-bold mt-3" style="opacity: 0.8;">Aguardando identificação...</p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, doc, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = { 
@@ -59,15 +59,30 @@
         const logado = JSON.parse(localStorage.getItem('usuarioLogado'));
         let ultimoNomeDetectado = ""; 
         let tempoUltimaDeteccao = 0;
-        let isProcessing = false; // TRAVA GLOBAL PARA EVITAR MÚLTIPLOS PROCESSAMENTOS
+        let isProcessing = false;
+        let configEscola = null; // Armazenará os dados da Z-API
 
         onAuthStateChanged(auth, (user) => {
-            if (user) initTerminal();
+            if (user) carregarConfiguracoes();
             else window.location.href = 'index.html';
         });
 
-        async function initTerminal() {
+        async function carregarConfiguracoes() {
             if(!logado) return;
+            try {
+                // Busca os dados da escola (incluindo Z-API)
+                const docRef = doc(db, "unidades", logado.escolaId);
+                const snap = await getDoc(docRef);
+                if(snap.exists()) {
+                    configEscola = snap.data();
+                    initTerminal();
+                } else {
+                    alert("Erro ao carregar configurações da unidade.");
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function initTerminal() {
             try {
                 const URL_MODELS = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
                 await faceapi.nets.tinyFaceDetector.loadFromUri(URL_MODELS);
@@ -89,11 +104,16 @@
                     }
                 });
 
+                if(labledDescriptors.length === 0) {
+                    document.getElementById('display').innerHTML = "<p class='text-warning'>Nenhum rosto cadastrado nesta unidade.</p>";
+                    return;
+                }
+
                 const faceMatcher = new faceapi.FaceMatcher(labledDescriptors, 0.55);
                 document.getElementById('loading').style.display = 'none';
                 
                 setInterval(async () => {
-                    if(isProcessing) return; // Se já estiver processando um aluno, ignora novas detecções
+                    if(isProcessing) return;
 
                     const video = document.getElementById('video');
                     const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
@@ -104,14 +124,15 @@
 
                         if(match.label !== 'unknown') {
                             const nome = match.label;
+                            // Evita registrar a mesma pessoa em menos de 10 segundos no terminal
                             if(nome === ultimoNomeDetectado && (agora - tempoUltimaDeteccao) < 10000) return;
 
-                            isProcessing = true; // ATIVA A TRAVA
+                            isProcessing = true;
                             const info = mapaAlunos[nome];
                             const hoje = new Date().toLocaleDateString('pt-BR');
                             const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                            // VERIFICAÇÃO DE DUPLICIDADE NO FIREBASE (SÓ DEIXA REGISTRAR UMA VEZ POR DIA)
+                            // Verifica se já bateu o ponto hoje no banco
                             const qPresenca = query(
                                 collection(db, "frequencia"), 
                                 where("nome", "==", nome), 
@@ -125,25 +146,40 @@
                                     <div class="card-bloqueio">
                                         <h2 class="fw-bold mb-1">JÁ REGISTRADO</h2>
                                         <p class="mb-0">${nome.toUpperCase()}</p>
-                                        <small class="d-block mt-2">Entrada já realizada hoje.</small>
+                                        <small class="d-block mt-2">Sua entrada já foi computada hoje.</small>
                                     </div>`;
-                                
-                                setTimeout(() => { resetDisplay(); }, 5000);
+                                setTimeout(() => { resetDisplay(); }, 4000);
                                 return;
                             }
 
-                            document.getElementById('display').innerHTML = `<div class="card-aluno"><h2 class="fw-bold mb-1">CONFIRMADO</h2><p class="mb-0">${nome.toUpperCase()}</p><small class="d-block mt-2" id="msg-status">Enviando WhatsApp...</small></div>`;
+                            // Feedback Visual
+                            document.getElementById('display').innerHTML = `
+                                <div class="card-aluno">
+                                    <h2 class="fw-bold mb-1">BEM-VINDO(A)</h2>
+                                    <p class="mb-0">${nome.toUpperCase()}</p>
+                                    <small class="d-block mt-2" id="msg-status">Processando presença...</small>
+                                </div>`;
 
-                            await addDoc(collection(db, "frequencia"), { nome, sala: info.sala, escolaId: logado.escolaId, data: hoje, hora, dataHora: serverTimestamp() });
+                            // Salva no Firebase
+                            await addDoc(collection(db, "frequencia"), { 
+                                nome, 
+                                sala: info.sala, 
+                                escolaId: logado.escolaId, 
+                                data: hoje, 
+                                hora, 
+                                dataHora: serverTimestamp() 
+                            });
 
+                            // Dispara WhatsApp usando as chaves da escola
                             if (info.tel) {
                                 await enviarNotificacaoZap(info.tel, nome, hora);
+                            } else {
+                                if(document.getElementById('msg-status')) document.getElementById('msg-status').innerText = "Presença confirmada! ✅";
                             }
 
                             ultimoNomeDetectado = nome;
                             tempoUltimaDeteccao = agora;
-                            
-                            setTimeout(() => { resetDisplay(); }, 5000); // Aguarda 5 segundos antes de liberar para o próximo
+                            setTimeout(() => { resetDisplay(); }, 5000);
                         }
                     }
                 }, 700);
@@ -152,12 +188,19 @@
 
         function resetDisplay() {
             document.getElementById('display').innerHTML = '<p class="fs-4 fw-bold mt-3" style="opacity: 0.8;">Posicione seu rosto para identificação</p>'; 
-            isProcessing = false; // LIBERA A TRAVA
+            isProcessing = false;
         }
 
         async function enviarNotificacaoZap(telefone, nome, hora) {
-            const API_URL = "https://api.z-api.io/instances/3EDDC6760283814A642BC2D3CEFFEDDF/token/EBE7565CC968D9915CA7502C/send-text";
-            const CLIENT_TOKEN = "F216cfad464454a24ae28604f3f6d67c7S";
+            // Verifica se a escola tem Z-API configurada
+            if (!configEscola || !configEscola.z_instance || !configEscola.z_token) {
+                console.warn("Z-API não configurada para esta escola.");
+                if(document.getElementById('msg-status')) document.getElementById('msg-status').innerText = "Presença confirmada! ✅";
+                return;
+            }
+
+            const API_URL = `https://api.z-api.io/instances/${configEscola.z_instance}/token/${configEscola.z_token}/send-text`;
+            const CLIENT_TOKEN = configEscola.z_client || "";
 
             let num = telefone.replace(/\D/g, ''); 
             if (num.length === 11) num = num.substring(0, 2) + num.substring(3); 
@@ -172,17 +215,18 @@
                     },
                     body: JSON.stringify({ 
                         phone: num, 
-                        message: `*AcessaEdu:* O aluno *${nome}* entrou na escola às *${hora}*. ✅` 
+                        message: `*${configEscola.nome}:* Confirmamos a entrada do estudante *${nome}* às *${hora}*. ✅` 
                     })
                 });
                 
                 if(response.ok) {
-                    if(document.getElementById('msg-status')) document.getElementById('msg-status').innerText = "WhatsApp Enviado! ✅";
+                    if(document.getElementById('msg-status')) document.getElementById('msg-status').innerText = "Notificação enviada aos pais! ✅";
                 } else {
-                    console.error("Erro retornado pela Z-API");
+                    if(document.getElementById('msg-status')) document.getElementById('msg-status').innerText = "Presença confirmada! ✅";
                 }
             } catch (e) {
-                console.error("Falha na requisição:", e);
+                console.error("Falha Z-API:", e);
+                if(document.getElementById('msg-status')) document.getElementById('msg-status').innerText = "Presença confirmada! ✅";
             }
         }
     </script>

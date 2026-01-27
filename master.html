@@ -17,7 +17,6 @@
         :root { --primary: #003399; --accent: #ffcc00; --bg-body: #f8fafc; --sidebar-w: 280px; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: #1e293b; margin: 0; }
 
-        /* --- SIDEBAR MASTER --- */
         .sidebar { width: var(--sidebar-w); background: linear-gradient(180deg, #001a4d 0%, #003399 100%); height: 100vh; position: fixed; padding: 30px 20px; color: white; z-index: 1000; box-shadow: 10px 0 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
         .nav-link-pe { color: rgba(255,255,255,0.7); padding: 14px 18px; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; transition: 0.3s; text-decoration: none; font-weight: 500; }
         .nav-link-pe:hover, .nav-link-pe.active { background: rgba(255,255,255,0.15); color: var(--accent); transform: translateX(5px); }
@@ -33,15 +32,12 @@
         .ativa { display: block; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        .user-item { background: #f8fafc; border-radius: 15px; padding: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
-        .user-item:hover { border-color: var(--accent); background: white; }
+        .user-item { background: #f8fafc; border-radius: 15px; padding: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
 
-        .modal-content { border-radius: 30px; border: none; overflow: hidden; }
-        .modal-header { background: var(--primary); color: white; padding: 25px; }
-        .btn-action { border-radius: 12px; font-weight: 600; padding: 8px 15px; }
-
-        .log-row { font-size: 0.85rem; border-bottom: 1px solid #eee; }
-        .badge-log { font-size: 0.7rem; padding: 4px 8px; }
+        .modal-content { border-radius: 30px; border: none; }
+        .nav-pills .nav-link { color: var(--primary); font-weight: 600; border-radius: 12px; padding: 10px 20px; }
+        .nav-pills .nav-link.active { background-color: var(--primary); color: white; }
+        .form-label-bold { font-weight: 700; font-size: 0.85rem; color: var(--primary); margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
@@ -78,64 +74,121 @@
 
         <div id="sec-unidades" class="secao">
             <div class="card-premium">
-                <h5 class="fw-bold mb-4 text-primary">Gerenciar Unidade Contratante</h5>
-                <div class="row g-3">
-                    <div class="col-md-2"><input type="text" id="mID" class="form-control rounded-4 border-0 bg-light py-2" placeholder="ID (ex: ete_mac)"></div>
-                    <div class="col-md-3"><input type="text" id="mNome" class="form-control rounded-4 border-0 bg-light py-2" placeholder="Nome da Escola"></div>
-                    <div class="col-md-2"><input type="number" id="mLimite" class="form-control rounded-4 border-0 bg-light py-2" placeholder="Cota Alunos"></div>
-                    <div class="col-md-3"><input type="text" id="mTurmas" class="form-control rounded-4 border-0 bg-light py-2" placeholder="Turmas (ex: 1º ADM, 2º REDES)"></div>
-                    <div class="col-md-2"><button class="btn btn-primary w-100 rounded-4 fw-bold" onclick="window.criarEscola()">CADASTRAR</button></div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0 text-primary">Unidades Contratantes</h5>
+                    <button class="btn btn-primary rounded-4 fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalNovoCadastro">+ NOVA UNIDADE</button>
                 </div>
-                <small class="text-muted mt-2 d-block">* Para atualizar, use o mesmo ID da escola. Separe as turmas por vírgula.</small>
-            </div>
-
-            <div class="card-premium p-0 overflow-hidden">
-                <table class="table mb-0 align-middle">
-                    <thead class="bg-light"><tr><th class="ps-4 py-3">INSTITUIÇÃO</th><th>ID DATABASE</th><th>COTA</th><th>TURMAS</th><th>STATUS</th><th class="text-end pe-4">GESTÃO</th></tr></thead>
-                    <tbody id="tabelaEscolas"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">INSTITUIÇÃO</th>
+                                <th>DATABASE</th>
+                                <th>COTA</th>
+                                <th>STATUS</th>
+                                <th class="text-end pe-4">AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaEscolas"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="sec-logs" class="secao">
             <div class="card-premium">
-                <h5 class="fw-bold mb-4">Auditoria Global de Atividades</h5>
+                <h5 class="fw-bold mb-4">Auditoria Global</h5>
                 <div class="table-responsive">
                     <table class="table align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Data/Hora</th>
-                                <th>Escola</th>
-                                <th>Usuário</th>
-                                <th>Ação</th>
-                                <th>Detalhes</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaLogsGlobal">
-                            <tr><td colspan="5" class="text-center opacity-50">Carregando atividades...</td></tr>
-                        </tbody>
+                        <thead class="table-light"><tr><th>Data</th><th>Escola</th><th>Ação</th><th>Detalhes</th></tr></thead>
+                        <tbody id="tabelaLogsGlobal"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </main>
 
-    <div class="modal fade" id="modalEscola" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="modalNovoCadastro" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content shadow-lg">
-                <div class="modal-header">
-                    <h5 class="fw-bold m-0" id="modalEscolaTitulo">Gerenciar Unidade</h5>
-                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header border-0 p-4">
+                    <h5 class="fw-bold m-0 text-primary">Cadastrar Nova Unidade</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 pt-0">
+                    <div class="row g-3">
+                        <div class="col-md-4"><label class="form-label-bold">ID Database</label><input type="text" id="nID" class="form-control" placeholder="ex: ete_mac"></div>
+                        <div class="col-md-8"><label class="form-label-bold">Nome da Instituição</label><input type="text" id="nNome" class="form-control" placeholder="Nome da Escola"></div>
+                        <div class="col-md-4"><label class="form-label-bold">Cota de Alunos</label><input type="number" id="nLimite" class="form-control" value="50"></div>
+                        <div class="col-md-8"><label class="form-label-bold">Turmas (Separe por vírgula)</label><input type="text" id="nTurmas" class="form-control" placeholder="1º ADM, 2º REDES"></div>
+                        
+                        <div class="col-12"><hr></div>
+                        <h6 class="fw-bold text-primary mb-2"><i class="fas fa-user-shield me-2"></i>Acesso Diretor (Obrigatório)</h6>
+                        <div class="col-md-6"><label class="form-label-bold">E-mail</label><input type="email" id="nEmail" class="form-control"></div>
+                        <div class="col-md-6"><label class="form-label-bold">Senha</label><input type="password" id="nSenha" class="form-control"></div>
+
+                        <div class="col-12"><hr></div>
+                        <h6 class="fw-bold text-success mb-2"><i class="fab fa-whatsapp me-2"></i>WhatsApp API (Opcional)</h6>
+                        <div class="col-md-4"><label class="form-label-bold">Instance ID</label><input type="text" id="nZInst" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label-bold">Token</label><input type="text" id="nZTok" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label-bold">Client Token</label><input type="text" id="nZCli" class="form-control"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button class="btn btn-primary rounded-3 fw-bold px-5" onclick="window.executarCadastroCompleto()">CADASTRAR UNIDADE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEscola" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-bold" id="modalEscolaTitulo">Gerenciar Unidade</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <h6 class="fw-bold mb-3 text-muted">Contas de Acesso (Login por E-mail)</h6>
-                    <div id="listaUsuariosEscola" class="mb-4"></div>
-
-                    <div class="bg-light p-3 rounded-4 border">
-                        <small class="fw-bold d-block mb-3 text-primary">ADICIONAR NOVO DIRETOR</small>
-                        <input type="email" id="editEmail" class="form-control mb-2 rounded-3" placeholder="E-mail do Diretor">
-                        <input type="password" id="editSenha" class="form-control mb-3 rounded-3" placeholder="Definir Senha">
-                        <button class="btn btn-primary w-100 fw-bold rounded-3 py-2" id="btnSalvarUsuario">CRIAR ACESSO AUTOMÁTICO</button>
+                    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-geral">Geral</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-acessos">Acessos</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-cotas">Cotas</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-api">API</button></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-geral">
+                            <div class="row g-3">
+                                <div class="col-md-4"><label class="small fw-bold">ID Database</label><input type="text" id="editID" class="form-control bg-light" readonly></div>
+                                <div class="col-md-8"><label class="small fw-bold">Nome</label><input type="text" id="editNome" class="form-control"></div>
+                                <div class="col-12 text-end mt-3"><button class="btn btn-primary rounded-3" onclick="window.salvarConfigGeral()">Atualizar</button></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-acessos">
+                            <div id="listaUsuariosEscola" class="mb-4"></div>
+                            <div class="bg-light p-3 rounded-4 border">
+                                <small class="fw-bold d-block mb-2 text-primary">ADICIONAR DIRETOR</small>
+                                <div class="row g-2">
+                                    <div class="col-md-5"><input type="email" id="newUserEmail" class="form-control" placeholder="E-mail"></div>
+                                    <div class="col-md-4"><input type="password" id="newUserPass" class="form-control" placeholder="Senha"></div>
+                                    <div class="col-md-3"><button class="btn btn-primary w-100" onclick="window.criarNovoUsuario()">CRIAR</button></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-cotas">
+                            <div class="row g-3">
+                                <div class="col-md-4"><label class="small fw-bold">Cota</label><input type="number" id="editLimite" class="form-control"></div>
+                                <div class="col-md-8"><label class="small fw-bold">Turmas</label><input type="text" id="editTurmas" class="form-control"></div>
+                                <div class="col-12 text-end mt-3"><button class="btn btn-primary rounded-3" onclick="window.salvarConfigGeral()">Salvar</button></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-api">
+                            <div class="row g-3">
+                                <div class="col-md-6"><input type="text" id="editZInst" class="form-control" placeholder="Instance ID"></div>
+                                <div class="col-md-6"><input type="text" id="editZTok" class="form-control" placeholder="Token"></div>
+                                <div class="col-12"><input type="text" id="editZCli" class="form-control" placeholder="Client Token"></div>
+                                <div class="col-12 text-end mt-3"><button class="btn btn-primary rounded-3" onclick="window.salvarConfigGeral()">Configurar</button></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -144,207 +197,116 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDocs, query, where, addDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDocs, query, where, addDoc, serverTimestamp, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDgR98RtL8sgxVbEV2Swyb2wnHLSPt3cDo", authDomain: "escolapro-15e5e.firebaseapp.com", projectId: "escolapro-15e5e", storageBucket: "escolapro-15e5e.firebasestorage.app", messagingSenderId: "339019791514", appId: "1:339019791514:web:44e0d58b6835f0fe6df323" };
-        
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const secondaryAuth = getAuth(initializeApp(firebaseConfig, "Secondary"));
 
-        const secondaryApp = initializeApp(firebaseConfig, "SecondaryAuth");
-        const secondaryAuth = getAuth(secondaryApp);
+        let escolaAtualId = "";
+        const toast = (m, i = 'success') => Swal.fire({ title: m, icon: i, confirmButtonColor: '#003399' });
 
-        let escolaSelecionadaId = "";
+        onAuthStateChanged(auth, user => { if (!user || user.email !== "gabriel.tec.redes@gmail.com") window.location.href = 'index.html'; });
 
-        // Função para Alertas Premium
-        const toast = (msg, icon = 'success') => {
-            Swal.fire({
-                title: msg,
-                icon: icon,
-                confirmButtonColor: '#003399',
-                customClass: { popup: 'rounded-4' }
-            });
-        };
+        // CADASTRO COMPLETO
+        window.executarCadastroCompleto = async () => {
+            const id = document.getElementById('nID').value.trim();
+            const nome = document.getElementById('nNome').value.trim();
+            const email = document.getElementById('nEmail').value.trim();
+            const senha = document.getElementById('nSenha').value.trim();
+            
+            if(!id || !nome || !email || senha.length < 6) return toast("Preencha todos os campos obrigatórios!", "warning");
 
-        async function registrarLogMaster(acao, detalhes) {
             try {
-                await addDoc(collection(db, "logs_atividades"), {
-                    usuario: "MASTER (Gabriel)",
-                    email: "gabriel.tec.redes@gmail.com",
-                    escolaId: "SIAF_ADMIN",
-                    acao: acao,
-                    detalhes: detalhes,
-                    dataHora: serverTimestamp(),
-                    origem: "master_panel"
+                Swal.showLoading();
+                await createUserWithEmailAndPassword(secondaryAuth, email, senha);
+                const turmas = document.getElementById('nTurmas').value.split(',').map(t => t.trim()).filter(t => t !== "");
+                await setDoc(doc(db, "unidades", id), {
+                    escolaId: id, nome, status: 'Ativo', limiteAlunos: parseInt(document.getElementById('nLimite').value),
+                    turmas, z_instance: document.getElementById('nZInst').value, z_token: document.getElementById('nZTok').value, z_client: document.getElementById('nZCli').value
                 });
-            } catch (e) { console.error("Erro log:", e); }
-        }
-
-        onAuthStateChanged(auth, (user) => { 
-            if (!user || user.email !== "gabriel.tec.redes@gmail.com") window.location.href = 'index.html'; 
-            else { escutarLogsGlobal(); }
-        });
-
-        window.logoutMaster = () => { signOut(auth); window.location.href = 'index.html'; };
-
-        window.trocarAba = (id, btn) => {
-            document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-            document.getElementById(id).classList.add('ativa');
-            document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
+                await setDoc(doc(db, "logins", email), { email, senha, escolaId: id, usuario: email.split('@')[0] });
+                await signOut(secondaryAuth);
+                bootstrap.Modal.getInstance(document.getElementById('modalNovoCadastro')).hide();
+                toast("Cadastrado com sucesso!");
+            } catch (err) { toast(err.message, "error"); }
         };
 
-        window.criarEscola = async () => {
-            const id = document.getElementById('mID').value.trim();
-            const nome = document.getElementById('mNome').value;
-            const limite = parseInt(document.getElementById('mLimite').value);
-            const turmasRaw = document.getElementById('mTurmas').value;
-            const turmasArray = turmasRaw.split(',').map(t => t.trim()).filter(t => t !== "");
-
-            if(!id || !nome) return toast("Preencha ID e Nome!", "warning");
-
-            await setDoc(doc(db, "unidades", id), { 
-                escolaId: id, 
-                nome: nome, 
-                limiteAlunos: limite, 
-                turmas: turmasArray,
-                status: 'Ativo' 
-            }, { merge: true });
-
-            await registrarLogMaster("CONFIGURACAO_UNIDADE", `Configurou escola: ${nome} (Cota: ${limite})`);
-            toast("Unidade configurada com sucesso!");
-            document.getElementById('mID').value = ""; document.getElementById('mNome').value = ""; document.getElementById('mTurmas').value = "";
-        };
-
+        // DASHBOARD GLOBAL
         onSnapshot(collection(db, "unidades"), snap => {
             const t = document.getElementById('tabelaEscolas'); t.innerHTML = "";
             let bloq = 0;
             snap.forEach(d => {
                 const e = d.data(); if(e.status === 'Bloqueado') bloq++;
-                const listaTurmas = e.turmas ? e.turmas.join(', ') : '---';
-                t.innerHTML += `
-                    <tr>
-                        <td class="ps-4"><strong>${e.nome}</strong></td>
-                        <td><code>${e.escolaId}</code></td>
-                        <td>${e.limiteAlunos}</td>
-                        <td style="max-width:200px" class="text-truncate"><small>${listaTurmas}</small></td>
-                        <td><span class="badge rounded-pill ${e.status === 'Ativo' ? 'bg-success' : 'bg-danger'}">${e.status}</span></td>
-                        <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-primary rounded-3 me-2" onclick="window.abrirModalEscola('${e.escolaId}', '${e.nome}')">GERENCIAR</button>
-                            <button class="btn btn-sm btn-light text-danger rounded-3" onclick="window.toggleStatus('${d.id}', '${e.status}', '${e.nome}')"><i class="fas fa-power-off"></i></button>
-                        </td>
-                    </tr>`;
+                t.innerHTML += `<tr><td class="ps-4"><strong>${e.nome}</strong></td><td><code>${e.escolaId}</code></td><td>${e.limiteAlunos}</td><td><span class="badge rounded-pill ${e.status === 'Ativo' ? 'bg-success' : 'bg-danger'}">${e.status}</span></td><td class="text-end pe-4"><button class="btn btn-sm btn-light text-danger me-2" onclick="window.alterarStatus('${e.escolaId}', '${e.status}')"><i class="fas fa-lock"></i></button><button class="btn btn-sm btn-outline-primary rounded-3" onclick="window.abrirGerenciamento('${e.escolaId}')">GERENCIAR</button></td></tr>`;
             });
             document.getElementById('dash-escolas').innerText = snap.size;
             document.getElementById('dash-bloq').innerText = bloq;
         });
 
-        onSnapshot(collection(db, "alunos"), s => document.getElementById('dash-alunos').innerText = s.size);
+        // --- CORREÇÃO: ALUNOS GLOBAIS ---
+        onSnapshot(collection(db, "alunos"), snap => {
+            document.getElementById('dash-alunos').innerText = snap.size;
+        });
 
-        window.abrirModalEscola = async (id, nome) => {
-            escolaSelecionadaId = id;
-            document.getElementById('modalEscolaTitulo').innerText = nome.toUpperCase();
-            await window.carregarUsuarios();
-            new bootstrap.Modal(document.getElementById('modalEscola')).show();
+        window.alterarStatus = async (id, st) => {
+            const n = st === 'Ativo' ? 'Bloqueado' : 'Ativo';
+            await updateDoc(doc(db, "unidades", id), { status: n });
+            toast(`Unidade ${n}!`);
+        };
+
+        window.abrirGerenciamento = async (id) => {
+            escolaAtualId = id;
+            const docSnap = await getDoc(doc(db, "unidades", id));
+            if (docSnap.exists()) {
+                const e = docSnap.data();
+                document.getElementById('editID').value = e.escolaId;
+                document.getElementById('editNome').value = e.nome;
+                document.getElementById('editLimite').value = e.limiteAlunos;
+                document.getElementById('editTurmas').value = e.turmas ? e.turmas.join(", ") : "";
+                document.getElementById('editZInst').value = e.z_instance || "";
+                document.getElementById('editZTok').value = e.z_token || "";
+                document.getElementById('editZCli').value = e.z_client || "";
+                window.carregarUsuarios();
+                new bootstrap.Modal(document.getElementById('modalEscola')).show();
+            }
+        };
+
+        window.salvarConfigGeral = async () => {
+            const turmas = document.getElementById('editTurmas').value.split(',').map(t => t.trim()).filter(t => t !== "");
+            await updateDoc(doc(db, "unidades", escolaAtualId), { nome: document.getElementById('editNome').value, limiteAlunos: parseInt(document.getElementById('editLimite').value), turmas: turmas, z_instance: document.getElementById('editZInst').value.trim(), z_token: document.getElementById('editZTok').value.trim(), z_client: document.getElementById('editZCli').value.trim() });
+            toast("Atualizado!");
         };
 
         window.carregarUsuarios = async () => {
-            const q = query(collection(db, "logins"), where("escolaId", "==", escolaSelecionadaId));
-            const snap = await getDocs(q);
+            const snap = await getDocs(query(collection(db, "logins"), where("escolaId", "==", escolaAtualId)));
             const container = document.getElementById('listaUsuariosEscola'); container.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                container.innerHTML += `
-                    <div class="user-item">
-                        <div><span class="fw-bold">${u.email}</span><br><small class="text-muted">ID: ${d.id}</small></div>
-                        <button class="btn btn-sm btn-outline-danger" onclick="window.excluirUsuario('${d.id}')"><i class="fas fa-trash"></i></button>
-                    </div>`;
-            });
+            snap.forEach(d => { container.innerHTML += `<div class="user-item p-3 mb-2 bg-light rounded-3 d-flex justify-content-between"><span>${d.data().email}</span><button class="btn btn-sm btn-danger" onclick="window.excluirUser('${d.id}')"><i class="fas fa-trash"></i></button></div>`; });
         };
 
-        document.getElementById('btnSalvarUsuario').onclick = async () => {
-            const email = document.getElementById('editEmail').value.trim();
-            const senha = document.getElementById('editSenha').value.trim();
-
-            if(!email || senha.length < 6) return toast("E-mail inválido ou senha muito curta (mínimo 6 dígitos)", "error");
-
-            try {
-                const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, senha);
-                await setDoc(doc(db, "logins", email), { 
-                    email: email, 
-                    senha: senha, 
-                    escolaId: escolaSelecionadaId, 
-                    usuario: email.split('@')[0],
-                    permissoes: ["aba-stats", "aba-facial", "aba-faltas"] 
-                });
-                await signOut(secondaryAuth);
-
-                await registrarLogMaster("CRIAR_ACESSO", `Criou login ${email} para a escola ${escolaSelecionadaId}`);
-                toast("ACESSO CRIADO COM SUCESSO!", "success");
-                document.getElementById('editEmail').value = ""; 
-                document.getElementById('editSenha').value = "";
-                window.carregarUsuarios();
-            } catch (e) { toast("Erro: " + e.message, "error"); }
+        window.criarNovoUsuario = async () => {
+            const e = document.getElementById('newUserEmail').value, p = document.getElementById('newUserPass').value;
+            if(!e || p.length < 6) return toast("Dados inválidos!", "error");
+            try { await createUserWithEmailAndPassword(secondaryAuth, e, p); await setDoc(doc(db, "logins", e), { email: e, senha: p, escolaId: escolaAtualId, usuario: e.split('@')[0] }); await signOut(secondaryAuth); toast("Diretor criado!"); window.carregarUsuarios(); } catch (err) { toast(err.message, "error"); }
         };
 
-        window.excluirUsuario = async (id) => {
-            Swal.fire({
-                title: 'Remover Acesso?',
-                text: "O usuário perderá o acesso imediatamente.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sim, remover!',
-                cancelButtonText: 'Cancelar'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    await deleteDoc(doc(db, "logins", id));
-                    await registrarLogMaster("DELETAR_ACESSO", `Removeu login ${id}`);
-                    window.carregarUsuarios();
-                    toast("Acesso removido.");
-                }
-            });
-        };
-
-        window.toggleStatus = async (id, status, nome) => {
-            const acao = status === 'Ativo' ? 'Bloqueado' : 'Ativo';
-            
-            Swal.fire({
-                title: 'Alterar Status?',
-                text: `Deseja alterar status de ${nome} para ${acao}?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: acao === 'Ativo' ? '#10b981' : '#ef4444',
-                confirmButtonText: 'Sim, confirmar',
-                cancelButtonText: 'Cancelar'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    await updateDoc(doc(db, "unidades", id), { status: acao });
-                    await registrarLogMaster("ALTERAR_STATUS", `${acao} unidade ${nome}`);
-                    toast(`Status alterado para ${acao}`);
-                }
-            });
+        window.excluirUser = async id => { if(confirm("Remover acesso?")) { await deleteDoc(doc(db, "logins", id)); window.carregarUsuarios(); } };
+        window.logoutMaster = () => { signOut(auth); window.location.href = 'index.html'; };
+        window.trocarAba = (id, btn) => { 
+            document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+            document.getElementById(id).classList.add('ativa');
+            document.querySelectorAll('.nav-link-pe').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if(id === 'sec-logs') escutarLogsGlobal();
         };
 
         function escutarLogsGlobal() {
-            const q = query(collection(db, "logs_atividades"), orderBy("dataHora", "desc"), limit(50));
-            onSnapshot(q, snap => {
+            onSnapshot(query(collection(db, "logs_atividades"), orderBy("dataHora", "desc"), limit(50)), snap => {
                 const t = document.getElementById('tabelaLogsGlobal'); t.innerHTML = "";
-                snap.forEach(d => {
-                    const l = d.data();
-                    const data = l.dataHora ? l.dataHora.toDate().toLocaleString('pt-BR') : '...';
-                    t.innerHTML += `
-                        <tr class="log-row">
-                            <td><small>${data}</small></td>
-                            <td><span class="badge bg-secondary badge-log">${l.escolaId}</span></td>
-                            <td><strong>${l.usuario}</strong></td>
-                            <td><span class="text-primary fw-bold">${l.acao}</span></td>
-                            <td><small>${l.detalhes}</small></td>
-                        </tr>`;
-                });
+                snap.forEach(d => { const l = d.data(); t.innerHTML += `<tr><td><small>${l.dataHora?.toDate().toLocaleDateString()}</small></td><td>${l.escolaId}</td><td>${l.acao}</td><td><small>${l.detalhes}</small></td></tr>`; });
             });
         }
     </script>
