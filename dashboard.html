@@ -232,9 +232,10 @@
 
         <div id="sec-stats" class="secao">
             <div class="row g-4 mb-5">
-                <div class="col-6 col-md-4"><div class="stat-box h-100" style="background: linear-gradient(135deg, #003399 0%, #001a4d 100%);"><small class="opacity-75 fw-bold">MATRICULADOS</small><h1 id="st-total" class="fw-bold mt-2">0</h1><i class="fas fa-users"></i></div></div>
-                <div class="col-6 col-md-4"><div class="stat-box h-100" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><small class="opacity-75 fw-bold">PRESENTES</small><h1 id="st-presentes" class="fw-bold mt-2">0</h1><i class="fas fa-check-circle"></i></div></div>
-                <div class="col-12 col-md-4"><div class="stat-box h-100" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"><small class="opacity-75 fw-bold">FALTAS</small><h1 id="st-faltas" class="fw-bold mt-2">0</h1><i class="fas fa-user-times"></i></div></div>
+                <div class="col-6 col-md-3"><div class="stat-box h-100" style="background: linear-gradient(135deg, #003399 0%, #001a4d 100%);"><small class="opacity-75 fw-bold">MATRICULADOS</small><h1 id="st-total" class="fw-bold mt-2">0</h1><i class="fas fa-users"></i></div></div>
+                <div class="col-6 col-md-3"><div class="stat-box h-100" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><small class="opacity-75 fw-bold">PRESENTES</small><h1 id="st-presentes" class="fw-bold mt-2">0</h1><i class="fas fa-check-circle"></i></div></div>
+                <div class="col-6 col-md-3"><div class="stat-box h-100" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"><small class="opacity-75 fw-bold">FALTAS</small><h1 id="st-faltas" class="fw-bold mt-2">0</h1><i class="fas fa-user-times"></i></div></div>
+                <div class="col-6 col-md-3"><div class="stat-box h-100" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);"><small class="opacity-75 fw-bold">COTA AUTORIZADA</small><h1 id="st-cota-max" class="fw-bold mt-2">0</h1><i class="fas fa-shield-alt"></i></div></div>
             </div>
             <div class="row">
                 <div class="col-lg-8"><div class="card-premium"><canvas id="chartBarras" height="150"></canvas></div></div>
@@ -246,7 +247,10 @@
             <div class="row g-4">
                 <div class="col-lg-5">
                     <div class="card-premium">
-                        <h5 class="fw-bold mb-4 text-primary">Nova Matrícula</h5>
+                        <h5 class="fw-bold mb-4 text-primary d-flex justify-content-between">
+                            Nova Matrícula
+                            <span id="cota-badge" class="badge bg-light text-primary" style="font-size: 0.7rem;">Cota: --/--</span>
+                        </h5>
                         <input type="text" id="nAluno" class="form-control form-control-lg border-0 bg-light rounded-4 mb-3" placeholder="Nome Completo">
                         <select id="sAluno" class="form-select form-select-lg border-0 bg-light rounded-4 mb-3"></select>
                         <input type="text" id="tAluno" class="form-control form-control-lg border-0 bg-light rounded-4 mb-4" placeholder="WhatsApp Responsável">
@@ -365,6 +369,19 @@
             document.getElementById('school-display').innerText = logado.escolaId.toUpperCase();
             document.getElementById('data-atual').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('relData').valueAsDate = new Date();
+            
+            // Monitorar bloqueio e COTA em tempo real
+            onSnapshot(doc(db, "unidades", logado.escolaId), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.status === 'Bloqueado') {
+                        Swal.fire({ icon: 'error', title: 'Acesso Suspenso', text: 'Esta unidade foi bloqueada pelo administrador.', confirmButtonColor: '#003399' }).then(() => window.logout());
+                    }
+                    // Atualiza o Card de Cota Máxima no Painel
+                    document.getElementById('st-cota-max').innerText = data.limiteAlunos || 0;
+                }
+            });
+
             try {
                 const escDoc = await getDoc(doc(db, "unidades", logado.escolaId));
                 if(escDoc.exists()) {
@@ -378,7 +395,6 @@
             montarMenu(); initIA(); escutarDados();
         }
 
-        // --- NOVA FUNÇÃO DE VERIFICAÇÃO DE COTA ---
         async function verificarCotaDisponivel() {
             try {
                 const escDoc = await getDoc(doc(db, "unidades", logado.escolaId));
@@ -387,6 +403,15 @@
                 const qAlunos = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId));
                 const snapAlunos = await getDocs(qAlunos);
                 const totalAtual = snapAlunos.size;
+                
+                // Atualiza a badge visual na seção de matrícula
+                const badge = document.getElementById('cota-badge');
+                if(badge) badge.innerText = `Cota: ${totalAtual}/${limite}`;
+                
+                // Atualiza o card de cota no Dashboard se estiver na aba de stats
+                const cardCota = document.getElementById('st-cota-max');
+                if(cardCota) cardCota.innerText = limite;
+
                 if (totalAtual >= limite) {
                     return { autorizado: false, msg: `Limite de cota atingido (${totalAtual}/${limite}). Contrate um plano maior.` };
                 }
@@ -403,7 +428,6 @@
                 const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' });
                 const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
                 
-                // Validação de cota para Importação
                 const cota = await verificarCotaDisponivel();
                 if(!cota.autorizado) {
                     status.innerText = "Erro: Limite atingido.";
@@ -413,10 +437,8 @@
                 for (let i = 1; i < json.length; i++) {
                     const [nome, turma, tel] = json[i];
                     if (nome && turma) {
-                        // Re-checar cota a cada inserção para garantir precisão
                         const check = await verificarCotaDisponivel();
                         if(!check.autorizado) break; 
-
                         await addDoc(collection(db, "alunos"), { nome: nome.toString(), sala: turma.toString(), escolaId: logado.escolaId, descritor: null, tel: tel ? tel.toString() : "" });
                     }
                 }
@@ -439,6 +461,7 @@
             if(btn) btn.classList.add('active');
             if(window.innerWidth <= 992) window.toggleMenu();
             if(id === 'sec-stats') updateCharts();
+            if(id === 'sec-facial') verificarCotaDisponivel(); 
         };
 
         window.gerarRelatorio = async () => {
@@ -458,42 +481,36 @@
         window.exportarRelatorioExcel = () => { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("tabela-relatorio")), `SIAF_Relatorio.xlsx`); };
         window.imprimirRelatorio = () => { window.print(); };
 
-        // --- ATUALIZAÇÃO SALVAR COM BIOMETRIA ---
         document.getElementById('btnSalvar').onclick = async () => {
             const n = document.getElementById('nAluno').value.trim();
             const s = document.getElementById('sAluno').value;
             const t = document.getElementById('tAluno').value.trim();
             const v = document.getElementById('webcam');
-
             if(!n) return Swal.fire("Erro", "Nome obrigatório", "error");
-
             const cota = await verificarCotaDisponivel();
             if(!cota.autorizado) return Swal.fire("Limite Atingido", cota.msg, "warning");
-
             const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
             if(!det) return Swal.fire("Atenção", "Rosto não detectado", "warning");
-
             try {
                 await addDoc(collection(db, "alunos"), { nome: n, sala: s, escolaId: logado.escolaId, descritor: Array.from(det.descriptor), tel: t });
                 Swal.fire("Sucesso", "Aluno cadastrado!", "success");
                 document.getElementById('nAluno').value = ""; document.getElementById('tAluno').value = "";
+                verificarCotaDisponivel();
             } catch(e) { Swal.fire("Erro", "Falha ao salvar", "error"); }
         };
 
         async function initIA() { const U = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; await faceapi.nets.tinyFaceDetector.loadFromUri(U); await faceapi.nets.faceLandmark68Net.loadFromUri(U); await faceapi.nets.faceRecognitionNet.loadFromUri(U); }
         document.getElementById('btnCam').onclick = async () => { const s = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('webcam').srcObject = s; };
 
-        // --- ATUALIZAÇÃO SALVAR SEM BIOMETRIA ---
         window.salvarSemBiometria = async () => { 
             const n = document.getElementById('nAluno').value, s = document.getElementById('sAluno').value; 
             if(!n) return Swal.fire("Erro", "Nome obrigatório", "error"); 
-
             const cota = await verificarCotaDisponivel();
             if(!cota.autorizado) return Swal.fire("Limite Atingido", cota.msg, "warning");
-
             await addDoc(collection(db, "alunos"), { nome: n, sala: s, escolaId: logado.escolaId, descritor: null, tel: document.getElementById('tAluno').value }); 
             Swal.fire("Sucesso", "Cadastrado com sucesso!", "success"); 
             document.getElementById('nAluno').value = ""; 
+            verificarCotaDisponivel();
         };
 
         function escutarDados() {
@@ -502,80 +519,41 @@
                 const accordionE = document.getElementById('accordionEstudantes');
                 const accordionB = document.getElementById('accordionBiometria');
                 accordionE.innerHTML = ""; accordionB.innerHTML = "";
-                
                 let turmas = {};
                 snap.forEach(d => { 
-                    let a = d.data(); 
-                    if(!turmas[a.sala]) turmas[a.sala] = []; 
-                    turmas[a.sala].push({id: d.id, ...a}); 
+                    let a = d.data(); if(!turmas[a.sala]) turmas[a.sala] = []; turmas[a.sala].push({id: d.id, ...a}); 
                 });
-                
                 Object.keys(turmas).sort().forEach(t => {
                     const idT = t.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
-                    const idAccordionE = `accE-${idT}`;
-                    const idAccordionB = `accB-${idT}`;
-
-                    let linhasEstudantes = "";
-                    let cardsBiometria = "";
-
+                    const idAccordionE = `accE-${idT}`; const idAccordionB = `accB-${idT}`;
+                    let linhasEstudantes = ""; let cardsBiometria = "";
                     turmas[t].sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(al => {
                         linhasEstudantes += `<tr class="aluno-row"><td class="ps-4 fw-bold text-uppercase" style="font-size: 0.85rem;">${al.nome}</td><td class="text-end pe-4"><button class="btn btn-sm btn-light rounded-pill me-1" onclick="window.abrirEdicao('${al.id}','${al.nome}','${al.sala}','${al.tel||''}')"><i class="fas fa-edit text-primary"></i></button><button class="btn btn-sm btn-light rounded-pill" onclick="window.del('alunos','${al.id}', '${al.nome}')"><i class="fas fa-trash text-danger"></i></button></td></tr>`;
                         const tem = !!al.descritor;
                         cardsBiometria += `<div class="col item-face" data-nome="${al.nome.toLowerCase()}"><div class="p-3 bg-white border rounded-4 d-flex justify-content-between align-items-center shadow-sm"><div><span class="fw-bold d-block small">${al.nome}</span><small class="${tem?'text-success':'text-danger'} fw-bold">${tem?'ATIVO':'SEM FACE'}</small></div><button class="btn btn-sm ${tem?'btn-outline-primary':'btn-primary'} px-3 rounded-3" onclick="window.abrirCapturaModal('${al.id}','${al.nome}')">${tem?'REFAZER':'VINCULAR'}</button></div></div>`;
                     });
-
-                    accordionE.innerHTML += `
-                        <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
-                            <div class="d-flex align-items-center bg-white pr-3">
-                                <h2 class="accordion-header flex-grow-1">
-                                    <button class="accordion-button collapsed fw-bold text-primary py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#${idAccordionE}">
-                                        <i class="fas fa-graduation-cap me-2"></i> ${t}
-                                    </button>
-                                </h2>
-                                <button class="btn-delete-turma no-print" onclick="window.abrirModalApagarTurma('${t}')" title="Apagar Turma">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                            <div id="${idAccordionE}" class="accordion-collapse collapse">
-                                <div class="accordion-body p-0">
-                                    <table class="table-estudantes mb-0"><tbody>${linhasEstudantes}</tbody></table>
-                                </div>
-                            </div>
-                        </div>`;
-
-                    accordionB.innerHTML += `
-                        <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
-                            <h2 class="accordion-header"><button class="accordion-button collapsed fw-bold text-primary py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#${idAccordionB}"><i class="fas fa-fingerprint me-2"></i> ${t}</button></h2>
-                            <div id="${idAccordionB}" class="accordion-collapse collapse"><div class="accordion-body p-4 bg-light"><div class="row row-cols-1 row-cols-md-2 g-3">${cardsBiometria}</div></div></div>
-                        </div>`;
+                    accordionE.innerHTML += `<div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden"><div class="d-flex align-items-center bg-white pr-3"><h2 class="accordion-header flex-grow-1"><button class="accordion-button collapsed fw-bold text-primary py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#${idAccordionE}"><i class="fas fa-graduation-cap me-2"></i> ${t}</button></h2><button class="btn-delete-turma no-print" onclick="window.abrirModalApagarTurma('${t}')" title="Apagar Turma"><i class="fas fa-trash-alt"></i></button></div><div id="${idAccordionE}" class="accordion-collapse collapse"><div class="accordion-body p-0"><table class="table-estudantes mb-0"><tbody>${linhasEstudantes}</tbody></table></div></div></div>`;
+                    accordionB.innerHTML += `<div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold text-primary py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#${idAccordionB}"><i class="fas fa-fingerprint me-2"></i> ${t}</button></h2><div id="${idAccordionB}" class="accordion-collapse collapse"><div class="accordion-body p-4 bg-light"><div class="row row-cols-1 row-cols-md-2 g-3">${cardsBiometria}</div></div></div></div>`;
                 });
                 document.getElementById('st-total').innerText = snap.size;
+                verificarCotaDisponivel();
             });
             const hj = new Date().toLocaleDateString('pt-BR');
             onSnapshot(query(collection(db, "frequencia"), where("escolaId", "==", logado.escolaId), where("data", "==", hj)), snap => { document.getElementById('st-presentes').innerText = snap.size; updateCharts(); });
         }
 
         window.abrirModalApagarTurma = (turma) => {
-            turmaParaApagarGlobal = turma;
-            document.getElementById('txtTurmaApagar').innerText = `Apagar ${turma}`;
-            document.getElementById('senhaApagarTurma').value = "";
-            new bootstrap.Modal(document.getElementById('modalConfirmarApagarTurma')).show();
+            turmaParaApagarGlobal = turma; document.getElementById('txtTurmaApagar').innerText = `Apagar ${turma}`; document.getElementById('senhaApagarTurma').value = ""; new bootstrap.Modal(document.getElementById('modalConfirmarApagarTurma')).show();
         };
 
         document.getElementById('btnConfirmarExclusaoFinal').onclick = async () => {
-            const senha = document.getElementById('senhaApagarTurma').value;
-            if (senha !== logado.senha) return Swal.fire("Erro", "Senha incorreta", "error");
+            const senha = document.getElementById('senhaApagarTurma').value; if (senha !== logado.senha) return Swal.fire("Erro", "Senha incorreta", "error");
             try {
                 const q = query(collection(db, "alunos"), where("escolaId", "==", logado.escolaId), where("sala", "==", turmaParaApagarGlobal));
-                const snap = await getDocs(q);
-                const batch = writeBatch(db);
-                snap.forEach(d => batch.delete(d.ref));
-                await batch.commit();
+                const snap = await getDocs(q); const batch = writeBatch(db); snap.forEach(d => batch.delete(d.ref)); await batch.commit();
                 bootstrap.Modal.getInstance(document.getElementById('modalConfirmarApagarTurma')).hide();
                 Swal.fire("Apagado", "Turma removida com sucesso.", "success");
-            } catch (e) {
-                Swal.fire("Erro", "Falha ao excluir.", "error");
-            }
+            } catch (e) { Swal.fire("Erro", "Falha ao excluir.", "error"); }
         };
 
         window.abrirCapturaModal = async (id, nome) => { idAlunoCapturaModal = id; document.getElementById('nomeAlunoModal').innerText = nome; new bootstrap.Modal(document.getElementById('modalCapturaRapida')).show(); try { const s = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('videoModal').srcObject = s; } catch (e) {} };
@@ -590,7 +568,7 @@
         function updateCharts() {
             const t = parseInt(document.getElementById('st-total').innerText) || 0, p = parseInt(document.getElementById('st-presentes').innerText) || 0, f = Math.max(0, t - p);
             document.getElementById('st-faltas').innerText = f;
-            if(chartP) chartP.destroy(); chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presença', 'Falta'], datasets: [{ data: [p, f], backgroundColor: ['#10b981', '#ef4444'] }] }, options: { cutout: '75%', plugins: { legend: { display: false } } } });
+            if(chartP) chartP.destroy(); chartP = new Chart(document.getElementById('chartPizza'), { type: 'doughnut', data: { labels: ['Presentes', 'Faltas'], datasets: [{ data: [p, f], backgroundColor: ['#10b981', '#ef4444'] }] }, options: { cutout: '75%', plugins: { legend: { display: false } } } });
             if(chartB) chartB.destroy(); chartB = new Chart(document.getElementById('chartBarras'), { type: 'bar', data: { labels: ['Total', 'Presentes'], datasets: [{ data: [t, p], backgroundColor: ['#003399', '#10b981'] }] }, options: { plugins: { legend: { display: false } } } });
         }
         window.filtrarAlunos = () => { const t = document.getElementById('buscaA').value.toLowerCase(); document.querySelectorAll('.aluno-row').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(t) ? '' : 'none'); };
